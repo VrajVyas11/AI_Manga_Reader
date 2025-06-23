@@ -67,9 +67,9 @@ Feast your eyes on the stunning UI, two previews per row.
 | ------------- | ------------- |
 | ![Search Page](./livedemoimages/12.png) | ![Search Page](./livedemoimages/13.png) |
 
-| 🔍 Search Page |
-| ------------- |
-| ![Search Page](./livedemoimages/14.png) | 
+| 🔍 Search Page | 🔍 Library Page |
+| ------------- | ------------- |
+| ![Search Page](./livedemoimages/14.png) |  ![Library Page](./livedemoimages/15.png) | 
 
 ---
 
