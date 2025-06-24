@@ -6,13 +6,17 @@
 [![GitHub Forks](https://img.shields.io/github/forks/VrajVyas11/AI_Manga_Reader?style=social)](https://github.com/VrajVyas11/AI_Manga_Reader/network)
 
 
-> **Dive into a Universe of Manga, Manhwa, and Manhua!**  
+**Dive into a Universe of Manga, Manhwa, and Manhua!**  
 > AI Manga Reader is a sleek Next.js web app that transforms how you read manga. Powered by the MangaDex API, it gives you instant access to a huge collection of manga in multiple languages, with flexible reading modes like vertical, horizontal, single, or dual-panel views.  
 > What sets it apart is its AI-powered OCR translation (using ***easyocr-js*** package) that instantly translates text from manga images, making foreign-language titles easy to enjoy. Plus, the built-in text-to-speech (TTS) feature offers over 20 customizable voices so you can listen to your favorite manga anywhere, anytime.  
 >  
 > **New!** The Manga List now features a **Latest Activity Feed** that surfaces recent community discussions and comments from MangaDex forums. Since MangaDex does not provide an API for this, the app uses web scraping of the [MangaDex Latest Activity page](https://forums.mangadex.org/whats-new/latest-activity) to extract manga title, chapter, volume, chapter title, comment author, original post author, and the forum thread where the discussion is happening. Stay connected with real-time fan conversations alongside your manga browsing experience.  
 >  
-> With trending searches, smart filters, and personalized settings that save your preferences, AI Manga Reader delivers a fast, smooth, and immersive experience on desktop, tablet, and mobile. Whether you’re new to manga or a longtime fan, this app makes reading more accessible and enjoyable than ever. 🚀
+> **Also New!** The Manga Chapter view now includes **Comments** scraped directly from MangaDex forum threads (via URLs like `https://forums.mangadex.org/threads/threadId/Page-NO`), letting you read fan discussions related to the manga and chapters you love.  
+>  
+> **Introducing the Library**: Your personal manga hub to manage reading history, search history, bookmarked mangas, and favorite chapters — all with powerful filters and sorting to keep your collection organized and accessible.  
+>  
+> With trending searches, smart filters, personalized settings, and these new community and library features, AI Manga Reader delivers a fast, smooth, and immersive experience on desktop, tablet, and mobile. Whether you’re new to manga or a longtime fan, this app makes reading more accessible and enjoyable than ever. 🚀
 ---
 
 ## 🌍 **Project Overview**
@@ -34,8 +38,7 @@ Feast your eyes on the stunning UI, two previews per row.
 
 
 
-<img src="./livedemoimages/m1.png" width="150" style="margin-right: 10px;" />&nbsp;&nbsp; <img src="./livedemoimages/m2.png" width="150" style="margin-right: 100px;" />&nbsp;&nbsp;  <img src="./livedemoimages/m3.png" width="150" />&nbsp;&nbsp;  <img src="./livedemoimages/m4.png" width="150" />&nbsp;&nbsp;  <img src="./livedemoimages/m5.png" width="150" />&nbsp;&nbsp;  <img src="./livedemoimages/m6.png" width="150" />&nbsp;&nbsp;&nbsp;&nbsp;  <img src="./livedemoimages/m7.png" width="150" />&nbsp;&nbsp;  <img src="./livedemoimages/m8.png" width="150" />&nbsp;&nbsp;  <img src="./livedemoimages/m9.png" width="150" />&nbsp;&nbsp;  <img src="./livedemoimages/m10.png" width="150" />  <img src="./livedemoimages/m11.png" width="150" />&nbsp;&nbsp;  <img src="./livedemoimages/m12.png" width="150" />&nbsp;&nbsp;  <img src="./livedemoimages/m13.png" width="150" />
-
+<img src="./livedemoimages/m1.png" width="150" style="margin-right: 10px;" />&nbsp;&nbsp; <img src="./livedemoimages/m2.png" width="150" style="margin-right: 100px;" />&nbsp;&nbsp;  <img src="./livedemoimages/m3.png" width="150" />&nbsp;&nbsp;  <img src="./livedemoimages/m4.png" width="150" />&nbsp;&nbsp;  <img src="./livedemoimages/m5.png" width="150" />&nbsp;&nbsp;  <img src="./livedemoimages/m6.png" width="150" />&nbsp;&nbsp;&nbsp;&nbsp;  <img src="./livedemoimages/m7.png" width="150" />&nbsp;&nbsp;  <img src="./livedemoimages/m8.png" width="150" />&nbsp;&nbsp;  <img src="./livedemoimages/m9.png" width="150" />&nbsp;&nbsp;  <img src="./livedemoimages/m10.png" width="150" />  <img src="./livedemoimages/m11.png" width="150" />&nbsp;&nbsp;  <img src="./livedemoimages/m12.png" width="150" />&nbsp;&nbsp;  <img src="./livedemoimages/m13.png" width="150" />&nbsp;&nbsp;  <img src="./livedemoimages/m14.png" width="150" />&nbsp;&nbsp;  <img src="./livedemoimages/m15.png" width="150" />
 ---
 
 
@@ -103,6 +106,9 @@ A dazzling hub for browsing the latest manga updates.
         - **Top Manga**
         - **Favorite Manga**
         - **Latest Manga**
+- **Read History**:
+    - List of Read Mangas and their progress in percentage 
+    - Option to view Manga and pick up from where you left off  
 - **Tech Magic**:
     - **TanStack Query** for lightning-fast data fetching.
     - **Compressed Local Storage** for minimal footprint.
@@ -114,6 +120,16 @@ Dive deep into your chosen manga with style and substance.
 - **Chapter List**:
     - Full chapter catalog with clickable links.
     - Multi-language support for global readers.
+- **Filter Chapters**:
+  - Filter chapters based on input text for chapter number.
+  - Filter by language selection.
+  - Sort chapters by newest or oldest.
+- **History**:
+  - Displays the history of chapters read by the user for this particular manga.
+  - Includes timestamps and progress markers for easy tracking.
+- **Comments Section**:
+	- View fan discussions and comments related to the manga and chapters.
+	- Comments are fetched via web scraping from MangaDex forum threads at URLs like https://forums.mangadex.org/threads/threadId/Page-NO.
 - Seamlessly transitions to the Read Chapter experience.
 
 ### 📺 **Read Chapter**
@@ -178,7 +194,31 @@ Find your perfect manga with precision and ease.
 - **User-Friendly**:
     - Dialogs for empty queries, errors, or no results (with filter-clearing tips).
 
-### 🧭 **Top Navigation Bar**
+### 📚 **Library**
+Your personalized manga sanctuary, keeping all your favorites and history in one place.
+
+- **Sections**:
+    - **Reading History**:  
+      - Track all manga and chapters you've read.  
+      - Includes timestamps and progress markers.  
+      - Filters and sorting options by date, manga title, chapter number, and reading status.
+    - **Search History**:  
+      - Logs your past search queries for quick access.
+    - **Bookmarked Mangas**:  
+      - Easily access mangas you've bookmarked for later reading.
+    - **Favorite Chapters**:  
+      - Save and revisit your favorite chapters from the currently selected manga.
+- **Filters and Sorting**:
+    - Apply filters on reading history by date range, manga genres, and reading status (completed, in-progress).
+    - Sort by most recent, alphabetical, or chapter number.
+- **User Experience**:
+    - Clean, tabbed interface to switch between sections.
+    - Syncs with user preferences and persists data locally.
+    - Integrates with the rest of the app for seamless navigation.
+
+---
+
+## 🧭 **Top Navigation Bar**
 Your trusty guide across the manga universe.
 
 - **Logo**: Returns to the Landing Page.
@@ -257,6 +297,10 @@ Built for speed, crafted for perfection.
 4. **Save Your Style**:
     - Favorite manga/chapters.
     - OCR, translation, and TTS settings persist per page.
+
+5. **Manage Your Library**:
+    - Access your reading history, search history, bookmarked mangas, and favorite chapters.
+    - Use filters and sorting to organize your reading history efficiently.
 
 ---
 
