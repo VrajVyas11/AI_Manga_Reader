@@ -1,5 +1,5 @@
 "use client"
-import { ArrowLeft, BookOpen, Search, TriangleAlert } from 'lucide-react';
+import { ArrowLeft, BookOpen, OctagonAlert, Search} from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export default function Custom404() {
@@ -14,34 +14,34 @@ export default function Custom404() {
   };
 
   return (
-    <div className="min-h-screen md:min-h-[89vh] bg-black/30 flex items-center justify-center px-6">
-      <div className="max-w-md w-full">
+    <div className="min-h-screen w-full md:min-h-[88vh] bg-black/30 flex items-center justify-center px-3 md:px-6">
+      <div className="max-w-xl w-full mt-10  md:mt-7 bg-black/5 border-[1px] border-gray-400/40 backdrop-blur-md p-4 px-4 md:px-12 rounded-xl">
         {/* Clean 404 Display */}
-        <div className="text-center mb-8 mt-20 md:mt-7">
-          <div className="relative justify-center flex items-center gap-3 flex-row  mb-6">
-              <TriangleAlert className="w-20 h-20 md:w-24 md:h-24 text-red-500" />
-            <h1 className="text-7xl md:text-8xl font-bold text-gray-800 tracking-tight">404</h1>
+        <div className="text-center mb-8 mt-4">
+          <div className="relative justify-center flex items-center gap-3 flex-row mb-5 md:mb-6">
+            <OctagonAlert className="w-[70px] h-[70px] md:w-24 md:h-24 text-red-500" />
+            <h1 className="text-6xl md:text-8xl font-bold text-gray-400 tracking-tight">404</h1>
           </div>
-          
           <h2 className="text-2xl font-semibold text-white mb-3">Page Not Found</h2>
-          <p className="text-gray-400 leading-relaxed">
+          <p className="text-gray-400 leading-relaxed text-xs md:text-base">
             You might be lost. Try going back to the manga list or navigate to find what you're looking for.
           </p>
         </div>
 
         {/* Action Buttons */}
-        <div className="space-y-3 mb-8">
+        <div className="md:space-y-3 space-x-3 md:space-x-0 flex flex-row md:flex-col mb-4 md:mb-8">
           <button
             onClick={handleGoHome}
-            className="w-full flex items-center justify-center gap-3 bg-purple-950 text-white py-3 px-4 rounded-lg font-medium hover:bg-purple-900 transition-colors duration-200"
+            className="w-full flex items-center justify-center gap-3 bg-purple-950 text-white py-2 px-2 md:py-3 md:px-4 rounded-lg font-medium hover:bg-purple-900 transition-colors duration-200"
           >
             <BookOpen className="w-5 h-5" />
-            Go to Manga List
+            <span className='md:hidden'>Home</span>
+            <span className='hidden md:block'>Go to Manga List</span>
           </button>
-          
+
           <button
             onClick={handleGoBack}
-            className="w-full flex items-center justify-center gap-3 bg-gray-800 text-white py-3 px-4 rounded-lg font-medium hover:bg-gray-700 transition-colors duration-200 border border-gray-700"
+            className="w-full flex items-center justify-center gap-3 bg-gray-800 text-white py-2 px-2 md:py-3 md:px-4 rounded-lg font-medium hover:bg-gray-700 transition-colors duration-200 border border-gray-700"
           >
             <ArrowLeft className="w-5 h-5" />
             Go Back
@@ -59,14 +59,6 @@ export default function Custom404() {
             Error 404 - Page does not exist
           </p>
         </div>
-      </div>
-
-      {/* Subtle background grid */}
-      <div className="fixed inset-0 pointer-events-none opacity-5">
-        <div className="absolute inset-0" style={{
-          backgroundImage: `radial-gradient(circle at 1px 1px, rgba(255,255,255,0.3) 1px, transparent 0)`,
-          backgroundSize: '20px 20px'
-        }}></div>
       </div>
     </div>
   );

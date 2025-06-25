@@ -24,6 +24,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           MozOsxFontSmoothing: 'grayscale',
           touchAction: 'manipulation',
         }}
+        cz-shortcut-listen="true"
         className="bg-[#070920] text-white"
       >
         <TanstackProvider>
