@@ -63,32 +63,37 @@ function ThemeGenreTags({ filterOptions, toggleFilter, activeFilters }) {
     };
 
     return (
-        <div className="filter-group">
-            <h3 className="font-medium text-[14px] text-purple-100 mb-3 flex items-center gap-2 md:tracking-widest">
-                <span className="w-1.5 h-1.5  rounded-full bg-purple-500 animate-pulse"></span>
-                Tags Filter
-            </h3>
-
-            <div className="relative">
-                <div
-                    className={`w-full p-3 bg-black/60 backdrop-blur-sm border border-purple-800/50 rounded-lg text-purple-200 cursor-pointer transition-all duration-300 ${showTags ? 'border-purple-600 shadow-lg shadow-purple-900/20' : ''}`}
-                    onClick={toggleDropdown}
-                >
-                    <div className="flex items-center justify-between">
-
-                        <span className=" text-[12px] md:text-sm  line-clamp-1 md:tracking-widest ">{activeFilters.genres.length > 0 ? activeFilters.genres.map((val, index) => <span key={index} className='mr-2 capitalize'>{val.charAt(0).toUpperCase() + val.slice(1)}</span>) : "Any Tag"}</span>
-                        <div className={`text-purple-400 transition-transform duration-300 ${showTags ? 'rotate-180' : ''}`}>
-                            <ChevronDown className="h-5 w-5" />
+        <div className="filter-group space-y-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-purple-400 to-indigo-400 animate-pulse"></div>
+                    <h3 className="text-sm font-semibold text-gray-200 tracking-wide">Show Tags</h3>
+                  </div>
+            
+                  <div className="relative">
+                    <button
+                      onClick={toggleDropdown}
+                      className={`w-full group relative overflow-hidden bg-gray-950/50 backdrop-blur-sm border rounded-xl p-3 transition-all duration-300 hover:bg-gray-900/70 ${showTags
+                        ? 'border-purple-500/60  bg-gray-900/70'
+                        : 'border-gray-700/60 hover:border-gray-600/80'
+                        }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1 text-left">
+                          <div className="text-sm text-gray-300 flex flex-wrap items-center gap-4 min-h-[20px]">
+                            {activeFilters.genres.length > 0 ? activeFilters.genres.map((val, index) => <span key={index} className='mr-2 capitalize'>{val.charAt(0).toUpperCase() + val.slice(1)}</span>) : "Any Tag"}
+                          </div>
                         </div>
-                    </div>
-                </div>
+                        <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-300 ml-2 flex-shrink-0 ${showTags ? 'rotate-180' : 'group-hover:text-gray-300'
+                          }`} />
+                      </div>
+                    </button>
                 {showTags &&
                     <div
                         style={{
                             scrollbarWidth: "thin",
                             scrollbarColor: "rgba(155, 89, 182, 0.6) rgba(0, 0, 0, 0.1)",
                         }}
-                        className=' absolute  z-50  max-h-52 p-3 bg-black/90  w-full mt-2  backdrop-blur-md border border-purple-800/50 rounded-lg overflow-y-scroll  shadow-xl shadow-purple-900/30 transition-all duration-300'>
+                        className=' absolute  z-50  max-h-52 p-3 bg-black/90  w-full mt-2  backdrop-blur-md border border-purple-800/50 rounded-lg overflow-y-scroll  transition-all duration-300'>
                         {/* Search and Reset */}
                         <div className="relative grid gap-2 lg:grid-cols-[1fr_auto]">
                             <div className="relative">

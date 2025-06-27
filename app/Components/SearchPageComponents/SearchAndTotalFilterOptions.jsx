@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+import { Search, Sliders, X, Grid, List, Filter, Trash2, ChevronDown } from "lucide-react";
+import ThemeGenreTags from "./SearchTotalAndFilterOptionsModules/ThemeGenreTags"
 import filterOptions from "../../constants/filterOptions";
-import FilterCustomDropDown from "./SearchTotalAndFilterOptionsModules/FilterCustomDropDown";
-import ThemeGenreTags from "./SearchTotalAndFilterOptionsModules/ThemeGenreTags";
-import { Search, Sliders, X, Grid, List, Filter, Trash2 } from "lucide-react";
+import FilterCustomDropDown from "./SearchTotalAndFilterOptionsModules/FilterCustomDropDown"
 
-function SearchTotalAndFilterOptions({
+
+// Main SearchTotalAndFilterOptions Component
+export default function SearchTotalAndFilterOptions({
   setActiveFilters,
   activeFilters,
   setViewMode,
@@ -15,10 +17,10 @@ function SearchTotalAndFilterOptions({
   handleSearch,
 }) {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [searchText, setSearchText] = useState(searchQuery);
+  const [searchText, setSearchText] = useState(searchQuery || '');
 
   useEffect(() => {
-    setSearchText(searchQuery);
+    setSearchText(searchQuery || '');
   }, [searchQuery]);
 
   const hasActiveFilters = Object.values(activeFilters).some(
@@ -31,24 +33,11 @@ function SearchTotalAndFilterOptions({
     setActiveFilters((prev) => {
       const newFilters = { ...prev };
 
-      if (
-        [
-          "tags",
-          "genres",
-          "rating",
-          "status",
-          "publicationType",
-          "demographic",
-          "year",
-          "language",
-        ].includes(filterType)
-      ) {
+      if (["tags", "genres", "rating", "status", "publicationType", "demographic", "year", "language"].includes(filterType)) {
         if (newFilters[filterType]?.includes(value)) {
-          newFilters[filterType] = newFilters[filterType].filter(
-            (item) => item !== value
-          );
+          newFilters[filterType] = newFilters[filterType].filter(item => item !== value);
         } else {
-          newFilters[filterType] = [...newFilters[filterType], value];
+          newFilters[filterType] = [...(newFilters[filterType] || []), value];
         }
       } else {
         newFilters[filterType] = value === newFilters[filterType] ? "" : value;
@@ -58,259 +47,223 @@ function SearchTotalAndFilterOptions({
     });
   };
 
-  const toggleFilterPanel = () => {
-    setIsFilterOpen((prev) => !prev);
-  };
-
   const handleSearchChange = (e) => {
     setSearchText(e.target.value);
   };
 
-  const activeFilterCount = Object.entries(activeFilters).reduce(
-    (count, [, value]) => {
-      if (Array.isArray(value)) {
-        return count + value.length;
-      }
-      return count + (value ? 1 : 0);
-    },
-    0
-  );
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (handleSearch) {
+      handleSearch(e);
+    }
+  };
 
-  const yearOptions = Array.from(
-    { length: 2025 - 1910 + 1 },
-    (_, index) => ({
-      id: String(1910 + index),
-      label: String(1910 + index),
-    })
-  );
+  const activeFilterCount = Object.entries(activeFilters).reduce((count, [, value]) => {
+    if (Array.isArray(value)) {
+      return count + value.length;
+    }
+    return count + (value ? 1 : 0);
+  }, 0);
+
+  const yearOptions = Array.from({ length: 2025 - 1910 + 1 }, (_, index) => ({
+    id: String(1910 + index),
+    label: String(1910 + index),
+  }));
 
   return (
-    <div className="w-full bg-black/10 relative z-50 bg-opacity-90 backdrop-blur-md rounded-2xl p-2 justify-center flex flex-col items-center md:block md:p-8 shadow-2xl border border-purple-900/30">
-      {/* Search Header */}
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6 w-full">
-        <div className="flex-1 w-full">
-          <form onSubmit={handleSearch} className="relative w-full">
-            <input
-              type="text"
-              value={searchText}
-              onChange={handleSearchChange}
-              placeholder="Search manga..."
-              className="w-full pr-4 py-3 sm:pr-5 sm:py-4 bg-black/60 backdrop-blur-sm border border-purple-800/50 rounded-xl text-purple-50 placeholder-purple-300/50 focus:outline-none focus:ring-2 focus:ring-purple-600/70 focus:border-purple-600 transition-all duration-300 shadow-inner pl-12 "
-            />
-            <div
-              className="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-purple-400"
-              aria-label="Search"
-            >
-              <Search className="h-5 w-5 sm:h-6 sm:w-6 saturate-0 brightness-150" />
+    <div className="w-full ">
+      {/* Glassmorphism Container */}
+      <div className="shadow-2xl shadow-black/20">
+
+        {/* Search Header */}
+        <div className="space-y-6">
+          <div className="flex mb-7 sm:mb-8 justify-between items-center gap-3">
+
+            <div className=" flex flex-row gap-3"><div className="bg-white/10 p-3 rounded-lg">
+              <Search className="w-6 h-6  md:w-7 md:h-7 text-yellow-300 drop-shadow-md" />
+            </div>
+              <div>
+                <h2 className="text-xl md:text-2xl font-bold text-white uppercase tracking-wide">
+                  Advanced Search
+                </h2>
+                <p className="text-xs text-gray-400 uppercase tracking-wide">
+                  Search Your Next To Read Manga by entering keywords
+                </p>
+              </div>
+            </div>
+            <div className="flex  justify-center items-center  rounded-lg shadow-md">
+              <button
+                onClick={clearAllFilters}
+                disabled={!hasActiveFilters}
+                className="flex items-center disabled:bg-gray-500/10 backdrop-blur-md disabled:text-gray-400 gap-2 text-sm font-semibold text-red-300 hover:text-red-100 transition-colors bg-red-600/30 hover:bg-red-500/80 px-6 py-4 rounded-md shadow-sm group focus:outline-none focus:ring-2 focus:ring-red-400"
+                aria-label="Clear all active filters"
+              >
+                <Trash2 className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                Reset Filters
+              </button>
+            </div>
+          </div>
+          {/* Search Bar */}
+          <form onSubmit={handleSearchSubmit} className="relative w-full gap-3 group flex flex-row">
+            <div className="relative w-full">
+              <input
+                type="text"
+                value={searchText}
+                onChange={handleSearchChange}
+                placeholder="Search "
+                className="w-full bg-gray-800/50 backdrop-blur-sm border border-gray-600/50 rounded-lg py-2.5 pl-12 pr-24 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/40 focus:border-purple-500/60 transition-all duration-300 text-lg"
+              />
+              <Search className="absolute -mt-0.5 left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+              {searchText && <button className="absolute  right-4 top-1/2 transform -translate-y-1/2 text-gray-400"
+                onClick={() => setSearchText("")}
+              >
+                <X className="w-5 h-5" />
+              </button>}
             </div>
             <button
               type="submit"
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-br from-purple-700 to-indigo-900 hover:from-purple-600 hover:to-indigo-800 text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg transition duration-300 shadow-lg hover:shadow-purple-500/30 text-sm sm:text-base"
+              className="relative flex flex-row gap-3 justify-center items-center bg-gradient-to-r from-purple-700/50 to-indigo-700/50 text-white px-6 py-2 rounded-lg transition-all duration-300 shadow-lg hover:bg-purple-500/40 font-medium"
             >
-              Search
+              <Search className=" w-5 h-5 " />Search
             </button>
+
+            <button
+              onClick={() => setIsFilterOpen(!isFilterOpen)}
+              className={`relative flex whitespace-nowrap backdrop-blur-md flex-row gap-3 justify-center items-center text-white px-6 py-3 rounded-lg transition-all duration-300 font-medium ${isFilterOpen
+                ? " text-white shadow-lg bg-gray-400/20 "
+                : "bg-gray-800/60"
+                }`}
+            >
+              <ChevronDown className={`w-5 h-5 ${isFilterOpen ? "rotate-180" : ""}`} />
+              {isFilterOpen ? "Hide" : "Show"} Filters
+              {activeFilterCount > 0 && (
+                <span className="bg-gradient-to-r from-purple-700/70 to-indigo-700/70 text-white text-xs font-bold px-2 py-1 rounded-full min-w-[20px] text-center">
+                  {activeFilterCount}
+                </span>
+              )}
+            </button>
+
+            {/* View Toggle */}
+            <div className="flex min-w-fit bg-gray-900/80 border border-gray-700 rounded-lg shadow-md overflow-hidden">
+              <button
+                onClick={() => setViewMode && setViewMode("grid")}
+                aria-pressed={viewMode === "grid"}
+                className={`p-2.5 px-4 transition-colors duration-300 flex items-center justify-center rounded-l-lg ${viewMode === "grid"
+                  ? "bg-gradient-to-r from-purple-700/70 to-indigo-700/70 text-white shadow-lg"
+                  : "text-gray-500 hover:text-purple-400 hover:bg-gray-800"
+                  }`}
+                title="Grid View"
+              >
+                <Grid className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => setViewMode && setViewMode("list")}
+                aria-pressed={viewMode === "list"}
+                className={`p-2.5 px-4 transition-colors duration-300 flex items-center justify-center rounded-r-lg ${viewMode === "list"
+                  ? "bg-gradient-to-r from-purple-700/70 to-indigo-700/70 text-white shadow-lg"
+                  : "text-gray-500 hover:text-purple-400 hover:bg-gray-800"
+                  }`}
+                title="List View"
+              >
+                <List className="w-5 h-5" />
+              </button>
+            </div>
           </form>
         </div>
+        {/* Filters Panel */}
+        {isFilterOpen && (
+          <div className="mt-9 ">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              <FilterCustomDropDown
+                title="Content Rating"
+                multiple={true}
+                options={filterOptions.ratings}
+                selectedValues={activeFilters.rating || []}
+                onSelectionChange={(value) => toggleFilter("rating", value)}
+                countLabel="Any Rating"
+              />
 
-        <div className="flex items-center gap-3 self-end lg:self-auto flex-wrap">
-          {/* Results count */}
+              <FilterCustomDropDown
+                title="Publication Status"
+                multiple={true}
+                options={filterOptions.statuses}
+                selectedValues={activeFilters.status || []}
+                onSelectionChange={(value) => toggleFilter("status", value)}
+                countLabel="Any Status"
+              />
+
+              <FilterCustomDropDown
+                title="Language"
+                multiple={true}
+                options={filterOptions.languages}
+                selectedValues={activeFilters.language || []}
+                onSelectionChange={(value) => toggleFilter("language", value)}
+                countLabel="Any Language"
+              />
+
+              <FilterCustomDropDown
+                title="Publication Year"
+                multiple={true}
+                options={yearOptions}
+                selectedValues={activeFilters.year || []}
+                onSelectionChange={(value) => toggleFilter("year", value)}
+                countLabel="Any Year"
+              />
+
+              <FilterCustomDropDown
+                title="Demographic"
+                multiple={true}
+                options={filterOptions.demographics}
+                selectedValues={activeFilters.demographic || []}
+                onSelectionChange={(value) => toggleFilter("demographic", value)}
+                countLabel="Any Demographic"
+              />
+
+              <FilterCustomDropDown
+                title="Publication Type"
+                multiple={true}
+                options={filterOptions.publicationTypes}
+                selectedValues={activeFilters.publicationType || []}
+                onSelectionChange={(value) => toggleFilter("publicationType", value)}
+                countLabel="Any Type"
+              />
+
+              <ThemeGenreTags
+                activeFilters={activeFilters}
+                filterOptions={filterOptions}
+                toggleFilter={toggleFilter}
+              />
+
+              <FilterCustomDropDown
+                title="Sort By"
+                multiple={false}
+                options={filterOptions.sortOptions}
+                selectedValues={activeFilters.sortBy || ""}
+                onSelectionChange={(value) => toggleFilter("sortBy", value)}
+                countLabel="Default"
+              />
+            </div>
+          </div>
+        )}
+        {/* Controls Bar */}
+        <div className="flex mt-4 flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          {/* Results Info */}
           {searchQuery && (
-            <div className="hidden  lg:flex items-center gap-2 bg-black/50 backdrop-blur-sm px-4 py-2.5 rounded-lg border border-purple-900/50">
-              <span className="text-purple-400 font-bold">
-                {filteredResults.length}
-              </span>
-              <span className="text-purple-200/70">
-                {filteredResults.length === 1 ? "result" : "results"}
-              </span>
+            <div className="space-y-1">
+              <h1 className="text-xl lg:text-2xl font-bold">
+                <span className="text-purple-400">Results for </span>
+                <span className="text-white">"</span>
+                <span className="text-gray-200">{searchQuery}</span>
+                <span className="text-white">"</span>
+              </h1>
+              <p className="text-gray-400 text-sm">
+                {filteredResults?.length || 0} {(filteredResults?.length || 0) === 1 ? "result" : "results"} found
+              </p>
             </div>
           )}
-
-          {/* Filter button */}
-          <button
-            onClick={toggleFilterPanel}
-            className={`flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2.5 rounded-lg font-medium transition-all duration-300 ${
-              isFilterOpen
-                ? "bg-gradient-to-r from-purple-700 to-indigo-900 text-white shadow-xl shadow-purple-700/30"
-                : "bg-black/60 hover:bg-black/80 text-purple-200 border border-purple-900/50 hover:border-purple-700/70"
-            }`}
-            aria-expanded={isFilterOpen}
-            aria-controls="filter-panel"
-          >
-            <Filter className="h-4 w-4 sm:h-5 sm:w-5" />
-            <span className="text-sm sm:text-base">Filters</span>
-            {activeFilterCount > 0 && (
-              <span className="flex items-center justify-center min-w-5 h-5 px-1.5 bg-purple-300 text-purple-900 text-xs font-bold rounded-full">
-                {activeFilterCount}
-              </span>
-            )}
-          </button>
-
-          {/* View toggle */}
-          <div className="flex bg-black/60 border border-purple-900/50 rounded-lg overflow-hidden shadow-lg">
-            <button
-              onClick={() => setViewMode("grid")}
-              className={`p-2 transition-all duration-300 ${
-                viewMode === "grid"
-                  ? "bg-gradient-to-r from-purple-700 to-indigo-900 text-white"
-                  : "text-purple-300 hover:text-white hover:bg-purple-900/30"
-              }`}
-              aria-label="Grid view"
-              aria-pressed={viewMode === "grid"}
-            >
-              <Grid className="h-4 w-4 sm:h-5 sm:w-5" />
-            </button>
-            <button
-              onClick={() => setViewMode("list")}
-              className={`p-2 transition-all duration-300 ${
-                viewMode === "list"
-                  ? "bg-gradient-to-r from-purple-700 to-indigo-900 text-white"
-                  : "text-purple-300 hover:text-white hover:bg-purple-900/30"
-              }`}
-              aria-label="List view"
-              aria-pressed={viewMode === "list"}
-            >
-              <List className="h-4 w-4 sm:h-5 sm:w-5" />
-            </button>
-          </div>
         </div>
+
       </div>
-
-      {/* Search query display and results count (mobile) */}
-      {searchQuery && (
-        <div className={`flex -mt-16 relative -z-10 md:-mt-0 flex-col ${isFilterOpen ? "mb-4" : "mb-0"} md:flex-row justify-between items-start md:items-center gap-2 w-full`}>
-          <h1 className="text-lg sm:text-xl md:text-2xl font-bold">
-            <span className="text-purple-500">Results for </span>
-            <span className="text-white">"</span>
-            <span className="text-purple-300 font-semibold">{searchQuery}</span>
-            <span className="text-white">"</span>
-          </h1>
-          <p className="text-purple-300/70 lg:hidden text-sm sm:text-base">
-            {filteredResults.length > 0 &&
-              `${filteredResults.length} ${filteredResults.length === 1 ? "result" : "results"
-              } found`}
-          </p>
-        </div>
-      )}
-
-      {/* Filters panel */}
-      {isFilterOpen && (
-        <div
-          id="filter-panel"
-          className="bg-black/80 backdrop-blur-md border border-purple-900/50 rounded-xl p-6 shadow-2xl"
-        >
-          <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
-            <div className="flex items-center gap-3">
-              <div className="bg-gradient-to-r from-purple-600 to-indigo-800 p-2 rounded-lg shadow-lg shadow-purple-700/20">
-                <Sliders className="h-5 w-5 text-white" />
-              </div>
-              <h2 className="text-lg font-semibold text-purple-200">
-                Advanced Search
-              </h2>
-            </div>
-            {hasActiveFilters && (
-              <button
-                onClick={clearAllFilters}
-                className="flex items-center gap-1 text-sm text-purple-400 hover:text-purple-300 transition-colors duration-300 group"
-              >
-                <Trash2 className="h-4 w-4 group-hover:text-purple-300" />
-                Clear All Filters
-              </button>
-            )}
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 md:gap-6">
-            {/* Content Rating */}
-            <FilterCustomDropDown
-              title="Content Rating"
-              multiple={true}
-              options={filterOptions.ratings}
-              selectedValues={activeFilters.rating}
-              onSelectionChange={(value) => toggleFilter("rating", value)}
-              countLabel={"Any Rating"}
-            />
-
-            {/* Publication Status */}
-            <FilterCustomDropDown
-              multiple={true}
-              title="Publication Status"
-              options={filterOptions.statuses}
-              selectedValues={activeFilters.status}
-              onSelectionChange={(value) => toggleFilter("status", value)}
-              countLabel={"Any Status"}
-            />
-
-            {/* Original Language */}
-            <FilterCustomDropDown
-              title="Original/Translated Language"
-              multiple={true}
-              options={filterOptions.languages}
-              selectedValues={activeFilters.language}
-              onSelectionChange={(value) => toggleFilter("language", value)}
-              countLabel={"Any Language"}
-            />
-
-            {/* Publication Year */}
-            <FilterCustomDropDown
-              title="Original Publication Year"
-              options={yearOptions}
-              selectedValues={activeFilters.year}
-              onSelectionChange={(value) => toggleFilter("year", value)}
-              countLabel={"Any year"}
-            />
-
-
-            {/* Publication Demographic */}
-            <FilterCustomDropDown
-              title="Demographic"
-              options={filterOptions.demographics}
-              selectedValues={activeFilters.demographic}
-              onSelectionChange={(value) => toggleFilter("demographic", value)}
-              countLabel={"Any Demographic"}
-            />
-
-            {/* Publication Type */}
-            <FilterCustomDropDown
-              title="Publication Type"
-              options={filterOptions.publicationTypes}
-              selectedValues={activeFilters.publicationType}
-              onSelectionChange={(value) => toggleFilter("publicationType", value)}
-              countLabel={"Any Publication Type"}
-            />
-
-            {/* Tags - Spans 2 columns on larger screens */}
-            <ThemeGenreTags
-              activeFilters={activeFilters}
-              filterOptions={filterOptions}
-              toggleFilter={toggleFilter}
-              key={"ThemeGenreTags"}
-            />
-
-            {/* Sort By */}
-            <FilterCustomDropDown
-              title="Sort By"
-              multiple={false}
-              options={filterOptions.sortOptions}
-              selectedValues={activeFilters.sortBy}
-              onSelectionChange={(value) => toggleFilter("sortBy", value)}
-              countLabel={"Any"}
-            />
-          </div>
-        </div>
-      )}
-
-      {/* Active Filters Display */}
-      {hasActiveFilters && !isFilterOpen && (
-        <div className="flex flex-wrap gap-2 mb-4 sm:mb-6 w-full">
-          <button
-            onClick={clearAllFilters}
-            className="inline-flex items-center gap-1.5 bg-black/60 border border-purple-800/50 rounded-full px-3 py-1.5 text-xs sm:text-sm text-purple-400 hover:text-white transition-colors"
-          >
-            Clear All
-            <X className="h-3 w-3 sm:h-4 sm:w-4" />
-          </button>
-        </div>
-      )}
     </div>
   );
 }
-
-export default SearchTotalAndFilterOptions;

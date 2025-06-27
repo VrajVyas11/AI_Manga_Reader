@@ -317,8 +317,8 @@ const SearchPage = memo(() => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100">
-      <main className="max-w-full sm:max-w-[90vw] md:max-w-[85vw] lg:max-w-[90%] mx-auto px-2 py-6">
+    <div className="min-h-screen text-slate-100">
+      <main className="max-w-full sm:max-w-[90vw] md:max-w-[95vw] lg:max-w-[91.5%] mx-auto px-2 py-6">
         {/* Results header with controls */}
         <SearchTotalAndFilterOptions
           handleSearch={handleSearch}
