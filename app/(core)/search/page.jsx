@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState, useCallback, memo, lazy } from "react";
+import React, { useEffect, useState, useCallback, memo, lazy, Suspense } from "react";
 import { AlertCircleIcon, RouteOff } from "lucide-react";
 
 const SearchMangaCardWith2ViewMode = memo(
@@ -384,36 +384,37 @@ const SearchPage = memo(() => {
             </div>
           </div>
         )}
+        <Suspense fallback={<div>Loading... </div>}>
+          {/* Results grid/list */}
+          {!isLoading && !error && filteredResults.length > 0 && (
+            <>
+              <div
+                className={
+                  viewMode === "grid"
+                    ? "grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-2 mt-5 relative gap-y-4 z-10"
+                    : "grid grid-cols-1 md:grid-cols-2 gap-2  z-10 mt-5"
+                }
+              >
+                {paginatedItems.map((manga) => (
+                  <SearchMangaCardWith2ViewMode
+                    key={manga.id}
+                    manga={manga}
+                    viewMode={viewMode}
+                  />
+                ))}
+              </div>
 
-        {/* Results grid/list */}
-        {!isLoading && !error && filteredResults.length > 0 && (
-          <>
-            <div
-              className={
-                viewMode === "grid"
-                  ? "grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-2 mt-5 relative z-10"
-                  : "flex flex-col space-y-2 z-10 mt-5"
-              }
-            >
-              {paginatedItems.map((manga) => (
-                <SearchMangaCardWith2ViewMode
-                  key={manga.id}
-                  manga={manga}
-                  viewMode={viewMode}
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <BottomPagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={goToPage}
                 />
-              ))}
-            </div>
-
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <BottomPagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={goToPage}
-              />
-            )}
-          </>
-        )}
+              )}
+            </>
+          )}
+        </Suspense>
       </main>
     </div>
   );

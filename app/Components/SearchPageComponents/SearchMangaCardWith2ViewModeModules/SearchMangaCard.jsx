@@ -1,75 +1,67 @@
 import React, { memo, lazy, useMemo } from "react";
-import Image from "next/image";
-import { Heart, MessageSquareText, Bookmark } from "lucide-react";
-const StableFlag = memo(lazy(() => import("../../StableFlag")));
+import { Heart, MessageSquareText, Bookmark, Play, Star, BookOpen } from "lucide-react";
+import { langToCountry } from "../../../constants/Flags"
+import StableFlag from "../../StableFlag";
 
 const contentRatingStyles = {
-  safe: {
-    badge: "bg-emerald-500 border-emerald-500",
-    text: "text-emerald-50",
-  },
-  suggestive: {
-    badge: "bg-orange-500 border-orange-500",
-    text: "text-amber-50",
-  },
-  erotica: {
-    badge: "bg-red-500 border-red-500",
-    text: "text-rose-50",
-  },
-  pornographic: {
-    badge: "bg-red-800 border-orange-800",
-    text: "text-red-50",
-  },
+  safe: "bg-emerald-600 text-emerald-50",
+  suggestive: "bg-orange-600 text-orange-50",
+  erotica: "bg-red-600 text-red-50",
+  pornographic: "bg-red-800 text-red-50",
 };
 
 const statusStyles = {
-  ongoing: {
-    text: "text-emerald-50",
-    icon: "bg-emerald-400",
-  },
-  completed: {
-    text: "text-blue-50",
-    icon: "bg-blue-400",
-  },
-  hiatus: {
-    text: "text-amber-50",
-    icon: "bg-amber-400",
-  },
-  cancelled: {
-    text: "text-red-50",
-    icon: "bg-red-400",
-  },
+  ongoing: "bg-emerald-500",
+  completed: "bg-blue-500",
+  hiatus: "bg-amber-500",
+  cancelled: "bg-red-500",
 };
 
+// Mock StarRating component
+const StarRating = ({ rating }) => (
+  <div className="flex items-center gap-0.5">
+    {[1, 2, 3, 4, 5].map((star) => (
+      <Star
+        key={star}
+        className={`w-3 h-3 ${star <= rating ? 'text-amber-400 fill-amber-400' : 'text-gray-500'
+          }`}
+      />
+    ))}
+  </div>
+);
+
 const SearchMangaCard = ({
-  formatCount,
-  manga,
-  handleMangaClicked,
-  StarRating,
-  timeSinceUpdate,
+  formatCount = (num) => num?.toLocaleString() || '0',
+  manga = {
+    title: "Attack on Titan",
+    coverImageUrl: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=600&fit=crop",
+    contentRating: "suggestive",
+    status: "completed",
+    originalLanguage: "JP",
+    description: "Humanity fights for survival against giant humanoid Titans. When the colossal Titan appears and breaches their wall, Eren Yeager and his friends join the fight to reclaim their world.",
+    updatedAt: "2024-01-15T10:30:00Z",
+    rating: {
+      rating: { bayesian: 9.2 },
+      follows: 2500000,
+      comments: { repliesCount: 45000 },
+      bookmarks: 890000
+    },
+    flatTags: ["Action", "Drama", "Military", "Supernatural", "Thriller", "Gore"]
+  },
+  handleMangaClicked = () => console.log('Manga clicked'),
 }) => {
-  console.log(manga)
   const remainingTagsCount = useMemo(() => {
-    const limit = 3;
-    return manga.flatTags.length - limit;
+    const limit = 4;
+    return Math.max(0, (manga.flatTags?.length || 0) - limit);
   }, [manga.flatTags]);
 
   const ratingStyle = useMemo(
-    () =>
-      contentRatingStyles[manga.contentRating?.toLowerCase()] || {
-        badge: "bg-gradient-to-r from-slate-700 to-slate-600",
-        text: "text-slate-200",
-      },
+    () => contentRatingStyles[manga.contentRating?.toLowerCase()] || "bg-gray-600 text-gray-50",
     [manga.contentRating]
   );
 
   const statusStyle = useMemo(
-    () =>
-      statusStyles[manga.status] || {
-        badge: "bg-gradient-to-r from-slate-700 to-slate-600",
-        text: "text-slate-200",
-        icon: "bg-slate-400",
-      },
+    () => statusStyles[manga.status] || "bg-gray-500",
     [manga.status]
   );
 
@@ -80,103 +72,97 @@ const SearchMangaCard = ({
 
   return (
     <article
-      className="relative group w-full  mx-auto tracking-wide flex justify-center cursor-pointer"
+      className="group relative w-full max-w-sm mx-auto cursor-pointer"
       onClick={handleMangaClicked}
       role="button"
+      tabIndex={0}
     >
-      <div
-        className={`relative w-full rounded-2xl overflow-hidden bg-slate-900 transition-shadow ease-out 
-          hover:shadow-[0px_0px_7px_rgba(0,0,0,1)] hover:shadow-purple-500 shadow-[0px_0px_2px_rgba(0,0,0,1)] shadow-purple-500 scale-100 transform`}
-      >
-        <div className="absolute group inset-0 z-10 h-16 sm:h-20 bg-gradient-to-b from-black via-black/70 to-transparent" />
-        <div className="relative h-[240px] sm:h-[360px] md:h-[400px] overflow-hidden rounded-2xl">
-          <Image
-            src={manga.coverImageUrl || "/placeholder.jpg"}
+      <div className="relative aspect-[3/4] rounded-xl overflow-hidden bg-gray-900 transition-all duration-500 ease-out group-hover:scale-[1.02] group-hover:shadow-2xl group-hover:shadow-purple-500/20">
+        {/* Cover Image - keep size as is */}
+        <div className="absolute inset-0">
+          <img
+            src={manga.coverImageUrl || "/api/placeholder/300/400"}
             alt={manga.title}
-            fill
-            className="object-cover transition-transform ease-out group-hover:scale-[102%]"
-            placeholder="blur"
-            blurDataURL="/placeholder.jpg"
-            priority={false}
+            className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
           />
-          <span
-            className={`absolute z-20 top-2 sm:top-3 right-1.5 sm:right-2 min-w-20 sm:min-w-24 flex justify-center items-center rounded-lg bg-opacity-40 border-2 py-0.5 sm:py-1 px-2 sm:px-4 text-[10px] font-extrabold shadow-lg backdrop-blur-md cursor-default select-none ${ratingStyle.badge} ${ratingStyle.text} opacity-70`}
-          >
-            {(manga.contentRating || "Unknown").toUpperCase()}
-          </span>
-          <div
-            className={`absolute z-20 top-2 sm:top-3 left-1.5 sm:left-2 min-w-20 sm:min-w-24 flex justify-center items-center gap-1 sm:gap-2 rounded-lg bg-opacity-40 border-2 py-0.5 sm:py-1 px-2 sm:px-4 font-bold shadow-lg backdrop-blur-md cursor-default select-none border-gray-700 bg-[#121212] opacity-70`}
-          >
-            <span className={`relative flex h-2 w-2 sm:h-2.5 sm:w-2.5 rounded-full ${statusStyle.icon}`} />
-            <span className={`${statusStyle.text} text-[10px] sm:text-xs font-extrabold `}>
-              {(manga.status || "unknown").charAt(0).toUpperCase() +
-                (manga.status || "unknown").slice(1)}
-            </span>
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/20" />
+        </div>
+
+        {/* Top badges */}
+        <div className="absolute top-3 left-3 right-3 flex justify-between items-start z-20">
+          <div className="flex items-center gap-1.5">
+            <span className={`${statusStyle} w-2 h-2 rounded-full`} />
           </div>
         </div>
-        <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4 md:p-5 bg-gradient-to-t from-black via-black/90 to-transparent">
-          <div className="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
-            <StableFlag code={manga.originalLanguage || "UN"} className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 flex-shrink-0" />
-            <h1 className="text-white font-bold text-base sm:text-lg md:text-xl line-clamp-1">{manga.title}</h1>
-          </div>
-          <div className="flex justify-between items-center mb-1.5 sm:mb-2">
-            {bayesianRating > 0 && (
-              <div className="flex items-center gap-0.5 sm:gap-1">
-                <span className="text-amber-400 font-bold text-[10px] sm:text-xs md:text-base">
-                  {bayesianRating.toFixed(1)}
-                </span>
-                <StarRating rating={bayesianRating} />
+
+        {/* Title - Always visible */}
+        <div className="absolute bottom-0 left-0 right-0 p-3 z-20 flex flex-row whitespace-break-spaces items-center gap-2">
+          <div className=" bg-black/20  shadow-lg p-0.5 min-w-fit"><StableFlag code={langToCountry[manga.originalLanguage || "UN"]} className="h-auto w-7" /></div>
+          <h3 className="text-white  w-full text-sm font-semibold leading-tight mb-0.5 line-clamp-2 drop-shadow-lg">
+            {manga.title}
+          </h3>
+        </div>
+
+        {/* Hover overlay with details */}
+        <div className="absolute inset-0 bg-black/70 backdrop-blur-3xl opacity-0 group-hover:opacity-100 transition-all duration-100 ease-out translate-y-4 group-hover:translate-y-0 z-30">
+          <div className="h-full flex flex-col p-4">
+            {/* Header with title and rating */}
+            <div>
+              <div className="flex items-center justify-between mb-1.5 min-h-12">
+                <h3 className="text-white text-center text-lg font-semibold leading-tight flex-1 line-clamp-2">
+                  {manga.title}
+                </h3>
               </div>
-            )}
-            <span className="text-[10px] sm:text-xs text-gray-400 font-medium tracking-wide">
-              {timeSinceUpdate(manga.updatedAt)}
-            </span>
-          </div>
-          <div className="flex justify-between text-[10px] sm:text-xs bg-slate-800/40 backdrop-blur-md p-1.5 sm:p-2 md:p-3 rounded-lg">
-            {[
-              {
-                icon: Heart,
-                value: manga?.rating?.follows || 0,
-                label: "Follows",
-                color: "text-rose-500 fill-rose-500/20",
-              },
-              {
-                icon: MessageSquareText,
-                value: manga?.rating?.comments?.repliesCount || 0,
-                label: "Comments",
-                color: "text-sky-200/70 fill-blue-400/20",
-              },
-              {
-                icon: Bookmark,
-                value: manga?.rating?.bookmarks || 0,
-                label: "Bookmarks",
-                color: "text-emerald-500 fill-emerald-400/20",
-              },
-            ].map(({ icon: Icon, value, label, color }) => (
-              <div key={label} className="flex flex-col items-center">
-                <div className="flex items-center gap-0.5 sm:gap-1">
-                  <Icon className={`w-4 h-4 sm:w-5 sm:h-5 ${color}`} />
-                  <span className={`${color} font-semibold text-[10px] sm:text-xs`}>{formatCount(value)}</span>
+
+              {bayesianRating > 0 && (
+                <div className="flex items-center gap-1.5 mb-2">
+                  <span className="text-amber-400 text-base font-semibold">
+                    {bayesianRating.toFixed(1)}
+                  </span>
+                  <StarRating rating={Math.floor(bayesianRating / 2)} />
+                  <span className="text-gray-400 text-xs ml-1">
+                    ({formatCount(manga?.rating?.follows || 0)} follows)
+                  </span>
                 </div>
-                <span className="text-[8px] sm:text-[10px] md:text-xs text-gray-500">{label}</span>
+              )}
+            </div>
+
+            {/* Description */}
+            <div className="flex-1 mb-3">
+              <p className="text-gray-300 text-xs leading-normal line-clamp-4">
+                {manga.description || "No description available."}
+              </p>
+            </div>
+
+            {/* Tags */}
+            <div className="mb-3">
+              <div className="flex flex-wrap gap-1">
+                <span
+                  className={`${ratingStyle} px-1.5 bg-opacity-55 py-0.5 rounded-md text-[10px] font-semibold backdrop-blur-sm `}
+                >
+                  {(manga.contentRating || "Unknown").toUpperCase()}
+                </span>
+                {(manga.flatTags || []).slice(0, 3).map((tag) => (
+                  <span
+                    key={tag}
+                    className="bg-purple-900/30 border border-purple-600/30 text-purple-200 px-1.5 py-0.5 rounded-md text-[10px] font-semibold backdrop-blur-sm bg-opacity-90"
+                  >
+                    {tag}
+                  </span>
+                ))}
+                {remainingTagsCount > 0 && (
+                  <span className="bg-gray-800/60 border border-gray-600/30 text-gray-300 text-[9px] px-2 py-0.5 rounded-full font-medium">
+                    +{remainingTagsCount}
+                  </span>
+                )}
               </div>
-            ))}
-          </div>
-          <div className="flex flex-wrap gap-1 mt-1.5 sm:mt-2 overflow-hidden h-5 sm:h-6">
-            {(manga.flatTags || []).slice(0, 3).map((tag) => (
-              <span
-                key={tag}
-                className="bg-slate-800/70 backdrop-blur-sm text-white/90 text-[8px] sm:text-[10px] md:text-xs px-1.5 sm:px-2 py-0.5 rounded-md border border-slate-700/50 hover:bg-purple-900/40 transition-colors truncate"
-                title={tag}
-              >
-                {tag}
-              </span>
-            ))}
-            {remainingTagsCount > 0 && (
-              <span className="bg-purple-800/60 text-purple-100 text-[8px] sm:text-[10px] md:text-xs px-1.5 sm:px-2 py-0.5 rounded-md border border-purple-700/50 truncate">
-                +{remainingTagsCount}
-              </span>
-            )}
+            </div>
+
+            {/* Read Now Button */}
+            <button className="w-full bg-purple-700/40 text-white font-semibold py-2 px-3 rounded-lg transition-all duration-300 flex items-center justify-center gap-1.5 group/btn">
+              <BookOpen className="w-4 h-4 transition-transform text-sm group-hover/btn:translate-x-0.5" />
+              Read Now
+            </button>
           </div>
         </div>
       </div>

@@ -1,155 +1,189 @@
 import React, { memo, lazy } from "react";
 import Image from "next/image";
-import { Heart, MessageSquareText, Bookmark } from "lucide-react";
+import { Heart, MessageSquareText, Bookmark, Star } from "lucide-react";
+
 const StableFlag = memo(lazy(() => import("../../StableFlag")));
 
 function SearchMangaList({
   formatCount,
   manga,
   handleMangaClicked,
-  StarRating,
   timeSinceUpdate,
 }) {
+  const getStatusColor = (status) => {
+    const colors = {
+      ongoing: "bg-green-500",
+      completed: "bg-blue-500",
+      hiatus: "bg-yellow-500",
+      cancelled: "bg-red-500",
+    };
+    return colors[status] || "bg-gray-500";
+  };
+
+  const getContentRatingColor = (rating) => {
+    const colors = {
+      safe: "bg-green-600",
+      suggestive: "bg-yellow-600",
+      erotica: "bg-orange-600",
+      pornographic: "bg-red-600",
+    };
+    return colors[rating] || "bg-gray-600";
+  };
+
   return (
     <article
-      className="relative mt-2 tracking-wide bg-gradient-to-br from-slate-950 to-slate-900 rounded-lg overflow-hidden border border-slate-800 cursor-pointer group hover:border-violet-500/50 hover:shadow-md hover:shadow-violet-500/20 group-hover:-translate-y-0.5 transition-transform"
+      className="bg-gray-900 overflow-x-hidden hover:bg-gray-850 border border-gray-800 hover:border-gray-700 rounded-lg p-2 cursor-pointer transition-all duration-200 hover:shadow-lg"
       onClick={handleMangaClicked}
       role="button"
       aria-label={`Open manga ${manga.title}`}
     >
-      <div className="flex flex-col sm:flex-row">
-        <div className="relative w-full sm:w-24 md:w-28 h-36 sm:h-32 md:h-40 flex-shrink-0">
+      <div className="flex gap-2 md:gap-4">
+        {/* Cover Image */}
+        <div className="relative flex-shrink-0">
           <Image
             src={manga.coverImageUrl || "/placeholder.jpg"}
-            width={96}
-            height={144}
+            width={64}
+            height={80}
             alt={`${manga.title} cover`}
-            className="object-cover w-full h-full rounded-t-xl sm:rounded-l-md sm:rounded-tr-none transition-transform group-hover:scale-[102%]"
+            className="md:w-28 w-20 h-30 md:h-40 object-cover rounded-md"
             loading="lazy"
-            priority={false}
           />
-          <StableFlag
-            code={manga.originalLanguage || "UN"}
-            className="h-auto w-3 sm:w-4 absolute bottom-1 sm:bottom-1.5 right-3 sm:right-4 shadow-black shadow-md"
-          />
-          <div className="absolute top-0 left-1 z-10">
-            <span
-              className={`inline-flex items-center px-1.5 sm:px-2 py-0.5 rounded-md text-[9px] sm:text-[9px]  font-medium backdrop-blur-md shadow-md ${
-                {
-                  safe: "bg-emerald-500/80 text-emerald-50 ring-1 ring-emerald-400",
-                  suggestive: "bg-amber-500/80 text-amber-50 ring-1 ring-amber-400",
-                  erotica: "bg-rose-500/80 text-rose-50 ring-1 ring-rose-400",
-                  pornographic: "bg-red-900/80 text-red-50 ring-1 ring-red-800",
-                }[manga.contentRating] || "bg-slate-700/80 text-slate-200 ring-1 ring-slate-600"
-              }`}
-            >
-              {manga.contentRating === "pornographic"
-                ? "ADULT"
-                : manga.contentRating.toUpperCase()}
-            </span>
-          </div>
         </div>
-        <div className="flex-1 flex flex-col gap-3 sm:block sm:gap-0 p-3 sm:p-4 relative overflow-hidden">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 sm:gap-2 mb-1 sm:mb-1.5">
-            <h3 className="font-bold  mt-2 sm:-mt-4 text-base max-w-[60%] sm:text-lg text-white leading-tight tracking-wide group-hover:text-violet-300 transition-colors line-clamp-1">
-              {manga.title}
-            </h3>
-            <div className="flex flex-wrap sm:flex-nowrap items-center gap-1.5 sm:gap-2 md:gap-4">
-              <span
-                className={`inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-md text-[10px] sm:text-xs font-medium ${
-                  {
-                    ongoing: "bg-emerald-500/20 text-emerald-400 ring-1 ring-emerald-500/30",
-                    completed: "bg-blue-500/20 text-blue-400 ring-1 ring-blue-500/30",
-                    hiatus: "bg-amber-500/20 text-amber-400 ring-1 ring-amber-500/30",
-                    cancelled: "bg-red-500/20 text-red-400 ring-1 ring-red-500/30",
-                  }[manga.status] || "bg-slate-700/20 text-slate-400 ring-1 ring-slate-700/30"
-                }`}
-              >
-                <span
-                  className={`relative flex h-2 w-2 sm:h-2.5 sm:w-2.5 rounded-lg ${
-                    {
-                      ongoing: "bg-emerald-400",
-                      completed: "bg-blue-400",
-                      hiatus: "bg-amber-400",
-                      cancelled: "bg-red-400",
-                    }[manga.status] || "bg-slate-400"
-                  }`}
-                />
-                {manga.status.charAt(0).toUpperCase() + manga.status.slice(1)}
-              </span>
-              <div className="relative flex items-center gap-2 sm:gap-4 bg-slate-900/60 backdrop-blur-md rounded-lg py-1 sm:py-1.5 px-2 sm:px-2.5 border border-slate-800/60">
-                <div className="flex items-center gap-0.5 sm:gap-1">
-                  <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-rose-500 fill-rose-500/20" />
-                  <span className="text-[10px] sm:text-xs font-medium text-slate-300">
-                    {manga.rating?.follows ? formatCount(manga.rating.follows) : "0"}
+
+        {/* Content */}
+        <div className="flex-1 min-w-0 p-2 pl-1 pb-0">
+          {/* Header Row */}
+          <div className="flex flex-col md:flex-row  items-start justify-between gap-3 mb-2">
+            <div className="flex flex-row gap-3 justify-center items-center">
+
+              <div className="flex-1 flex flex-col gap-1 -mt-1.5 md:mt-0 md:gap-0 min-w-0">
+                <h3 className="text-white items-start  md:items-center max-w-[90%] md:max-w-full   md:whitespace-nowrap font-semibold gap-3 text-lg leading-tight truncate flex flex-row ">
+                  {/* Language Flag */}
+
+                  <StableFlag
+                    code={manga.originalLanguage || "UN"}
+                    className="w-6 mt-0.5  md:-mt-0.5 h-auto shadow-md"
+                  />
+
+                  {manga.title.length > 30 ? manga.title.slice(0, 30) + "..." : manga.title}
+                </h3>
+                <p className="text-gray-400 block text-xs md:text-sm mt-0.5">
+                  {manga.artistName?.[0]?.attributes?.name || "Unknown Author"}
+                  {manga.year && (
+                    <span className="text-gray-500 ml-2">• {manga.year}</span>
+                  )}
+                  {/* Tags and Update Time */}
+                  <span className="text-gray-500 ml-2">
+                    • Updated {timeSinceUpdate(manga.updatedAt)}
                   </span>
-                </div>
-                <div className="flex items-center gap-0.5 sm:gap-1">
-                  <MessageSquareText className="w-4 h-4 sm:w-5 sm:h-5 text-sky-500 fill-sky-500/20" />
-                  <span className="text-[10px] sm:text-xs font-medium text-slate-300">
-                    {manga.rating?.comments?.repliesCount
-                      ? formatCount(manga.rating.comments.repliesCount)
-                      : "0"}
-                  </span>
-                </div>
-                <div className="flex items-center gap-0.5 sm:gap-1">
-                  <Bookmark className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-500 fill-emerald-500/20" />
-                  <span className="text-[10px] sm:text-xs font-medium text-slate-300">
-                    {manga.rating?.bookmarks ? formatCount(manga.rating.bookmarks) : "0"}
-                  </span>
-                </div>
-              </div>
-              <span className="text-slate-500 tracking-widest text-[10px] sm:text-xs whitespace-nowrap md:mr-16 lg:mr-0">
-                Updated {timeSinceUpdate(manga.updatedAt)}
-              </span>
-              {manga.rating?.rating?.bayesian > 0 && (
-                <div className="bg-slate-800/70 -mt-3 top-7 right-3 sm:-mt-4 absolute lg:relative md:top-1 md:-right-4 lg:right-0 md:bg-transparent lg:bg-slate-800/70 md:flex-col lg:flex-row backdrop-blur-sm md:backdrop-blur-none lg:backdrop-blur-sm rounded-lg p-1.5 sm:p-2 px-2 sm:px-2.5 flex items-center gap-1 sm:gap-1.5 shadow-inner">
-                  <span className="text-amber-400 font-bold text-sm sm:text-base leading-none">
-                    {manga.rating.rating.bayesian.toFixed(1)}
-                  </span>
-                  <div className="transform md:bg-slate-800 lg:bg-transparent rounded-lg md:p-1.5 sm:p-2 lg:p-0 md:rotate-90 md:transform md:translate-y-8 sm:translate-y-10 lg:translate-y-0 lg:rotate-0">
-                    <StarRating rating={manga.rating.rating.bayesian} />
+                </p>
+                <div className="flex md:hidden items-center gap-4 text-gray-400 text-sm">
+                  <div className="flex items-center gap-1">
+                    <Star className="w-4 h-4" />
+                    <span>{manga.rating?.rating.bayesian.toFixed(2)}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Heart className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span>{manga.rating?.follows ? formatCount(manga.rating.follows) : "0"}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <MessageSquareText className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span>
+                      {manga.rating?.comments?.repliesCount
+                        ? formatCount(manga.rating.comments.repliesCount)
+                        : "0"}
+                    </span>
+                  </div>
+                  <div className="items-center md:hidden flex gap-2">
+                    <div
+                      className={`w-2 h-2 rounded-full ${getStatusColor(manga.status)}`}
+                    />
+                    <span className="text-gray-300 text-xs font-medium capitalize">
+                      {manga.status}
+                    </span>
                   </div>
                 </div>
-              )}
+              </div>
+
             </div>
-          </div>
-          <div className="mb-1 sm:mb-1.5">
-            <div className="flex flex-wrap items-center justify-between gap-1.5 sm:gap-2">
-              <div className="flex flex-wrap gap-1 max-w-full">
-                {manga.flatTags.slice(0, 7).map((tag) => (
-                  <span
-                    key={tag}
-                    className="bg-slate-800 text-slate-300 text-[9px] sm:text-xs px-1 sm:px-1.5 py-0.5 rounded-md border border-slate-700/30 hover:bg-violet-900/40 hover:border-violet-700/40 hover:text-violet-200 transition-colors truncate"
-                    title={tag}
-                  >
-                    {tag}
-                  </span>
-                ))}
-                {manga.flatTags.length > 7 && (
-                  <span className="bg-violet-900/30 text-violet-300 text-[9px] sm:text-xs px-1 sm:px-1.5 py-0.5 rounded-md border border-violet-700/30 truncate">
-                    +{manga.flatTags.length - 6}
-                  </span>
-                )}
+            {/* Stats */}
+            <div className="md:flex hidden items-center gap-4 text-gray-400 text-sm">
+              <div className="flex items-center gap-1">
+                <Star className="w-4 h-4" />
+                <span>{manga.rating?.rating.bayesian.toFixed(2)}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Heart className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span>{manga.rating?.follows ? formatCount(manga.rating.follows) : "0"}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <MessageSquareText className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span>
+                  {manga.rating?.comments?.repliesCount
+                    ? formatCount(manga.rating.comments.repliesCount)
+                    : "0"}
+                </span>
+              </div>
+              <div className="items-center md:hidden flex gap-2">
+                <div
+                  className={`w-2 h-2 rounded-full ${getStatusColor(manga.status)}`}
+                />
+                <span className="text-gray-300 text-sm font-medium capitalize">
+                  {manga.status}
+                </span>
               </div>
             </div>
-            <p className="text-[10px] sm:text-xs mt-1 sm:mt-1.5 text-white flex flex-wrap items-center gap-1 sm:gap-1.5">
-              <span className="font-medium">
-                By {manga.artistName[0]?.attributes?.name || "Unknown"}
-              </span>
-              {manga.year && (
-                <>
-                  <span className="text-slate-600">•</span>
-                  <span className="text-slate-400 tracking-wide">{manga.year}</span>
-                </>
-              )}
-            </p>
           </div>
-          <p className="text-[10px] sm:text-xs tracking-wide text-slate-400 mb-0.5 leading-relaxed line-clamp-2 max-w-full sm:max-w-[85%]">
-            {manga.description || "No description available"}
+
+          {/* Status and Stats Row */}
+          <div className="flex items-center justify-between gap-4 mb-2">
+            <div className="flex flex-wrap gap-1 flex-1 min-w-0">
+              {/* Content Rating Badge */}
+              <span
+                className={`${getContentRatingColor(
+                  manga.contentRating
+                )}  text-white bg-opacity-55 text-[10px] md:text-xs px-1.5  md:px-2 py-1 capitalize rounded-md truncate`}
+              >
+                {manga.contentRating === "pornographic" ? "18+" : manga.contentRating}
+              </span>
+
+              {manga.flatTags?.slice(0, 3).map((tag) => (
+                <span
+                  key={tag}
+                  className="bg-gray-800 text-gray-300 text-[10px] md:text-xs px-1.5  md:px-2 py-1 rounded-md truncate"
+                  title={tag}
+                >
+                  {tag}
+                </span>
+              ))}
+              {manga.flatTags?.length > 3 && (
+                <span className="bg-gray-700 text-gray-300 text-xs px-2 py-1 rounded-md">
+                  +{manga.flatTags.length - 3}
+                </span>
+              )}
+            </div>
+            {/* Status */}
+            <div className="items-center hidden md:flex gap-2">
+              <div
+                className={`w-2 h-2 rounded-full ${getStatusColor(manga.status)}`}
+              />
+              <span className="text-gray-300 text-sm font-medium capitalize">
+                {manga.status}
+              </span>
+            </div>
+
+          </div>
+          {/* Description */}
+          <p className="text-gray-400  text-sm  mb-2 hidden md:block leading-normal">
+            <span className="line-clamp-3">{manga.description || "No description available"}</span>
           </p>
         </div>
+
       </div>
+      {/* Mobile Description */}
+      <p className="text-gray-400 mt-2 px-1 md:hidden text-sm line-clamp-3  leading-normal">
+        {manga.description || "No description available"}
+      </p>
     </article>
   );
 }
