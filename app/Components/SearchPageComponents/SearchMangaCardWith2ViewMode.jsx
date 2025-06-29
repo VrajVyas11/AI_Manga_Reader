@@ -1,8 +1,9 @@
-import React, { useCallback, useMemo, memo, lazy } from "react";
+import React, { useCallback, useMemo, memo, lazy, Suspense } from "react";
 import { useRouter } from 'next/navigation';
 import { Star } from "lucide-react";
 import { useManga } from "../../providers/MangaContext";
-
+import SearchMangaCardSkeleton from "../Skeletons/SearchPage/SearchMangaCardSkeleton";
+import SearchMangaListSkeleton from "../Skeletons/SearchPage/SearchMangaListSkeleton";
 const SearchMangaCard = memo(
   lazy(() => import("./SearchMangaCardWith2ViewModeModules/SearchMangaCard"))
 );
@@ -103,12 +104,12 @@ const cleanManga = (manga) => {
 };
 
 const SearchMangaCardWith2ViewMode = ({ manga, viewMode }) => {
-    if (!manga.id) return null
+  if (!manga.id) return null
   const router = useRouter();
   const { setSelectedManga } = useManga();
-const mangadata = useMemo(() => manga, [manga]);
+  const mangadata = useMemo(() => manga, [manga]);
   const mangaId = useMemo(() => manga.id, [manga.id]);
-// console.log(cleanManga(manga));
+  // console.log(cleanManga(manga));
 
   const handleMangaClicked = useCallback((manga) => {
     if (manga) {
@@ -129,11 +130,18 @@ const mangadata = useMemo(() => manga, [manga]);
     [handleMangaClicked, manga]
   );
 
-  return viewMode === "grid" ? (
-    <SearchMangaCard {...cardProps} key={mangaId} />
-  ) : (
-    <SearchMangaList {...cardProps} key={mangaId} />
-  );
+  return (
+    viewMode === "grid" ? (
+      <Suspense fallback={<SearchMangaCardSkeleton />}>
+        <SearchMangaCard {...cardProps} key={mangaId} />
+      </Suspense>
+    ) : (
+      <Suspense fallback={<SearchMangaListSkeleton />}>
+      <SearchMangaList {...cardProps} key={mangaId} />
+      </Suspense>
+    )
+  )
+
 };
 
 export default memo(SearchMangaCardWith2ViewMode);

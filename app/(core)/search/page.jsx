@@ -1,17 +1,12 @@
 "use client";
-import React, { useEffect, useState, useCallback, memo, lazy, Suspense } from "react";
+import { useEffect, useState, useCallback, memo} from "react";
 import { AlertCircleIcon, RouteOff } from "lucide-react";
 
-const SearchMangaCardWith2ViewMode = memo(
-  lazy(() => import("../../Components/SearchPageComponents/SearchMangaCardWith2ViewMode"))
-);
-const SearchTotalAndFilterOptions = memo(
-  lazy(() => import("../../Components/SearchPageComponents/SearchAndTotalFilterOptions"))
-);
-const BottomPagination = memo(
-  lazy(() => import("../../Components/SearchPageComponents/BottomPagination"))
-);
-const LoadingSpinner = memo(lazy(() => import("../../Components/LoadingSpinner")));
+import SearchMangaCardWith2ViewMode from "../../Components/SearchPageComponents/SearchMangaCardWith2ViewMode"
+import SearchTotalAndFilterOptions from "../../Components/SearchPageComponents/SearchAndTotalFilterOptions"
+import BottomPagination from "../../Components/SearchPageComponents/BottomPagination"
+import SearchMangaCardSkeleton from "../../Components/Skeletons/SearchPage/SearchMangaCardSkeleton";
+import SearchMangaListSkeleton from "../../Components/Skeletons/SearchPage/SearchMangaListSkeleton";
 
 const SearchPage = memo(() => {
   // State management
@@ -317,7 +312,7 @@ const SearchPage = memo(() => {
   };
 
   return (
-    <div className="min-h-screen text-slate-100">
+    <div className="min-h-[89vh] text-slate-100">
       <main className="max-w-full sm:max-w-[90vw] md:max-w-[95vw] lg:max-w-[91.5%] mx-auto px-2 py-6">
         {/* Results header with controls */}
         <SearchTotalAndFilterOptions
@@ -333,12 +328,21 @@ const SearchPage = memo(() => {
 
         {/* Loading state */}
         {isLoading && (
-          <LoadingSpinner
-            className="relative h-[59dvh] z-50"
-            text="Loading Mangas..."
-          />
+          <div className={
+            viewMode === "grid"
+              ? "grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-2 mt-5 relative gap-y-4 z-10"
+              : "grid grid-cols-1 md:grid-cols-2 gap-2  z-10 mt-5"
+          }>
+            {[...Array(12)].map((_, index) => (
+              <div key={index}>
+                {viewMode === "grid" ? (
+                  <SearchMangaCardSkeleton />
+                ) : (
+                  <SearchMangaListSkeleton />
+                )}
+              </div>
+            ))}        </div>
         )}
-
         {/* Error state */}
         {!isLoading && error && (
           <div className="flex flex-col items-center justify-center py-16">
@@ -354,7 +358,7 @@ const SearchPage = memo(() => {
               </p>
               <button
                 onClick={() => window.location.reload()}
-                className="bg-purple-600 hover:bg-purple-700 text-white px-5 py-2 rounded-lg transition"
+                className="bg-gradient-to-r from-purple-700/70 to-indigo-700/70 hover:bg-purple-700 text-white px-5 py-2 rounded-lg transition"
               >
                 Retry
               </button>
@@ -364,7 +368,7 @@ const SearchPage = memo(() => {
 
         {/* Empty results after filtering */}
         {!isLoading && !error && filteredResults.length === 0 && searchResults.length > 0 && (
-          <div className="flex flex-col items-center justify-center py-16">
+          <div className="flex h-fit flex-col items-center justify-center py-16">
             <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 max-w-md w-full text-center">
               <div className="bg-slate-800/50 w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4">
                 <RouteOff className="w-8 h-8" />
@@ -384,37 +388,35 @@ const SearchPage = memo(() => {
             </div>
           </div>
         )}
-        <Suspense fallback={<div>Loading... </div>}>
-          {/* Results grid/list */}
-          {!isLoading && !error && filteredResults.length > 0 && (
-            <>
-              <div
-                className={
-                  viewMode === "grid"
-                    ? "grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-2 mt-5 relative gap-y-4 z-10"
-                    : "grid grid-cols-1 md:grid-cols-2 gap-2  z-10 mt-5"
-                }
-              >
-                {paginatedItems.map((manga) => (
-                  <SearchMangaCardWith2ViewMode
-                    key={manga.id}
-                    manga={manga}
-                    viewMode={viewMode}
-                  />
-                ))}
-              </div>
-
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <BottomPagination
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  onPageChange={goToPage}
+        {/* Results grid/list */}
+        {!isLoading && !error && filteredResults.length > 0 && (
+          <>
+            <div
+              className={
+                viewMode === "grid"
+                  ? "grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-2 mt-5 relative gap-y-4 z-10"
+                  : "grid grid-cols-1 md:grid-cols-2 gap-2  z-10 mt-5"
+              }
+            >
+              {paginatedItems.map((manga) => (
+                <SearchMangaCardWith2ViewMode
+                  key={manga.id}
+                  manga={manga}
+                  viewMode={viewMode}
                 />
-              )}
-            </>
-          )}
-        </Suspense>
+              ))}
+            </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <BottomPagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={goToPage}
+              />
+            )}
+          </>
+        )}
       </main>
     </div>
   );

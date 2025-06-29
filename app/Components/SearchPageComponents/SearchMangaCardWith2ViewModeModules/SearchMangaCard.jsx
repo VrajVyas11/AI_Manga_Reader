@@ -83,7 +83,7 @@ const SearchMangaCard = ({
           <img
             src={manga.coverImageUrl || "/api/placeholder/300/400"}
             alt={manga.title}
-            className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+            className="w-full h-full object-fill transition-transform duration-700 ease-out group-hover:scale-110"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/20" />
         </div>
@@ -104,23 +104,26 @@ const SearchMangaCard = ({
         </div>
 
         {/* Hover overlay with details */}
-        <div className="absolute inset-0 bg-black/70 backdrop-blur-3xl opacity-0 group-hover:opacity-100 transition-all duration-100 ease-out translate-y-4 group-hover:translate-y-0 z-30">
-          <div className="h-full flex flex-col p-4">
+        <div className="absolute inset-0 bg-black/70 backdrop-blur-3xl opacity-0 group-hover:opacity-100 transition-all duration-100 ease-out translate-y-4 group-hover:translate-y-0 z-30 
+  md:opacity-0 md:group-hover:opacity-100 md:translate-y-4 md:group-hover:translate-y-0
+  [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100 [@media(hover:hover)]:translate-y-4 [@media(hover:hover)]:group-hover:translate-y-0 [@media(hover:hover)]:bg-black/70 [@media(hover:hover)]:backdrop-blur-3xl">
+
+          <div className="h-full flex flex-col p-3 sm:p-4">
             {/* Header with title and rating */}
             <div>
-              <div className="flex items-center justify-between mb-1.5 min-h-12">
-                <h3 className="text-white text-center text-lg font-semibold leading-tight flex-1 line-clamp-2">
+              <div className="flex items-center justify-between mb-1 sm:mb-1.5 min-h-10 sm:min-h-12">
+                <h3 className="text-white text-center text-base sm:text-lg font-semibold leading-tight flex-1 line-clamp-2">
                   {manga.title}
                 </h3>
               </div>
 
               {bayesianRating > 0 && (
-                <div className="flex items-center gap-1.5 mb-2">
-                  <span className="text-amber-400 text-base font-semibold">
+                <div className="flex items-center gap-1 sm:gap-1.5 mb-1.5 sm:mb-2">
+                  <span className="text-amber-400 text-sm sm:text-base font-semibold">
                     {bayesianRating.toFixed(1)}
                   </span>
                   <StarRating rating={Math.floor(bayesianRating / 2)} />
-                  <span className="text-gray-400 text-xs ml-1">
+                  <span className="text-gray-400 text-[10px] sm:text-xs ml-1">
                     ({formatCount(manga?.rating?.follows || 0)} follows)
                   </span>
                 </div>
@@ -128,30 +131,30 @@ const SearchMangaCard = ({
             </div>
 
             {/* Description */}
-            <div className="flex-1 mb-3">
-              <p className="text-gray-300 text-xs leading-normal line-clamp-4">
+            <div className="flex-1 mb-2 sm:mb-3">
+              <p className="text-gray-300 text-[11px] sm:text-xs leading-normal line-clamp-3 sm:line-clamp-4">
                 {manga.description || "No description available."}
               </p>
             </div>
 
             {/* Tags */}
-            <div className="mb-3">
+            <div className="mb-2 sm:mb-3">
               <div className="flex flex-wrap gap-1">
                 <span
-                  className={`${ratingStyle} px-1.5 bg-opacity-55 py-0.5 rounded-md text-[10px] font-semibold backdrop-blur-sm `}
+                  className={`${ratingStyle} px-1 sm:px-1.5 bg-opacity-55 py-0.5 rounded-md text-[9px] sm:text-[10px] font-semibold backdrop-blur-sm`}
                 >
                   {(manga.contentRating || "Unknown").toUpperCase()}
                 </span>
-                {(manga.flatTags || []).slice(0, 3).map((tag) => (
+                {(manga.flatTags || []).slice(0, window.innerWidth < 640 ? 2 : 3).map((tag) => (
                   <span
                     key={tag}
-                    className="bg-purple-900/30 border border-purple-600/30 text-purple-200 px-1.5 py-0.5 rounded-md text-[10px] font-semibold backdrop-blur-sm bg-opacity-90"
+                    className="bg-purple-900/30 border border-purple-600/30 text-purple-200 px-1 sm:px-1.5 py-0.5 rounded-md text-[9px] sm:text-[10px] font-semibold backdrop-blur-sm bg-opacity-90"
                   >
                     {tag}
                   </span>
                 ))}
                 {remainingTagsCount > 0 && (
-                  <span className="bg-gray-800/60 border border-gray-600/30 text-gray-300 text-[9px] px-2 py-0.5 rounded-full font-medium">
+                  <span className="bg-gray-800/60 border border-gray-600/30 text-gray-300 text-[8px] sm:text-[9px] px-1.5 sm:px-2 py-0.5 rounded-full font-medium">
                     +{remainingTagsCount}
                   </span>
                 )}
@@ -159,8 +162,8 @@ const SearchMangaCard = ({
             </div>
 
             {/* Read Now Button */}
-            <button className="w-full bg-purple-700/40 text-white font-semibold py-2 px-3 rounded-lg transition-all duration-300 flex items-center justify-center gap-1.5 group/btn">
-              <BookOpen className="w-4 h-4 transition-transform text-sm group-hover/btn:translate-x-0.5" />
+            <button className="w-full bg-purple-700/40 text-white font-semibold py-2 px-3 rounded-lg transition-all duration-300 flex items-center justify-center gap-1 sm:gap-1.5 group/btn text-sm sm:text-base">
+              <BookOpen className="w-3 h-3 sm:w-4 sm:h-4 transition-transform group-hover/btn:translate-x-0.5" />
               Read Now
             </button>
           </div>

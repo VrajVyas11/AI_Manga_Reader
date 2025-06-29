@@ -31,7 +31,7 @@ function FilterCustomDropDown({
     }
 
     return (
-      <span key={index} className="inline-flex line-clamp-1 ">
+      <span  className="inline-flex line-clamp-1 ">
         {selectedValues}
       </span>
     );

@@ -2,83 +2,94 @@ import React, { useCallback } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const BottomPagination = ({ currentPage, totalPages, onPageChange }) => {
-  const pageRange = 2;
-  const getPageNumbers = useCallback(() => {
-    const pageNumbers = [];
-    const leftSide = Math.max(1, currentPage - pageRange);
-    const rightSide = Math.min(totalPages, currentPage + pageRange);
+  const getVisiblePages = useCallback(() => {
+    const delta = 2;
+    const range = [];
+    const rangeWithDots = [];
 
-    // Add first page if not included in range
-    if (leftSide > 1) {
-      pageNumbers.push(1);
-      if (leftSide > 2) {
-        pageNumbers.push('...');
-      }
+    for (let i = Math.max(2, currentPage - delta); i <= Math.min(totalPages - 1, currentPage + delta); i++) {
+      range.push(i);
     }
 
-    // Add page numbers in range
-    for (let i = leftSide; i <= rightSide; i++) {
-      pageNumbers.push(i);
+    if (currentPage - delta > 2) {
+      rangeWithDots.push(1, 'gap1');
+    } else {
+      rangeWithDots.push(1);
     }
 
-    // Add last page if not included in range
-    if (rightSide < totalPages) {
-      if (rightSide < totalPages - 1) {
-        pageNumbers.push('...');
-      }
-      pageNumbers.push(totalPages);
+    rangeWithDots.push(...range);
+
+    if (currentPage + delta < totalPages - 1) {
+      rangeWithDots.push('gap2', totalPages);
+    } else {
+      rangeWithDots.push(totalPages);
     }
 
-    return pageNumbers;
+    return rangeWithDots;
   }, [currentPage, totalPages]);
 
   if (totalPages <= 1) return null;
 
+  const visiblePages = getVisiblePages();
+
   return (
-    <div className="flex justify-center items-center mt-8 bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 select-none">
+ <nav className="flex items-center justify-center space-x-1 mt-8 md:gap-3" aria-label="Pagination">
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
-        className={`p-2 rounded-lg ${currentPage === 1
-            ? 'text-slate-600 cursor-not-allowed'
-            : 'text-slate-400 hover:text-white hover:bg-slate-800'
-          }`}
+        className={`flex items-center  justify-center w-10 h-10 md:w-14 md:h-14 rounded-md border transition-colors ${
+          currentPage === 1
+            ? 'border-gray-800 text-gray-600 cursor-not-allowed'
+            : 'border-gray-700 text-gray-300 hover:border-gray-600 hover:text-white hover:bg-gray-800'
+        }`}
         aria-label="Previous page"
       >
-        <ChevronLeft size={20} />
+        <ChevronLeft size={16} />
       </button>
 
-      <div className="flex items-center gap-1 px-2">
-        {getPageNumbers().map((page, index) => (
+      {visiblePages.map((page, index) => {
+        if (typeof page === 'string') {
+          return (
+            <span
+              key={page}
+              className="flex items-center justify-center w-10 h-10 md:w-14 md:h-14 text-gray-500"
+            >
+              ⋯
+            </span>
+          );
+        }
+
+        return (
           <button
-            key={index}
-            onClick={() => (typeof page === 'number' ? onPageChange(page) : null)}
-            className={`min-w-8 h-8 flex items-center justify-center rounded-md text-sm ${page === currentPage
-                ? 'bg-purple-600 text-white font-medium'
-                : page === '...'
-                  ? 'text-slate-500 cursor-default'
-                  : 'text-slate-400 hover:bg-slate-800 hover:text-white'
-              }`}
-            disabled={page === '...'}
+            key={page}
+            onClick={() => onPageChange(page)}
+            className={`flex items-center justify-center w-10 h-10 md:w-14 md:h-14 rounded-md border text-sm font-medium transition-colors ${
+              page === currentPage
+                ? 'border-white bg-white text-black'
+                : 'border-gray-700 text-gray-300 hover:border-gray-600 hover:text-white hover:bg-gray-800'
+            }`}
+            aria-label={`Page ${page}`}
+            aria-current={page === currentPage ? 'page' : undefined}
           >
             {page}
           </button>
-        ))}
-      </div>
+        );
+      })}
 
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
-        className={`p-2 rounded-lg ${currentPage === totalPages
-            ? 'text-slate-600 cursor-not-allowed'
-            : 'text-slate-400 hover:text-white hover:bg-slate-800'
-          }`}
+        className={`flex items-center justify-center w-10 h-10 md:w-14 md:h-14 rounded-md border transition-colors ${
+          currentPage === totalPages
+            ? 'border-gray-800 text-gray-600 cursor-not-allowed'
+            : 'border-gray-700 text-gray-300 hover:border-gray-600 hover:text-white hover:bg-gray-800'
+        }`}
         aria-label="Next page"
       >
-        <ChevronRight size={20} />
+        <ChevronRight size={16} />
       </button>
-    </div>
+    </nav>
   );
 };
 
-export default BottomPagination;
+export default BottomPagination

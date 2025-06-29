@@ -1,66 +1,95 @@
+import  { useCallback } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import React from 'react';
 
-const MangaCardPagination = React.memo(({
-    currentPage,
-    totalPages,
-    onPageChange,
-    loadMoreMangas,
-}) => {
-    if (totalPages <= 1 && !loadMoreMangas) return null;
+const BottomPagination = ({ currentPage, totalPages, onPageChange,onLoadMore,loadMoreMangas }) => {
+  const getVisiblePages = useCallback(() => {
+    const delta = 2;
+    const range = [];
+    const rangeWithDots = [];
 
-    return (
-        <div className="flex w-full justify-center items-center -mb-4 px-4 select-none max-w-full">
-            <div className="flex items-center space-x-4 bg-gradient-to-r from-black/90 via-gray-900/90 to-black/90 backdrop-blur-xl border border-purple-900/40 rounded-xl px-8 py-3 shadow-[0_0_5px_rgba(147,51,234,0.3)]">
-                {/* Left Arrow with Glow Effect */}
-                <button
-                    onClick={() => onPageChange(currentPage - 1)}
-                    disabled={currentPage === 1}
-                    className={`w-12 h-12 flex items-center justify-center rounded-full transition-all duration-500 ${currentPage === 1
-                            ? 'opacity-40 cursor-not-allowed'
-                            : 'hover:bg-purple-700/10 hover:shadow-[0_0_5px_rgba(147,51,234,0.6)] border border-purple-800/50'
-                        }`}
-                >
-                    <ChevronLeft size={24} className="text-purple-300 hover:text-purple-100 transition-colors duration-300" />
-                </button>
+    for (let i = Math.max(2, currentPage - delta); i <= Math.min(totalPages - 1, currentPage + delta); i++) {
+      range.push(i);
+    }
 
-                {/* Page Numbers with Neon Effect */}
-                <div className="flex space-x-3">
-                    {[...Array(totalPages).keys()].map((_, index) => {
-                        const page = index + 1;
-                        const isActive = page === currentPage;
-                        return (
-                            <button
-                                key={index}
-                                onClick={() => onPageChange(page)}
-                                className={`relative w-10 h-10 flex items-center justify-center rounded-lg text-base font-semibold transition-all duration-500 ${isActive
-                                        ? 'bg-purple-800/30 text-purple-100 border border-purple-500/70 shadow-[0_0_12px_rgba(147,51,234,0.5)]'
-                                        : 'text-gray-300 hover:bg-gray-800/50 hover:text-purple-200 hover:shadow-[0_0_8px_rgba(147,51,234,0.3)]'
-                                    }`}
-                            >
-                                {page}
-                                {isActive && (
-                                    <span className="absolute inset-0 rounded-lg border border-purple-400/30 animate-pulse" />
-                                )}
-                            </button>
-                        );
-                    })}
-                </div>
+    if (currentPage - delta > 2) {
+      rangeWithDots.push(1, 'gap1');
+    } else {
+      rangeWithDots.push(1);
+    }
 
-                {/* Right Arrow with Glow Effect */}
-                <button
-                    onClick={() => onPageChange(currentPage + 1)}
-                    disabled={currentPage === totalPages}
-                    className={`w-12 h-12 flex items-center justify-center rounded-full transition-all duration-500 ${currentPage === totalPages
-                            ? 'opacity-40 cursor-not-allowed'
-                            : 'hover:bg-purple-700/10 hover:shadow-[0_0_5px_rgba(147,51,234,0.6)] border border-purple-800/50'
-                        }`}
-                >
-                    <ChevronRight size={24} className="text-purple-300 hover:text-purple-100 transition-colors duration-300" />
-                </button>
-            </div>
-        </div>
-    );
-});
+    rangeWithDots.push(...range);
 
-export default MangaCardPagination;
+    if (currentPage + delta < totalPages - 1) {
+      rangeWithDots.push('gap2', totalPages);
+    } else {
+      rangeWithDots.push(totalPages);
+    }
+
+    return rangeWithDots;
+  }, [currentPage, totalPages]);
+
+  if (totalPages <= 1) return null;
+
+  const visiblePages = getVisiblePages();
+
+  return (
+    <nav className="flex items-center justify-center space-x-1 mt-8 gap-3" aria-label="Pagination">
+      <button
+        onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage === 1}
+        className={`flex items-center  justify-center w-14 h-14 rounded-md border transition-colors ${
+          currentPage === 1
+            ? 'border-gray-800 text-gray-600 cursor-not-allowed'
+            : 'border-gray-700 text-gray-300 hover:border-gray-600 hover:text-white hover:bg-gray-800'
+        }`}
+        aria-label="Previous page"
+      >
+        <ChevronLeft size={16} />
+      </button>
+
+      {visiblePages.map((page, index) => {
+        if (typeof page === 'string') {
+          return (
+            <span
+              key={page}
+              className="flex items-center justify-center w-14 h-14 text-gray-500"
+            >
+              ⋯
+            </span>
+          );
+        }
+
+        return (
+          <button
+            key={page}
+            onClick={() => onPageChange(page)}
+            className={`flex items-center justify-center w-14 h-14 rounded-md border text-sm font-medium transition-colors ${
+              page === currentPage
+                ? 'border-white bg-white text-black'
+                : 'border-gray-700 text-gray-300 hover:border-gray-600 hover:text-white hover:bg-gray-800'
+            }`}
+            aria-label={`Page ${page}`}
+            aria-current={page === currentPage ? 'page' : undefined}
+          >
+            {page}
+          </button>
+        );
+      })}
+
+      <button
+        onClick={() => onPageChange(currentPage + 1)}
+        disabled={currentPage === totalPages}
+        className={`flex items-center justify-center  w-14 h-14 rounded-md border transition-colors ${
+          currentPage === totalPages
+            ? 'border-gray-800 text-gray-600 cursor-not-allowed'
+            : 'border-gray-700 text-gray-300 hover:border-gray-600 hover:text-white hover:bg-gray-800'
+        }`}
+        aria-label="Next page"
+      >
+        <ChevronRight size={16} />
+      </button>
+    </nav>
+  );
+};
+
+export default BottomPagination
