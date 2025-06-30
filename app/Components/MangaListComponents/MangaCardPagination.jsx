@@ -1,7 +1,7 @@
-import  { useCallback } from 'react';
+import { useCallback } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-const BottomPagination = ({ currentPage, totalPages, onPageChange,onLoadMore,loadMoreMangas }) => {
+const BottomPagination = ({ currentPage, totalPages, onPageChange, onLoadMore, loadMoreMangas }) => {
   const getVisiblePages = useCallback(() => {
     const delta = 2;
     const range = [];
@@ -37,11 +37,10 @@ const BottomPagination = ({ currentPage, totalPages, onPageChange,onLoadMore,loa
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
-        className={`flex items-center  justify-center w-14 h-14 rounded-md border transition-colors ${
-          currentPage === 1
+        className={`flex items-center  justify-center w-14 h-14 rounded-md border transition-colors ${currentPage === 1
             ? 'border-gray-800 text-gray-600 cursor-not-allowed'
             : 'border-gray-700 text-gray-300 hover:border-gray-600 hover:text-white hover:bg-gray-800'
-        }`}
+          }`}
         aria-label="Previous page"
       >
         <ChevronLeft size={16} />
@@ -63,11 +62,10 @@ const BottomPagination = ({ currentPage, totalPages, onPageChange,onLoadMore,loa
           <button
             key={page}
             onClick={() => onPageChange(page)}
-            className={`flex items-center justify-center w-14 h-14 rounded-md border text-sm font-medium transition-colors ${
-              page === currentPage
+            className={`flex items-center justify-center w-14 h-14 rounded-md border text-sm font-medium transition-colors ${page === currentPage
                 ? 'border-white bg-white text-black'
                 : 'border-gray-700 text-gray-300 hover:border-gray-600 hover:text-white hover:bg-gray-800'
-            }`}
+              }`}
             aria-label={`Page ${page}`}
             aria-current={page === currentPage ? 'page' : undefined}
           >
@@ -79,11 +77,10 @@ const BottomPagination = ({ currentPage, totalPages, onPageChange,onLoadMore,loa
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
-        className={`flex items-center justify-center  w-14 h-14 rounded-md border transition-colors ${
-          currentPage === totalPages
+        className={`flex items-center justify-center  w-14 h-14 rounded-md border transition-colors ${currentPage === totalPages
             ? 'border-gray-800 text-gray-600 cursor-not-allowed'
             : 'border-gray-700 text-gray-300 hover:border-gray-600 hover:text-white hover:bg-gray-800'
-        }`}
+          }`}
         aria-label="Next page"
       >
         <ChevronRight size={16} />

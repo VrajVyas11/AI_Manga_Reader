@@ -33,15 +33,14 @@ const BottomPagination = ({ currentPage, totalPages, onPageChange }) => {
   const visiblePages = getVisiblePages();
 
   return (
- <nav className="flex items-center justify-center space-x-1 mt-8 md:gap-3" aria-label="Pagination">
+    <nav className="flex items-center justify-center space-x-1 mt-8 md:gap-3" aria-label="Pagination">
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
-        className={`flex items-center  justify-center w-10 h-10 md:w-14 md:h-14 rounded-md border transition-colors ${
-          currentPage === 1
+        className={`flex items-center  justify-center w-10 h-10 md:w-14 md:h-14 rounded-md border transition-colors ${currentPage === 1
             ? 'border-gray-800 text-gray-600 cursor-not-allowed'
             : 'border-gray-700 text-gray-300 hover:border-gray-600 hover:text-white hover:bg-gray-800'
-        }`}
+          }`}
         aria-label="Previous page"
       >
         <ChevronLeft size={16} />
@@ -63,11 +62,10 @@ const BottomPagination = ({ currentPage, totalPages, onPageChange }) => {
           <button
             key={page}
             onClick={() => onPageChange(page)}
-            className={`flex items-center justify-center w-10 h-10 md:w-14 md:h-14 rounded-md border text-sm font-medium transition-colors ${
-              page === currentPage
+            className={`flex items-center justify-center w-10 h-10 md:w-14 md:h-14 rounded-md border text-sm font-medium transition-colors ${page === currentPage
                 ? 'border-white bg-white text-black'
                 : 'border-gray-700 text-gray-300 hover:border-gray-600 hover:text-white hover:bg-gray-800'
-            }`}
+              }`}
             aria-label={`Page ${page}`}
             aria-current={page === currentPage ? 'page' : undefined}
           >
@@ -79,11 +77,10 @@ const BottomPagination = ({ currentPage, totalPages, onPageChange }) => {
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
-        className={`flex items-center justify-center w-10 h-10 md:w-14 md:h-14 rounded-md border transition-colors ${
-          currentPage === totalPages
+        className={`flex items-center justify-center w-10 h-10 md:w-14 md:h-14 rounded-md border transition-colors ${currentPage === totalPages
             ? 'border-gray-800 text-gray-600 cursor-not-allowed'
             : 'border-gray-700 text-gray-300 hover:border-gray-600 hover:text-white hover:bg-gray-800'
-        }`}
+          }`}
         aria-label="Next page"
       >
         <ChevronRight size={16} />

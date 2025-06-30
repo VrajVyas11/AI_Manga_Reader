@@ -1,9 +1,9 @@
 "use client";
 import React, { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
-import { Search, Menu, X } from "lucide-react";
+import { Search, Menu, X, UserCircle } from "lucide-react";
 import { usePathname } from "next/navigation";
-
+import ProfilePop from "../Components/TopNavbarComponents/ProfilePop"
 const TopNavbar = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -120,16 +120,7 @@ const TopNavbar = () => {
           Upgrade
         </button>
         <div className="flex items-center">
-          <button className="bg-purple-500 p-0.5 rounded-full flex items-center justify-center focus:outline-none">
-            <span className="sr-only">User menu</span>
-            <Image
-              src="/user.png"
-              width={32}
-              height={32}
-              alt="user"
-              className="bg-white p-1 rounded-full"
-            />
-          </button>
+        <ProfilePop/>
         </div>
       </div>
     </header>}</>

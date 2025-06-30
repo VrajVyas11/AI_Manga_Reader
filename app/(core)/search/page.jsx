@@ -346,7 +346,7 @@ const SearchPage = memo(() => {
         {/* Error state */}
         {!isLoading && error && (
           <div className="flex flex-col items-center justify-center py-16">
-            <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 max-w-md w-full text-center">
+            <div className="bg-slate-950/20 border border-slate-800 rounded-xl p-6 max-w-md w-full text-center">
               <div className="bg-slate-800/50 w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4">
                 <AlertCircleIcon className="h-6 w-6" />
               </div>
