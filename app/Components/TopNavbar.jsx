@@ -46,7 +46,8 @@ const TopNavbar = () => {
         <div className="hidden lg:flex space-x-7 text-gray-400">
           <a href="/manga-list" className={`${currentPath == "/manga-list" ? "font-bold text-white" : ""}  hover:text-white`}>Home</a>
           <a href="/search" className={`${currentPath == "/search" ? "font-bold text-white" : ""} hover:text-white`}>Search</a>
-          <a href="/library" className={`${currentPath == "/library" ? "font-bold text-white" : ""} hover:text-white`}>Library</a>
+        <a href="/library" className={`${currentPath == "/library" ? "font-bold text-white" : ""} hover:text-white`}>Library</a>
+         <a href="/download" className={`${currentPath == "/download" ? "font-bold text-white" : ""}  hover:text-white`}>Download</a>
         </div>
 
         {/* Hamburger Menu - Mobile */}
@@ -64,7 +65,7 @@ const TopNavbar = () => {
         <div className="absolute top-16 left-0 w-full bg-gray-950/90 backdrop-blur-md flex flex-col items-center py-4 lg:hidden">
           <a href="/manga-list" className="py-2 text-white font-medium hover:text-purple-400">Home</a>
           <a href="/search" className="py-2 text-white font-medium hover:text-purple-400">Search</a>
-          <a href="#" className="py-2 text-white font-medium hover:text-purple-400">Library</a>
+          <a href="/library" className="py-2 text-white font-medium hover:text-purple-400">Library</a>
         </div>
       )}
 
@@ -116,11 +117,11 @@ const TopNavbar = () => {
 
       {/* Right - Controls and Profile */}
       <div className="flex items-center space-x-3 sm:space-x-5">
-        <button className="hidden sm:block text-xs sm:text-sm font-medium bg-black border border-gray-700 hover:border-white text-white py-2 sm:py-3 px-3 sm:px-5 rounded-full">
+        {/* <button className="hidden sm:block text-xs sm:text-sm font-medium bg-black border border-gray-700 hover:border-white text-white py-2 sm:py-3 px-3 sm:px-5 rounded-full">
           Upgrade
-        </button>
+        </button> */}
         <div className="flex items-center">
-        <ProfilePop/>
+          <ProfilePop />
         </div>
       </div>
     </header>}</>

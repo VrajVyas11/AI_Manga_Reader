@@ -1,46 +1,59 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { 
-  User, 
-  Settings, 
-  Palette, 
-  Download, 
-  Moon, 
-  Sun, 
+import React, { useState, useRef, useEffect } from "react";
+import {
+  User,
+  Settings,
+  Palette,
+  Download,
+  Moon,
+  Sun,
   LogOut,
   ChevronRight,
   Bell,
   Shield,
-  HelpCircle
-} from 'lucide-react';
+  HelpCircle,
+  LogIn,
+  DoorClosed,
+} from "lucide-react";
+import { useTheme } from "@/app/providers/ThemeContext";
 
 function ProfilePop() {
   const [isOpen, setIsOpen] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(true);
   const popupRef = useRef(null);
   const buttonRef = useRef(null);
+  const { theme, toggleTheme } = useTheme();
+  const isDarkMode = theme === "dark";
+  const isLoggedIn = false;
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (popupRef.current && !popupRef.current.contains(event.target) && 
-          buttonRef.current && !buttonRef.current.contains(event.target)) {
+      if (
+        popupRef.current &&
+        !popupRef.current.contains(event.target) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(event.target)
+      ) {
         setIsOpen(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const togglePopup = () => {
     setIsOpen(!isOpen);
   };
 
-  const toggleTheme = () => {
-    setIsDarkMode(!isDarkMode);
-  };
+  const handleToggleTheme = () => {
+    toggleTheme();
 
+    // Set cookie with the *new* theme value (invert current)
+    const newTheme = isDarkMode ? "light" : "dark";
+    document.cookie = `theme=${newTheme}; path=/; max-age=31536000`;
+     window.location.reload();
+  };
   const menuItems = [
-    { icon: User, label: 'Profile', hasSubmenu: true },
+    { icon: User, label: 'Profile', hasSubmenu: true, AuthNeeded: true, isLoggedIn: false },
     { icon: Settings, label: 'Preferences', hasSubmenu: true },
     { icon: Palette, label: 'Theme Settings', hasSubmenu: true },
     { icon: Download, label: 'Downloads', count: 8 },
@@ -84,12 +97,12 @@ function ProfilePop() {
             {menuItems.map((item, index) => (
               <button
                 key={index}
-                className="w-full px-4 py-3 flex items-center justify-between hover:bg-slate-800/50 transition-colors duration-150 group"
+                className={`w-full ${(item.AuthNeeded && !item.isLoggedIn) ? "hidden" : "flex"} px-4 py-3 items-center justify-between hover:bg-slate-800/50 transition-colors duration-150 group`}
               >
                 <div className="flex items-center space-x-3">
-                  <item.icon 
-                    size={18} 
-                    className="text-slate-400 group-hover:text-slate-300 transition-colors" 
+                  <item.icon
+                    size={18}
+                    className="text-slate-400 group-hover:text-slate-300 transition-colors"
                   />
                   <span className="text-slate-300 group-hover:text-slate-200 transition-colors">
                     {item.label}
@@ -102,9 +115,9 @@ function ProfilePop() {
                     </span>
                   )}
                   {item.hasSubmenu && (
-                    <ChevronRight 
-                      size={16} 
-                      className="text-slate-500 group-hover:text-slate-400 transition-colors" 
+                    <ChevronRight
+                      size={16}
+                      className="text-slate-500 group-hover:text-slate-400 transition-colors"
                     />
                   )}
                 </div>
@@ -114,7 +127,7 @@ function ProfilePop() {
             {/* Theme Toggle */}
             <div className="border-t border-slate-700/50 mt-2 pt-2">
               <button
-                onClick={toggleTheme}
+                onClick={handleToggleTheme}
                 className="w-full px-4 py-3 flex items-center justify-between hover:bg-slate-800/50 transition-colors duration-150 group"
               >
                 <div className="flex items-center space-x-3">
@@ -134,12 +147,29 @@ function ProfilePop() {
             </div>
 
             {/* Logout */}
-            <div className="border-t border-slate-700/50 mt-2 pt-2">
+            {isLoggedIn ? <div className="border-t border-slate-700/50 mt-2 pt-2">
               <button className="w-full px-4 py-3 flex items-center space-x-3 hover:bg-red-500/10 hover:border-red-500/20 transition-colors duration-150 group text-red-400 hover:text-red-300">
                 <LogOut size={18} />
                 <span>Sign Out</span>
               </button>
             </div>
+              :
+              <div className=' w-full flex flex-row'>
+              <div className="border-t w-full border-slate-700/50 mt-2 pt-2">
+                <button className="w-full px-4 py-3 flex justify-center items-center space-x-3 hover:bg-blue-500/10 hover:border-blue-500/20 transition-colors duration-150 group text-blue-400 hover:text-blue-300">
+                  <LogIn size={18} />
+                  <span>Sign In </span>
+                </button>
+              </div>
+                <div className="border-t w-full border-slate-700/50 mt-2 pt-2">
+                <button className="w-full px-4 py-3 flex justify-center items-center space-x-3 hover:bg-purple-500/10 hover:border-purple-500/20 transition-colors duration-150 group text-purple-400 hover:text-purple-300">
+                  <DoorClosed size={20} />
+                  <span>Sign Up</span>
+                </button>
+              </div>
+              </div>
+            }
+
           </div>
         </div>
       )}
