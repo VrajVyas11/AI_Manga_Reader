@@ -5,7 +5,7 @@ import React, {
   useState,
   ReactNode,
   FC,
- useContext
+  useContext,
 } from "react";
 
 // Define the shape of the context value
@@ -26,20 +26,20 @@ interface ThemeProviderProps {
 export const ThemeProvider: FC<ThemeProviderProps> = ({ children }) => {
   const [theme, setTheme] = useState<"light" | "dark">("dark");
 
-  // On mount, read theme from localStorage and update cookie
+  // On mount, read theme from localStorage
   useEffect(() => {
-    const savedTheme = localStorage.getItem("theme") as "light" | "dark" | null;
+    const savedTheme = localStorage.getItem("theme") as
+      | "light"
+      | "dark"
+      | null;
     if (savedTheme) {
       setTheme(savedTheme);
-      // Update cookie for server to read
-      document.cookie = `theme=${savedTheme}; path=/; max-age=31536000`;
     }
   }, []);
 
-  // When theme changes, save to localStorage and update cookie
+  // When theme changes, save to localStorage
   useEffect(() => {
     localStorage.setItem("theme", theme);
-    document.cookie = `theme=${theme}; max-age=31536000`;
   }, [theme]);
 
   const toggleTheme = () => {
@@ -52,8 +52,6 @@ export const ThemeProvider: FC<ThemeProviderProps> = ({ children }) => {
     </ThemeContext.Provider>
   );
 };
-
-
 
 export const useTheme = () => {
   const context = useContext(ThemeContext);

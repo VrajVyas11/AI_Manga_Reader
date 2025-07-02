@@ -8,7 +8,7 @@ import SliderComponent from '../../Components/MangaListComponents/SliderComponen
 const MangaList = () => {
   return (
     <div className="relative min-h-screen w-full  overflow-hidden">
-      <div className="w-full shadow-[5px_5px_50px_rgba(0,0,0,1)] shadow-black h-fit">
+      <div className="w-full h-fit">
         <SliderComponent />
       </div>
       <div className="hidden md:block">
