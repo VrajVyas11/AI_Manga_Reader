@@ -77,6 +77,17 @@ Feast your eyes on the stunning UI, two previews per row.
 | 🌐 Not Found Page | 🔍 Profile PopUp |
 | -------------- | ------------- |
 | ![Not Found Page](./livedemoimages/16.png) | ![Profile PopUp](./livedemoimages/17.png) |
+
+## Light Theme
+
+| 🔍 Search Page | 🔍 Library Page |
+| ------------- | ------------- |
+| ![Search Page](./livedemoimages/l2.png) |  ![Library Page](./livedemoimages/l3.png) | 
+
+| 🌐 Not Found Page | 
+| -------------- |
+| ![Not Found Page](./livedemoimages/l4.png) |
+
 ---
 
 ## ✨ **Core Features**
