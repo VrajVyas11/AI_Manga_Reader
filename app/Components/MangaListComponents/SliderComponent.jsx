@@ -25,7 +25,7 @@ const MangaThumbnail = React.memo(
       <div
         className={`
           relative cursor-pointer transition-all duration-300
-          ${index === activeIndex ? 'ring-2 ring-purple-600' : 'opacity-70 hover:opacity-100'}
+          ${index === activeIndex ? 'ring-2 ring-purple-600' : ` ${isDark?"opacity-70 hover:opacity-100":""} `}
         `}
         onClick={() => handleThumbnailClick(index)}
       >
@@ -47,7 +47,7 @@ const MangaThumbnail = React.memo(
           </div>
           <h4
             className={`text-sm font-medium truncate ${
-              isDark ? 'text-white' : 'text-gray-900'
+              isDark ? 'text-white' : 'text-gray-300'
             }`}
           >
             {manga.title}
