@@ -7,6 +7,7 @@ import LoadingSpinner from "./Components/LoadingSpinner";
 import "./globals.css";
 import TopNavbar from "./Components/TopNavbar";
 import { ThemeProviderClient } from "./providers/ThemeProviderClient";
+import Script from "next/script";
 
 export default function RootLayout({
   children,
@@ -15,7 +16,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <head>{/* your scripts */}</head>
+      <head><Script
+          src="https://unpkg.com/react-scan/dist/auto.global.js"
+          strategy="afterInteractive"
+        /></head>
       <body cz-shortcut-listen="true">
         <Suspense fallback={<LoadingSpinner text="Please Wait..." />}>
           <TanstackProvider>
