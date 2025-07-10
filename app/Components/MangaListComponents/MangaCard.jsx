@@ -10,7 +10,8 @@ import StableFlag from '../StableFlag';
 import { useRouter } from 'next/navigation';
 import { useManga } from '../../providers/MangaContext';
 import { useTheme } from '../../providers/ThemeContext';
-import useInView from "../../hooks/useInView"
+import useInView from "../../hooks/useInView";
+
 const MangaCard = React.memo(() => {
     const { theme } = useTheme();
     const isDark = theme === "dark";
@@ -21,10 +22,12 @@ const MangaCard = React.memo(() => {
     const totalPages = Math.ceil(processedLatestMangas.length / ITEMS_PER_PAGE);
     const router = useRouter();
     const { setSelectedManga } = useManga();
+
     const handleMangaClicked = useCallback((manga) => {
         setSelectedManga(manga);
         router.push(`/manga/${manga.id}/chapters`);
     }, [router, setSelectedManga]);
+
     const stableHandleMangaClicked = useCallback(handleMangaClicked, []);
 
     const loadMoreMangas = useCallback(() => {
@@ -68,7 +71,12 @@ const MangaCard = React.memo(() => {
                 </div>
                 <div className="grid w-[95%] sm:gap-y-4 mx-auto md:mx-5 xl:ml-16 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
                     {currentMangas.map((manga, index) => (
-                        <Card isDark={isDark} currentMangas={currentMangas} manga={manga} stableHandleMangaClicked={stableHandleMangaClicked} key={index} />
+                        <Card 
+                            isDark={isDark} 
+                            manga={manga} 
+                            stableHandleMangaClicked={stableHandleMangaClicked} 
+                            key={`${manga.id}-${currentPage}-${index}`} // Add currentPage to key for proper remounting
+                        />
                     ))}
                 </div>
                 {loadMoreMangas && currentPage === totalPages && (
@@ -97,17 +105,14 @@ MangaCard.displayName = 'MangaCard';
 
 export default MangaCard;
 
-
-
-const Card = ({ manga, stableHandleMangaClicked, currentMangas, isDark }) => {
-    const [ref, inView] = useInView(currentMangas.length);
+const Card = ({ manga, stableHandleMangaClicked, isDark }) => {
+    const [ref, inView] = useInView(0.1);
 
     return (
         <div
-            key={manga.id}
             ref={ref}
             onClick={() => stableHandleMangaClicked(manga)}
-            className={`manga-card transform transition-all duration-300 cursor-pointer w-full flex justify-center items-start ${inView
+            className={`manga-card transform transition-all duration-500 cursor-pointer w-full flex justify-center items-start ${inView
                 ? "opacity-100 translate-y-0"
                 : "opacity-0 translate-y-10"
                 }`}
@@ -205,6 +210,5 @@ const Card = ({ manga, stableHandleMangaClicked, currentMangas, isDark }) => {
                 </div>
             </div>
         </div>
-    )
-
-}
+    );
+};

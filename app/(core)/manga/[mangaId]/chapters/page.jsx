@@ -71,7 +71,7 @@ export default function MangaChapters() {
   }
 
   return (
-      <div className="w-full min-h-screen -mt-7 md:-mt-20 overflow-hidden bg-transparent flex flex-col gap-12 text-white">
+      <div className="w-full relative z-20 min-h-screen -mt-7 md:-mt-20 overflow-hidden bg-transparent flex flex-col gap-12 text-white">
         <AboutManga chapters={chapters} manga={manga} handleChapterClick={handleChapterClick} />
         {chaptersLoading ? (
           <TabsAndSectionsSkeleton />

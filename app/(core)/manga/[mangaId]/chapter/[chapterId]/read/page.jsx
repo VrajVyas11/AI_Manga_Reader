@@ -109,7 +109,7 @@ console.log(chapterInfo)
   return (
     chapters && chapterId && mangaId && pages && !isError ? (
       <div
-        className="tracking-wider flex flex-row w-full h-[90vh] md:h-[91.3vh] justify-between items-start -mt-5 bg-[#070920] backdrop-blur-md text-white overflow-hidden"
+        className="tracking-wider flex flex-row w-full h-[90vh] md:h-[91.3vh] justify-between items-start -mt-5   text-white overflow-hidden"
       >
         <InfoSidebar
           panels={panels}

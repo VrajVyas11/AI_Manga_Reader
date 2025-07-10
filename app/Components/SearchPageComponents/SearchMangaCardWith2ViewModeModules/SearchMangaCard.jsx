@@ -2,6 +2,7 @@ import React, { memo, lazy, useMemo } from "react";
 import { Heart, MessageSquareText, Bookmark, Play, Star, BookOpen } from "lucide-react";
 import { langToCountry } from "../../../constants/Flags"
 import StableFlag from "../../StableFlag";
+import useInView from "@/app/hooks/useInView";
 
 const contentRatingStyles = {
   safe: "bg-emerald-600 text-emerald-50",
@@ -69,10 +70,14 @@ const SearchMangaCard = ({
     () => manga?.rating?.rating?.bayesian || 0,
     [manga?.rating?.rating?.bayesian]
   );
-
+const [ref, inView] = useInView(0.1)
   return (
     <article
-      className="group relative w-full max-w-sm mx-auto cursor-pointer"
+    ref={ref}
+      className={`group relative w-full transform transition-all duration-500  max-w-sm mx-auto cursor-pointer ${inView
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-10"
+                }`}
       onClick={handleMangaClicked}
       role="button"
       tabIndex={0}

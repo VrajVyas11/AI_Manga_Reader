@@ -35,7 +35,7 @@ const TopNavbar = () => {
   useEffect(() => {
     setCurrentPath(window.location.pathname)
   }, [pathname])
-  const isDark = theme === "dark";
+  const isDark = isMounted ? theme === "dark" : true;
 
   const headerClasses = `
     fixed top-0 w-full z-[9999] 
@@ -58,10 +58,6 @@ const TopNavbar = () => {
   const inputPlaceholder = isDark ? "placeholder-gray-400" : "placeholder-gray-600";
   const inputFocusRing = isDark ? "focus:ring-purple-500" : "focus:ring-purple-700";
 
-  if (!isMounted) {
-    // Render nothing or a placeholder on server and initial client render
-    return null;
-  }
   return (
     <>
       {pathname !== "/" && (

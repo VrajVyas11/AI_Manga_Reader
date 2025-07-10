@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo } from "react";
-import { Search, Sliders, X, Grid, List, Filter, Trash2, ChevronDown } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Search, X, Grid, List, Trash2, ChevronDown } from "lucide-react";
 import ThemeGenreTags from "./SearchTotalAndFilterOptionsModules/ThemeGenreTags"
 import filterOptions from "../../constants/filterOptions";
 import FilterCustomDropDown from "./SearchTotalAndFilterOptionsModules/FilterCustomDropDown"

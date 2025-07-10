@@ -1,6 +1,7 @@
 import React, { memo, lazy } from "react";
 import Image from "next/image";
 import { Heart, MessageSquareText, Bookmark, Star } from "lucide-react";
+import useInView from "@/app/hooks/useInView";
 
 const StableFlag = memo(lazy(() => import("../../StableFlag")));
 
@@ -29,10 +30,16 @@ function SearchMangaList({
     };
     return colors[rating] || "bg-gray-600";
   };
-
+const [ref, inView] = useInView(0.1)
   return (
     <article
-      className="bg-gray-900 overflow-x-hidden hover:bg-gray-850 border border-gray-800 hover:border-gray-700 rounded-lg p-2 cursor-pointer transition-all duration-200 hover:shadow-lg"
+    ref={ref}
+      className={`bg-gray-900 overflow-x-hidden hover:bg-gray-850 border border-gray-800 hover:border-gray-700 rounded-lg p-2 cursor-pointer hover:shadow-lg
+        transform transition-all duration-500  ${inView
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-10"
+                }
+        `}
       onClick={handleMangaClicked}
       role="button"
       aria-label={`Open manga ${manga.title}`}
