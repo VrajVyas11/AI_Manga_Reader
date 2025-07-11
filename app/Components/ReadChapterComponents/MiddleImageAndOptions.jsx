@@ -18,6 +18,7 @@ function MiddleImageAndOptions({
     quality,
     currentIndex,
     panels,
+    showTranslationAndSpeakingOptions,
     chapterInfo,
     pageTranslations,
     setPageTranslations,
@@ -193,7 +194,7 @@ function MiddleImageAndOptions({
                                         )}
                                         {!imageCache.includes(page) && <Placeholder />}
                                     </div>
-                                    {panels != 2 && <div className="tracking-wider fixed flex flex-col justify-end items-end bottom-32 right-7">
+                                    {showTranslationAndSpeakingOptions &&(panels != 2 && <div className="tracking-wider fixed flex flex-col justify-end items-end bottom-32 right-7">
                                         {!isLoadingOCR ? (
                                             <>
                                                 {chapterInfo?.translatedLanguage?.trim() !== "en" && (
@@ -238,7 +239,7 @@ function MiddleImageAndOptions({
                                                 </div>
                                             </div>
                                         )}
-                                    </div>}
+                                    </div>)}
                                 </div>
                             ))
                         : (
@@ -280,7 +281,7 @@ function MiddleImageAndOptions({
                                                 )}
                                                 {!imageCache.includes(page) && <Placeholder />}
                                             </div>
-                                            <div className="tracking-wider absolute top-52 transform space-y-4 flex flex-col justify-start items-end bottom-28 right-3">
+                                            {showTranslationAndSpeakingOptions &&<div className="tracking-wider absolute top-52 transform space-y-4 flex flex-col justify-start items-end bottom-28 right-3">
                                                 {!isLoadingOCR ? (
                                                     <>
                                                         {chapterInfo?.translatedLanguage?.trim() !== "en" && (
@@ -315,7 +316,7 @@ function MiddleImageAndOptions({
                                                         </div>
                                                     </div>
                                                 )}
-                                            </div>
+                                            </div>}
                                         </div>
                                     )
                                 )}

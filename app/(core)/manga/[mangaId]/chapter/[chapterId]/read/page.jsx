@@ -5,7 +5,7 @@ import { useState, useEffect, memo, useCallback, lazy, useRef, useMemo } from 'r
 import { useParams, useRouter } from 'next/navigation';
 import { ArrowUp } from 'lucide-react';
 import { useManga } from '../../../../../../providers/MangaContext';
-
+import TopRightOptions from "../../../../../../Components/ReadChapterComponents/TopRightOptions"
 const InfoSidebar = memo(lazy(() => import('../../../../../../Components/ReadChapterComponents/InfoSideBarModules/InfoSidebar')));
 const BottomSettings = memo(lazy(() => import('../../../../../../Components/ReadChapterComponents/BottomSettingsModules/BottomSettings')));
 const LoadingSpinner = memo(lazy(() => import('../../../../../../Components/LoadingSpinner')));
@@ -26,13 +26,14 @@ export default function ReadChapter() {
   const [allAtOnce, setAllAtOnce] = useState(false);
   const [pageTTS, setPageTTS] = useState({});
   const [quality, setQuality] = useState("low");
-
+const [showTranslationAndSpeakingOptions, setShowTranslationAndSpeakingOptions] = useState(false);
   const scrollContainerRef = useRef(null);
-  const { selectedManga, getChapterListForManga,addToReadHistory } = useManga();
+  const { selectedManga, getChapterListForManga, addToReadHistory } = useManga();
+  const selectedMemoManga = useMemo(() => selectedManga, [selectedManga])
   const chapters = useMemo(() => getChapterListForManga(mangaId))
   const chapterInfo = useMemo(() => chapters.filter((x) => x.id == chapterId)[0]);
-console.log(chapters)
-console.log(chapterId);
+  console.log(chapters)
+  console.log(chapterId);
 
   //  console.log(chapterInfo)
   const { data: pages, isLoading, isError } = useQuery({
@@ -55,7 +56,7 @@ console.log(chapterId);
 
   const handleChapterClick = useCallback(
     (id) => {
-      addToReadHistory(selectedManga, id)
+      addToReadHistory(selectedMemoManga, id)
       router.push(`/manga/${mangaId}/chapter/${id.id}/read`);
     },
     [router, mangaId, pages]
@@ -78,13 +79,13 @@ console.log(chapterId);
   }, [currentIndex, pages, pageTranslations, pageTTS]);
 
   useEffect(() => {
-    if (selectedManga.originalLanguage == "ko" || selectedManga.originalLanguage == "zh" || selectedManga.originalLanguage == "zh-hk" || selectedManga.flatTags.includes("Long Strip") || selectedManga.flatTags.includes("Web Comic")) {
+    if (selectedMemoManga &&(selectedMemoManga.originalLanguage == "ko" || selectedMemoManga.originalLanguage == "zh" || selectedMemoManga.originalLanguage == "zh-hk" || selectedMemoManga.flatTags.includes("Long Strip") || selectedMemoManga.flatTags.includes("Web Comic"))) {
       setLayout("vertical")
     }
-  }, [mangaId, chapterInfo, selectedManga, pages, chapterId])
+  }, [mangaId, chapterInfo, selectedMemoManga, pages, chapterId])
 
   // console.log(selectedManga);
-console.log(chapterInfo)
+  console.log(chapterInfo)
   const currentChapterIndex = useMemo(() =>
     chapters && chapters.findIndex(ch => ch.id === chapterInfo.id),
     [chapters, chapterInfo]
@@ -109,7 +110,7 @@ console.log(chapterInfo)
   return (
     chapters && chapterId && mangaId && pages && !isError ? (
       <div
-        className="tracking-wider flex flex-row w-full h-[90vh] md:h-[91.3vh] justify-between items-start -mt-5   text-white overflow-hidden"
+        className="tracking-wider relative z-20 flex flex-row w-full h-[90vh] md:h-[91.3vh] justify-between items-start -mt-5   text-white overflow-hidden"
       >
         <InfoSidebar
           panels={panels}
@@ -126,7 +127,7 @@ console.log(chapterInfo)
           goToChapter={goToChapter}
           chapterInfo={chapterInfo}
           isCollapsed={isCollapsed}
-          mangaInfo={selectedManga}
+          mangaInfo={selectedMemoManga}
           setIsCollapsed={setIsCollapsed}
           className="min-w-[200px] max-w-[300px] sm:max-w-[350px] flex-shrink-0"
         />
@@ -134,6 +135,32 @@ console.log(chapterInfo)
         <div
           className="tracking-wider flex flex-col flex-grow min-w-0 h-full w-full max-w-full  scrollbar-thin scrollbar-thumb-purple-600 scrollbar-track-gray-900"
         >
+          <TopRightOptions
+            allAtOnce={allAtOnce}
+            quality={quality}
+            isCollapsed={isCollapsed}
+            setQuality={setQuality}
+            allChapters={chapters}
+            currentChapterIndex={currentChapterIndex}
+            goToNextChapter={goToNextChapter}
+            goToPrevChapter={goToPrevChapter}
+            onChapterChange={handleChapterClick}
+            hasNextChapter={hasNextChapter}
+            hasPrevChapter={hasPrevChapter}
+            goToChapter={goToChapter}
+            chapterInfo={chapterInfo}
+            mangaInfo={selectedMemoManga}
+            setAllAtOnce={setAllAtOnce}
+            currentIndex={currentIndex}
+            layout={layout}
+            pages={pages && (quality === "low" ? pages?.chapter?.dataSaver : pages?.chapter?.data)}
+            panels={panels}
+            setCurrentIndex={setCurrentIndex}
+            setLayout={setLayout}
+            setPanels={setPanels}
+            setShowTranslationAndSpeakingOptions={setShowTranslationAndSpeakingOptions}
+            showTranslationAndSpeakingOptions={showTranslationAndSpeakingOptions}
+          />
           <div
             ref={scrollContainerRef}
             style={{
@@ -145,6 +172,7 @@ console.log(chapterInfo)
               layout={layout}
               isLoading={isLoading}
               pages={pages}
+              showTranslationAndSpeakingOptions={showTranslationAndSpeakingOptions}
               quality={quality}
               currentIndex={currentIndex}
               panels={panels}
