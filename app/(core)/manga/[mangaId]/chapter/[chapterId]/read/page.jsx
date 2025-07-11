@@ -1,18 +1,18 @@
 "use client";
 
-import { useQuery } from '@tanstack/react-query';
-import { useState, useEffect, memo, useCallback, lazy, useRef, useMemo } from 'react';
+import React, { useState, useEffect, memo, useCallback, lazy, useRef, useMemo } from 'react';
+
 import { useParams, useRouter } from 'next/navigation';
 import { ArrowUp } from 'lucide-react';
 import { useManga } from '../../../../../../providers/MangaContext';
 import TopRightOptions from "../../../../../../Components/ReadChapterComponents/TopRightOptions"
 const InfoSidebar = memo(lazy(() => import('../../../../../../Components/ReadChapterComponents/InfoSideBarModules/InfoSidebar')));
-const BottomSettings = memo(lazy(() => import('../../../../../../Components/ReadChapterComponents/BottomSettingsModules/BottomSettings')));
 const LoadingSpinner = memo(lazy(() => import('../../../../../../Components/LoadingSpinner')));
-
+import { useChapterPagesFetch } from "../../../../../../hooks/useChapterPagesFetch"
 import MiddleImageAndOptions from "../../../../../../Components/ReadChapterComponents/MiddleImageAndOptions";
-
+import BottomPagesNavigation from "../../../../../../Components/ReadChapterComponents/BottomPagesNavigation"
 export default function ReadChapter() {
+const [cursorClass, setCursorClass] = useState('');
   const { mangaId, chapterId } = useParams();
   const router = useRouter();
   const [isCollapsed, setIsCollapsed] = useState(true);
@@ -26,7 +26,7 @@ export default function ReadChapter() {
   const [allAtOnce, setAllAtOnce] = useState(false);
   const [pageTTS, setPageTTS] = useState({});
   const [quality, setQuality] = useState("low");
-const [showTranslationAndSpeakingOptions, setShowTranslationAndSpeakingOptions] = useState(false);
+  const [showTranslationAndSpeakingOptions, setShowTranslationAndSpeakingOptions] = useState(true);
   const scrollContainerRef = useRef(null);
   const { selectedManga, getChapterListForManga, addToReadHistory } = useManga();
   const selectedMemoManga = useMemo(() => selectedManga, [selectedManga])
@@ -34,25 +34,7 @@ const [showTranslationAndSpeakingOptions, setShowTranslationAndSpeakingOptions] 
   const chapterInfo = useMemo(() => chapters.filter((x) => x.id == chapterId)[0]);
   console.log(chapters)
   console.log(chapterId);
-
-  //  console.log(chapterInfo)
-  const { data: pages, isLoading, isError } = useQuery({
-    queryKey: ['chapterPages', chapterId],
-    queryFn: async () => {
-      const cachedPages = localStorage.getItem(`chapter_${chapterId}`);
-      if (cachedPages) return JSON.parse(cachedPages);
-
-      const response = await fetch(`/api/manga/chapter/${chapterId}/pages`);
-      if (!response.ok) throw new Error('Failed to fetch chapter pages.');
-      const data = await response.json();
-      if (data.result == "ok") {
-        localStorage.setItem(`chapter_${chapterId}`, JSON.stringify(data));
-        return data;
-      }
-      throw new Error('No pages found.');
-    },
-    retry: 2,
-  });
+  const { data: pages, isLoading, isError } = useChapterPagesFetch(chapterId)
 
   const handleChapterClick = useCallback(
     (id) => {
@@ -61,6 +43,58 @@ const [showTranslationAndSpeakingOptions, setShowTranslationAndSpeakingOptions] 
     },
     [router, mangaId, pages]
   );
+
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const handleMouseMove = (event) => {
+        const screenWidth = window.innerWidth;
+        const screenHeight = window.innerHeight;
+        const mouseX = event.clientX;
+        const mouseY = event.clientY;
+        
+        // Check if mouse is in top area (normal cursor)
+        if (mouseY < screenHeight / 5.5) {
+            setCursorClass('');
+            return;
+        }
+        
+        // Calculate the middle 600px area
+        const middleStart = (screenWidth - 600) / 2;
+        const middleEnd = middleStart + 650;
+        
+        // Check if mouse is outside the middle 600px area (normal cursor)
+        if (mouseX < middleStart || mouseX > middleEnd) {
+            setCursorClass('');
+            return;
+        }
+        
+        // Only show navigation cursors within the middle 600px area
+        const rect = container.getBoundingClientRect();
+
+        // Check if mouse is on left half or right half of the middle area
+        const screenMidPoint = screenWidth / 2;
+        if (mouseX < screenMidPoint) {
+            setCursorClass('cursor-left-arrow');
+        } else {
+            setCursorClass('cursor-right-arrow');
+        }
+    };
+
+    const handleMouseLeave = () => {
+        setCursorClass('');
+    };
+
+    // Add event listeners to the document instead of just the container
+    document.addEventListener('mousemove', handleMouseMove);
+    container.addEventListener('mouseleave', handleMouseLeave);
+
+    return () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        container.removeEventListener('mouseleave', handleMouseLeave);
+    };
+}, []);
 
   useEffect(() => {
     if (pages && pages?.chapter?.dataSaver?.length > 0 && pages?.chapter?.data?.length > 0) {
@@ -79,7 +113,7 @@ const [showTranslationAndSpeakingOptions, setShowTranslationAndSpeakingOptions] 
   }, [currentIndex, pages, pageTranslations, pageTTS]);
 
   useEffect(() => {
-    if (selectedMemoManga &&(selectedMemoManga.originalLanguage == "ko" || selectedMemoManga.originalLanguage == "zh" || selectedMemoManga.originalLanguage == "zh-hk" || selectedMemoManga.flatTags.includes("Long Strip") || selectedMemoManga.flatTags.includes("Web Comic"))) {
+    if (selectedMemoManga && (selectedMemoManga.originalLanguage == "ko" || selectedMemoManga.originalLanguage == "zh" || selectedMemoManga.originalLanguage == "zh-hk" || selectedMemoManga.flatTags.includes("Long Strip") || selectedMemoManga.flatTags.includes("Web Comic"))) {
       setLayout("vertical")
     }
   }, [mangaId, chapterInfo, selectedMemoManga, pages, chapterId])
@@ -112,6 +146,7 @@ const [showTranslationAndSpeakingOptions, setShowTranslationAndSpeakingOptions] 
       <div
         className="tracking-wider relative z-20 flex flex-row w-full h-[90vh] md:h-[91.3vh] justify-between items-start -mt-5   text-white overflow-hidden"
       >
+
         <InfoSidebar
           panels={panels}
           pages={pages && (quality === "low" ? pages?.chapter?.dataSaver : pages?.chapter?.data)}
@@ -167,7 +202,7 @@ const [showTranslationAndSpeakingOptions, setShowTranslationAndSpeakingOptions] 
               scrollbarWidth: "none",
               scrollbarColor: "rgba(155, 89, 182, 0.6) rgba(0, 0, 0, 0.1)",
             }}
-            className="flex-grow scroll overflow-y-auto min-w-0 max-w-full scrollbar-thin scrollbar-thumb-purple-600 scrollbar-track-gray-900">
+            className={`flex-grow ${layout=="horizontal"?cursorClass:""} scroll overflow-y-auto min-w-0 max-w-full scrollbar-thin scrollbar-thumb-purple-600 scrollbar-track-gray-900`}>
             <MiddleImageAndOptions
               layout={layout}
               isLoading={isLoading}
@@ -197,7 +232,7 @@ const [showTranslationAndSpeakingOptions, setShowTranslationAndSpeakingOptions] 
           </div>
 
           <div className="flex-shrink-0 relative z-50 w-full max-w-full">
-            <BottomSettings
+            {/* <BottomSettings
               allAtOnce={allAtOnce}
               quality={quality}
               isCollapsed={isCollapsed}
@@ -210,10 +245,17 @@ const [showTranslationAndSpeakingOptions, setShowTranslationAndSpeakingOptions] 
               setCurrentIndex={setCurrentIndex}
               setLayout={setLayout}
               setPanels={setPanels}
+            /> */}
+            <BottomPagesNavigation
+              setCurrentIndex={setCurrentIndex}
+              currentIndex={currentIndex}
+              layout={layout}
+              panels={panels}
+              pages={pages && (quality === "low" ? pages?.chapter?.dataSaver : pages?.chapter?.data)}
             />
             {layout === "vertical" && (
               <button
-                className="tracking-wider cursor-pointer fixed bottom-32 right-8 w-16 h-16 rounded-full border-4 border-violet-200 bg-black flex items-center justify-center duration-300 hover:rounded-[50px] hover:w-24 group/button overflow-hidden active:scale-90"
+                className="tracking-wider cursor-pointer fixed bottom-12 right-8 w-16 h-16 rounded-full border-4 border-violet-200 bg-black flex items-center justify-center duration-300 hover:rounded-[50px] hover:w-24 group/button overflow-hidden active:scale-90"
                 onClick={() => {
                   if (scrollContainerRef.current) {
                     scrollContainerRef.current.scrollTo({ top: 0, behavior: "smooth" });

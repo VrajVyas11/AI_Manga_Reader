@@ -29,6 +29,7 @@ function MiddleImageAndOptions({
     isItTextToSpeech,
     setIsItTextToSpeech,
     setShowMessage,
+    showMessage,
     allAtOnce,
     goToPrevChapter,
     hasPrevChapter,
@@ -150,11 +151,11 @@ function MiddleImageAndOptions({
 
 
     return (
-        <div>
+        <>
             <div
-                className={`flex flex-1 ${layout === "horizontal"
-                    ? "flex-row space-x-4 overflow-hidden justify-center mt-7 items-start"
-                    : "flex-col space-y-4 mt-7 justify-end items-center"
+                className={`flex  flex-1 ${layout === "horizontal"
+                    ? "flex-row space-x-4 overflow-hidden justify-center mt-5 items-start"
+                    : "flex-col space-y-4 mt-5 justify-end items-center"
                     } my-1`}
             >
                 {isLoading ? (
@@ -165,15 +166,15 @@ function MiddleImageAndOptions({
                         (quality === "low" ? pages?.chapter?.dataSaver : pages?.chapter?.data)
                             .slice(Math.abs(currentIndex), Math.abs(currentIndex + panels))
                             .map((page, index) => (
-                                <div key={index} className="tracking-wider relative h-[75vh] flex justify-center items-center">
-                                    <div className={`relative  w-[380px] h-[75vh]`}>
+                                <div key={index} className="tracking-wider   relative h-[87vh] flex justify-center items-center">
+                                    <div className={`relative w-auto  h-[87vh]`}>
                                         <Image
                                             key={imageKey}
                                             src={page}
                                             alt={`Page ${currentIndex + index + 1}`}
                                             height={1680}
                                             width={1680}
-                                            className={`object-contain rounded-lg w-full h-full shadow-xl transition-all ${imageCache.includes(page) ? "block" : "hidden"
+                                            className={`object-contain border border-gray-500/50 rounded-lg w-full h-full shadow-xl transition-all ${imageCache.includes(page) ? "block" : "hidden"
                                                 }`}
                                             priority={index === 0}
                                             loading={index === 0 ? undefined : "eager"}
@@ -194,7 +195,7 @@ function MiddleImageAndOptions({
                                         )}
                                         {!imageCache.includes(page) && <Placeholder />}
                                     </div>
-                                    {showTranslationAndSpeakingOptions &&(panels != 2 && <div className="tracking-wider fixed flex flex-col justify-end items-end bottom-32 right-7">
+                                    {showTranslationAndSpeakingOptions && (panels != 2 && <div className="tracking-wider fixed flex flex-col justify-end items-end bottom-32 right-7">
                                         {!isLoadingOCR ? (
                                             <>
                                                 {chapterInfo?.translatedLanguage?.trim() !== "en" && (
@@ -239,6 +240,17 @@ function MiddleImageAndOptions({
                                                 </div>
                                             </div>
                                         )}
+                                        {showMessage && (
+                                            <div className="absolute z-50 text-wrap w-fit min-w-72 max-w-72 -top-96 border-purple-500 border right-12 bg-gray-800 text-white p-4 rounded-lg shadow-lg transition-opacity duration-300">
+                                                <button
+                                                    className="absolute top-1 right-1 text-white bg-purple-600 hover:bg-gray-500 rounded-full p-1 px-2.5"
+                                                    onClick={() => setShowMessage(false)}
+                                                >
+                                                    ✖
+                                                </button>
+                                                <p>{((pageTTS[page] && isItTextToSpeech) || pageTranslations[page]) && pageTranslations[page] ? pageTranslations[page]?.textResult : pageTTS[page]?.textResult || "No text Available"}</p>
+                                            </div>
+                                        )}
                                     </div>)}
                                 </div>
                             ))
@@ -259,7 +271,7 @@ function MiddleImageAndOptions({
                                                     alt={`Page ${index + 1}`}
                                                     height={1680}
                                                     width={1680}
-                                                    className={`object-contain rounded-lg w-full max-w-[1280px] h-auto shadow-xl transition-all ${imageCache.includes(page) ? "block" : "hidden"
+                                                    className={`object-contain border border-gray-500/50 rounded-lg w-full max-w-[1280px] h-auto shadow-xl transition-all ${imageCache.includes(page) ? "block" : "hidden"
                                                         }`}
                                                     priority={index === 0}
                                                     loading={index === 0 ? undefined : "eager"}
@@ -281,7 +293,7 @@ function MiddleImageAndOptions({
                                                 )}
                                                 {!imageCache.includes(page) && <Placeholder />}
                                             </div>
-                                            {showTranslationAndSpeakingOptions &&<div className="tracking-wider absolute top-52 transform space-y-4 flex flex-col justify-start items-end bottom-28 right-3">
+                                            {showTranslationAndSpeakingOptions && <div className="tracking-wider absolute top-52 transform space-y-4 flex flex-col justify-start items-end bottom-28 right-3">
                                                 {!isLoadingOCR ? (
                                                     <>
                                                         {chapterInfo?.translatedLanguage?.trim() !== "en" && (
@@ -355,7 +367,7 @@ function MiddleImageAndOptions({
                         )
                 )}
             </div>
-        </div>
+        </>
     )
 }
 
