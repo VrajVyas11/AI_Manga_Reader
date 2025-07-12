@@ -11,11 +11,13 @@ const LoadingSpinner = memo(lazy(() => import('../../../../../../Components/Load
 import { useChapterPagesFetch } from "../../../../../../hooks/useChapterPagesFetch"
 import MiddleImageAndOptions from "../../../../../../Components/ReadChapterComponents/MiddleImageAndOptions";
 import BottomPagesNavigation from "../../../../../../Components/ReadChapterComponents/BottomPagesNavigation"
+import SideBar from "../../../../../../Components/ReadChapterComponents/SideBar"
 export default function ReadChapter() {
-const [cursorClass, setCursorClass] = useState('');
+
   const { mangaId, chapterId } = useParams();
   const router = useRouter();
   const [isCollapsed, setIsCollapsed] = useState(true);
+    const [settingsOpen, setSettingsOpen] = useState(false);
   const [layout, setLayout] = useState('horizontal');
   const [panels, setPanels] = useState(1);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -32,8 +34,8 @@ const [cursorClass, setCursorClass] = useState('');
   const selectedMemoManga = useMemo(() => selectedManga, [selectedManga])
   const chapters = useMemo(() => getChapterListForManga(mangaId))
   const chapterInfo = useMemo(() => chapters.filter((x) => x.id == chapterId)[0]);
-  console.log(chapters)
-  console.log(chapterId);
+  // console.log(chapters)
+  // console.log(chapterId);
   const { data: pages, isLoading, isError } = useChapterPagesFetch(chapterId)
 
   const handleChapterClick = useCallback(
@@ -43,58 +45,6 @@ const [cursorClass, setCursorClass] = useState('');
     },
     [router, mangaId, pages]
   );
-
-  useEffect(() => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
-
-    const handleMouseMove = (event) => {
-        const screenWidth = window.innerWidth;
-        const screenHeight = window.innerHeight;
-        const mouseX = event.clientX;
-        const mouseY = event.clientY;
-        
-        // Check if mouse is in top area (normal cursor)
-        if (mouseY < screenHeight / 5.5) {
-            setCursorClass('');
-            return;
-        }
-        
-        // Calculate the middle 600px area
-        const middleStart = (screenWidth - 600) / 2;
-        const middleEnd = middleStart + 650;
-        
-        // Check if mouse is outside the middle 600px area (normal cursor)
-        if (mouseX < middleStart || mouseX > middleEnd) {
-            setCursorClass('');
-            return;
-        }
-        
-        // Only show navigation cursors within the middle 600px area
-        const rect = container.getBoundingClientRect();
-
-        // Check if mouse is on left half or right half of the middle area
-        const screenMidPoint = screenWidth / 2;
-        if (mouseX < screenMidPoint) {
-            setCursorClass('cursor-left-arrow');
-        } else {
-            setCursorClass('cursor-right-arrow');
-        }
-    };
-
-    const handleMouseLeave = () => {
-        setCursorClass('');
-    };
-
-    // Add event listeners to the document instead of just the container
-    document.addEventListener('mousemove', handleMouseMove);
-    container.addEventListener('mouseleave', handleMouseLeave);
-
-    return () => {
-        document.removeEventListener('mousemove', handleMouseMove);
-        container.removeEventListener('mouseleave', handleMouseLeave);
-    };
-}, []);
 
   useEffect(() => {
     if (pages && pages?.chapter?.dataSaver?.length > 0 && pages?.chapter?.data?.length > 0) {
@@ -119,7 +69,7 @@ const [cursorClass, setCursorClass] = useState('');
   }, [mangaId, chapterInfo, selectedMemoManga, pages, chapterId])
 
   // console.log(selectedManga);
-  console.log(chapterInfo)
+  // console.log(chapterInfo)
   const currentChapterIndex = useMemo(() =>
     chapters && chapters.findIndex(ch => ch.id === chapterInfo.id),
     [chapters, chapterInfo]
@@ -146,8 +96,27 @@ const [cursorClass, setCursorClass] = useState('');
       <div
         className="tracking-wider relative z-20 flex flex-row w-full h-[90vh] md:h-[91.3vh] justify-between items-start -mt-5   text-white overflow-hidden"
       >
-
-        <InfoSidebar
+        <SideBar
+          panels={panels}
+          pages={pages && (quality === "low" ? pages?.chapter?.dataSaver : pages?.chapter?.data)}
+          setCurrentIndex={setCurrentIndex}
+          currentIndex={currentIndex}
+          allChapters={chapters}
+          currentChapterIndex={currentChapterIndex}
+          goToNextChapter={goToNextChapter}
+          goToPrevChapter={goToPrevChapter}
+          onChapterChange={handleChapterClick}
+          hasNextChapter={hasNextChapter}
+          hasPrevChapter={hasPrevChapter}
+          goToChapter={goToChapter}
+          chapterInfo={chapterInfo}
+          isCollapsed={isCollapsed}
+          mangaInfo={selectedMemoManga}
+          setIsCollapsed={setIsCollapsed}
+          settingsOpen={settingsOpen} 
+          setSettingsOpen={setSettingsOpen}
+        />
+        {/* <InfoSidebar
           panels={panels}
           pages={pages && (quality === "low" ? pages?.chapter?.dataSaver : pages?.chapter?.data)}
           setCurrentIndex={setCurrentIndex}
@@ -165,12 +134,12 @@ const [cursorClass, setCursorClass] = useState('');
           mangaInfo={selectedMemoManga}
           setIsCollapsed={setIsCollapsed}
           className="min-w-[200px] max-w-[300px] sm:max-w-[350px] flex-shrink-0"
-        />
+        /> */}
 
         <div
           className="tracking-wider flex flex-col flex-grow min-w-0 h-full w-full max-w-full  scrollbar-thin scrollbar-thumb-purple-600 scrollbar-track-gray-900"
         >
-          <TopRightOptions
+          {settingsOpen &&<TopRightOptions
             allAtOnce={allAtOnce}
             quality={quality}
             isCollapsed={isCollapsed}
@@ -195,14 +164,14 @@ const [cursorClass, setCursorClass] = useState('');
             setPanels={setPanels}
             setShowTranslationAndSpeakingOptions={setShowTranslationAndSpeakingOptions}
             showTranslationAndSpeakingOptions={showTranslationAndSpeakingOptions}
-          />
+          />}
           <div
             ref={scrollContainerRef}
             style={{
               scrollbarWidth: "none",
               scrollbarColor: "rgba(155, 89, 182, 0.6) rgba(0, 0, 0, 0.1)",
             }}
-            className={`flex-grow ${layout=="horizontal"?cursorClass:""} scroll overflow-y-auto min-w-0 max-w-full scrollbar-thin scrollbar-thumb-purple-600 scrollbar-track-gray-900`}>
+            className={`flex-grow scroll overflow-y-auto min-w-0 max-w-full scrollbar-thin scrollbar-thumb-purple-600 scrollbar-track-gray-900`}>
             <MiddleImageAndOptions
               layout={layout}
               isLoading={isLoading}

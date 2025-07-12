@@ -40,7 +40,7 @@ const InfoSidebar = memo(({
   const { addToFavorite, getAllFavorites } = useManga();
   const dropdownRef = useRef(null);
   const isFavorite = useMemo(()=>getAllFavorites()[mangaInfo.id]);
-  console.log(getAllFavorites()[mangaInfo.id])
+  // console.log(getAllFavorites()[mangaInfo.id])
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
