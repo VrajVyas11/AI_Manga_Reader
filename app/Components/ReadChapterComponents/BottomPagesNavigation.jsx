@@ -109,8 +109,8 @@ console.log(currentIndex);
                                 e.stopPropagation(); // Prevent triggering screen click
                                 handleTabClick(index);
                             }}
-                            className={`h-1 group-hover:h-3 hover:duration-500 group-hover:transform group-hover:ease-in-out group-hover:transition-all w-[25%] rounded-sm transition-colors duration-200 ${isActive
-                                ? 'bg-purple-500 hover:bg-purple-600'
+                            className={`h-1.5 group-hover:h-3 hover:duration-500 group-hover:transform group-hover:ease-in-out group-hover:transition-all w-[25%] rounded-sm transition-colors duration-200 ${isActive
+                                ? 'bg-purple-800 hover:bg-purple-700'
                                 : 'bg-white/20 backdrop-blur-md hover:bg-white/30'
                                 }`}
                             aria-label={`Go to page ${index + 1}`}

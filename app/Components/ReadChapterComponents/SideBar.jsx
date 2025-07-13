@@ -21,13 +21,25 @@ import {
   Search,
   ArrowUpDown,
   Globe,
-    Heart,
-  ArrowLeft as ArrowLeftIcon,
+  Heart,
+  ArrowLeft,
   List,
   Info,
   ToggleRight,
   ToggleLeft,
+  MessageSquare,
+  Bookmark,
+  Star,
+  Calendar,
+  Eye,
+  Layers,
+  Logs,
+  ArrowBigLeft,
+  ArrowBigRightDash,
+  ArrowBigLeftDash,
+  Languages,
 } from 'lucide-react';
+import StableFlag from '../../Components/StableFlag';
 
 const SideBar = ({
   isCollapsed,
@@ -144,8 +156,8 @@ const SideBar = ({
     () =>
       searchQuery.trim()
         ? sortedChapters.filter((ch) =>
-            ch.chapter.toLowerCase().includes(searchQuery.toLowerCase())
-          )
+          ch.chapter.toLowerCase().includes(searchQuery.toLowerCase())
+        )
         : sortedChapters,
     [sortedChapters, searchQuery]
   );
@@ -210,12 +222,12 @@ const SideBar = ({
       }}
     />
   ));
-    const coverImageProps = useMemo(() => ({
-      src: mangaInfo.coverImageUrl,
-      alt: mangaInfo.title,
-      className: 'object-cover w-full h-full'
-    }), [mangaInfo.coverImageUrl, mangaInfo.title]);
-  
+
+  const coverImageProps = useMemo(() => ({
+    src: mangaInfo.coverImageUrl,
+    alt: mangaInfo.title,
+    className: 'object-cover w-full h-full'
+  }), [mangaInfo.coverImageUrl, mangaInfo.title]);
 
   if (isCollapsed) {
     return (
@@ -246,91 +258,104 @@ const SideBar = ({
   }
 
   return (
-    <div
-      className="fixed left-0 bottom-0 flex flex-col shadow-2xl z-40 "
-      style={{ height: '89vh' }}
-    >
-      <div className="tracking-wider h-[86vh] md:h-[87.7vh] mt-3 md:mt-4 w-[280px] md:w-[340px]  rounded-r-2xl px-3 md:px-5 pt-2 md:pt-3 pb-1.5 md:pb-2 flex flex-col shadow-[0_0_20px_rgba(0,0,0,0.5)] border-r border-purple-500/20">
-        <div className="tracking-wider absolute top-0 right-0 w-24 md:w-32 h-24 md:h-32 rounded-full bg-purple-700/10 blur-2xl -z-10"></div>
-        <div className="tracking-wider absolute bottom-0 left-0 w-24 md:w-32 h-24 md:h-32 rounded-full bg-yellow-500/10 blur-2xl -z-10"></div>
+    <div className="relative  px-3 rounded-r-lg  left-0 -bottom-6 border-[1px] border-l-0 border-gray-800/90  h-[88vh] w-72 bg-gradient-to-b from-slate-950/70 via-slate-900/70 to-slate-950/70 flex flex-col z-40 shadow-[0_0_10px_rgba(0,0,0,1)] shadow-black/80">
+      {/* Header */}
+      <div className="py-2 border-b border-slate-800/50">
+        <button
+          onClick={() => setIsCollapsed(true)}
+          className="group absolute top-3 left-3 w-10 h-10 rounded-xl bg-slate-800/80 border border-slate-700/50 flex items-center justify-center text-slate-300 hover:text-white transition-all duration-300 hover:bg-slate-700/80 hover:border-slate-600/50"
+          aria-label="Collapse sidebar"
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </button>
 
-        <div className="tracking-wider flex items-center justify-between mb-1.5 md:mb-2">
-          <div className="tracking-wider flex items-center">
-            <button
-              onClick={() => setIsCollapsed(true)}
-              className="tracking-wider w-7 md:w-9 h-7 md:h-9 rounded-lg bg-gray-800/50 border border-purple-700/20 flex items-center justify-center text-gray-200 transition-all duration-300 group"
-              aria-label="Collapse sidebar"
-            >
-              <ArrowLeftIcon className="tracking-wider w-3 md:w-4 h-3 md:h-4" />
-              <span className="tracking-wider absolute hidden group-hover:block bg-gray-900/90 text-white text-[10px] md:text-xs py-0.5 md:py-1 px-1.5 md:px-2 rounded-md left-10 md:left-12 top-5 md:top-7">Collapse</span>
-            </button>
-            <h1 className="tracking-wider ml-6 md:ml-8 text-sm md:text-base font-bold uppercase bg-gradient-to-r from-purple-300 to-yellow-200 bg-clip-text text-transparent">
-              Manga Explorer
-            </h1>
+
+        {/* Manga Info */}
+        <div className="flex flex-col mt-7 justify-center items-center gap-4">
+          <div className="w-20 h-20 rounded-full overflow-hidden shadow-[0_0_5px_rgba(0,0,0,1)] shadow-purple-400   flex-shrink-0">
+            <CoverImage {...coverImageProps} />
           </div>
-          <button
-            onClick={toggleFavorite}
-            className={`w-7 md:w-9 h-7 md:h-9 rounded-lg flex items-center justify-center transition-all duration-300 group ${isFavorite ? 'bg-red-900/30 text-red-400 border border-red-700/20' : 'bg-gray-800/50 text-gray-400 border border-gray-700/20 hover:bg-red-900/30 hover:text-red-400'}`}
-            aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
-          >
-            <Heart className={`w-4 md:w-5 h-4 md:h-5 ${isFavorite ? 'animate-pulse fill-rose-500/40' : ''}`} />
-            <span className="tracking-wider absolute hidden group-hover:block bg-gray-900/90 text-white text-[10px] md:text-xs py-0.5 md:py-1 px-1.5 md:px-2 rounded-md right-10 md:right-12 top-5 md:top-7">{isFavorite ? 'Unfavorite' : 'Favorite'}</span>
-          </button>
+
+          <h2 className="text-sm font-semibold text-center capitalize text-white line-clamp-2  leading-tight">
+            {mangaInfo.title}
+          </h2>
         </div>
+      </div>
+      {/* <div className="flex flex-wrap items-center justify-between gap-1  w-full max-w-full px-3">
+  <span
+    className={` py-1 text-xs rounded-md font-semibold whitespace-nowrap ${
+      mangaInfo.status === 'ongoing'
+        ? ' text-green-400 '
+        : mangaInfo.status === 'completed'
+        ? ' text-blue-400 '
+        : mangaInfo.status === 'hiatus'
+        ? ' text-orange-400 '
+        : mangaInfo.status === 'cancelled'
+        ? ' text-red-400 '
+        : ' text-gray-400 '
+    }`}
+  >
+    {mangaInfo.status.toUpperCase()}
+  </span>
 
-        <div className="tracking-wider bg-gray-800/50 rounded-xl border border-purple-700/20 mb-1.5 md:mb-2">
-          <div className="tracking-wider flex p-2 md:p-3 items-center">
-            <div className="tracking-wider w-12 md:w-16 h-18 md:h-24 rounded-lg overflow-hidden border-2 border-purple-700/20 shadow-md">
-              <CoverImage {...coverImageProps} />
-            </div>
-            <div className="tracking-wider ml-2 md:ml-3 flex-1">
-              <h2 className="tracking-wider text-sm md:text-base font-bold text-white line-clamp-1">{mangaInfo.title}</h2>
-              <div className="tracking-wider flex items-center mt-1 md:mt-1.5 gap-1 md:gap-1.5 flex-wrap">
-                <span className={`px-1 md:px-1.5 py-0.5 text-[10px] md:text-xs rounded-md font-medium ${mangaInfo.status === 'ongoing' ? 'bg-green-900/30 text-green-400 border border-green-700/20' : mangaInfo.status === 'completed' ? 'bg-blue-900/30 text-blue-400 border border-blue-700/20' : mangaInfo.status === 'hiatus' ? 'bg-gray-800/50 text-orange-400 border border-orange-700/20' : mangaInfo.status === 'cancelled' ? "bg-gray-800/50 text-red-400 border border-red-700/20" : 'bg-gray-800/50 text-gray-400 border border-gray-700/20'}`}>
-                  {mangaInfo.status.toUpperCase()}
-                </span>
-                <span className="tracking-wider px-1 md:px-1.5 py-0.5 text-[10px] md:text-xs bg-purple-900/30 text-purple-400 rounded-md font-medium border border-purple-700/20">{mangaInfo.year}</span>
-                <span className="tracking-wider px-1 md:px-1.5 py-0.5 text-[10px] md:text-xs bg-yellow-900/20 text-yellow-300 rounded-md font-medium border capitalize border-yellow-700/20">{mangaInfo.contentRating}</span>
-              </div>
-            </div>
-          </div>
+  <span className=" py-1 text-xs  text-purple-400 rounded-md font-semibold  whitespace-nowrap">
+    {mangaInfo.year}
+  </span>
 
-
+  <span className=" py-1 text-xs  text-green-500 rounded-md font-semibold capitalize whitespace-nowrap">
+    {mangaInfo.contentRating}
+  </span>
+  </div> */}
+      <div className='pl-4 flex flex-row w-full border-l-4 border-l-yellow-500 ml-2 mt-6 mb-3 items-start justify-start gap-2'>
+        <p className="text-gray-400 text-sm">Reading</p>
+        <div className="flex items-center gap-2 ">
+          <span className="text-yellow-500 text-sm ">By Chapter</span>
+          <ChevronDown className="w-4 h-4 text-gray-400" />
+        </div>
+      </div>
+      <div className='flex justify-start text-sm px-2 items-center gap-4 mt-4 mb-2'><Logs className='w-5 h-5' /> Chapter Navigation</div>
       {/* Language Selector */}
-      <div className="p-4 border-b border-purple-900/20">
+      <div className="p-2 py-1 ">
         <div className="relative" ref={languageDropdownRef}>
           <button
             onClick={() => setLanguageDropdownOpen(!languageDropdownOpen)}
-            className="w-full flex items-center justify-between p-3 bg-gray-800/60 hover:bg-purple-900/40 rounded-lg border border-purple-700/30 transition-colors font-semibold text-white tracking-wide"
+            className="w-full flex items-center justify-between p-3 bg-slate-800/60 hover:bg-slate-700/60 rounded-md transition-all duration-200 text-white border border-slate-700/50 hover:border-slate-600/50"
             aria-label="Select language"
           >
             <div className="flex items-center gap-3">
-              <Globe className="w-5 h-5 text-purple-400" />
-              <span>{langFullNames[selectedLanguage] || selectedLanguage}</span>
+              <Languages className="w-4 h-4 text-slate-400" />
+              <span className="text-sm font-medium">
+                Language: {selectedLanguage.toUpperCase() || langFullNames[selectedLanguage]}
+              </span>
             </div>
             <ChevronDown
-              className={`w-5 h-5 text-gray-400 transition-transform ${
-                languageDropdownOpen ? 'rotate-180' : ''
-              }`}
+              className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${languageDropdownOpen ? 'rotate-180' : ''
+                }`}
             />
           </button>
 
           {languageDropdownOpen && (
-            <div className="absolute top-full left-0 right-0 mt-1 bg-gray-900/95 backdrop-blur-lg border border-purple-700/30 rounded-lg shadow-xl z-50 max-h-48 overflow-y-auto">
+            <div
+              style={{
+                scrollbarWidth: "none",
+                scrollbarColor: "rgba(155, 89, 182, 0.6) rgba(0, 0, 0, 0.1)",
+              }}
+              className="absolute top-full left-0 right-0 mt-2 bg-slate-900/95 backdrop-blur-sm border border-slate-700/50 rounded-lg shadow-xl z-50 max-h-48 overflow-y-auto">
               {availableLanguages.map((lang) => (
                 <button
                   key={lang}
                   onClick={() => handleLanguageChange(lang)}
-                  className={`w-full text-left px-4 py-3 hover:bg-purple-900/40 transition-colors font-medium tracking-wide ${
-                    selectedLanguage === lang
-                      ? 'bg-purple-900/60 text-white'
-                      : 'text-gray-300'
-                  }`}
+                  className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-800/60 transition-colors text-sm ${selectedLanguage === lang
+                    ? 'bg-purple-500/20 text-white border-l-2 border-purple-500'
+                    : 'text-slate-300'
+                    }`}
                 >
-                  <div className="flex items-center gap-3">
-                    <Globe className="w-4 h-4 text-purple-400" />
-                    <span>{langFullNames[lang] || lang}</span>
-                  </div>
+                  <StableFlag
+                    code={lang || "en"}
+                    className="w-5 h-5 rounded shadow-sm"
+                    alt="flag"
+                  />
+                  <span className="font-medium">{langFullNames[lang] || lang}</span>
                 </button>
               ))}
             </div>
@@ -338,161 +363,199 @@ const SideBar = ({
         </div>
       </div>
 
-      {/* Chapter Dropdown Button */}
-      <div className="p-4 border-b border-purple-900/20 relative" ref={dropdownRef}>
-        <button
-          onClick={() => setChapterDropdownOpen((open) => !open)}
-          className="w-full flex items-center justify-between p-3 bg-gray-800/60 hover:bg-purple-900/40 rounded-lg border border-purple-700/30 transition-colors font-semibold text-white tracking-wide"
-          aria-label="Toggle chapter list"
-        >
-          <div className="flex items-center gap-3">
-            <List className="w-5 h-5 text-purple-400" />
-            <span>Chapters ({filteredChapters.length})</span>
-          </div>
-          <ChevronDown
-            className={`w-5 h-5 text-gray-400 transition-transform ${
-              chapterDropdownOpen ? 'rotate-180' : ''
-            }`}
-          />
-        </button>
-
-        {/* Chapter Dropdown List */}
-        {chapterDropdownOpen && (
-          <div
-            className="absolute top-0 left-80 ml-2 w-72  bg-gray-900/95 backdrop-blur-lg border border-purple-700/30 rounded-lg shadow-xl z-50 "
+      {/* Chapter Selector */}
+      <div className="p-2 py-1">
+        <div className="relative" ref={dropdownRef}>
+          <button
+            onClick={() => setChapterDropdownOpen(!chapterDropdownOpen)}
+            className="w-full flex items-center justify-between p-3 bg-slate-800/60 hover:bg-slate-700/60 rounded-md transition-all duration-200 text-white border border-slate-700/50 hover:border-slate-600/50"
+            aria-label="Select chapter"
           >
-            <div className="p-3 border-b border-purple-700/30 flex flex-col gap-3">
-              <div className="relative ">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search chapters..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 bg-gray-800/60 border border-purple-700/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 font-medium tracking-wide"
-                />
-              </div>
-
-              <div className="flex gap-2">
-                <button
-                  onClick={() =>
-                    setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'))
-                  }
-                  className="flex items-center gap-2 px-3 py-2 bg-gray-800/60 hover:bg-purple-900/40 rounded-lg text-gray-300 hover:text-white transition-colors font-semibold tracking-wide"
-                  aria-label={`Sort chapters ${
-                    sortOrder === 'asc' ? 'descending' : 'ascending'
-                  }`}
-                >
-                  <ArrowUpDown className="w-4 h-4" />
-                  <span className="text-sm">{sortOrder === 'asc' ? 'Oldest' : 'Newest'}</span>
-                </button>
-
-                <button
-                  onClick={goToFirstChapter}
-                  className="flex-1 px-3 py-2 bg-purple-900/60 hover:bg-purple-800/70 text-white rounded-lg text-sm font-semibold tracking-wide transition-colors"
-                >
-                  First
-                </button>
-
-                <button
-                  onClick={goToLastChapter}
-                  className="flex-1 px-3 py-2 bg-purple-900/60 hover:bg-purple-800/70 text-white rounded-lg text-sm font-semibold tracking-wide transition-colors"
-                >
-                  Last
-                </button>
-              </div>
+            <div className="flex items-center gap-0.5 ">
+              <BookOpen className="w-4 h-4 min-w-fit text-slate-400 " />
+              <span className="text-sm font-medium line-clamp-1">Chapter {chapterInfo.chapter} : {chapterInfo.title}</span>
             </div>
+            <ChevronDown
+              className={`w-4 h-4 ml-4 min-w-fit text-slate-400 transition-transform duration-200 ${chapterDropdownOpen ? 'rotate-180' : ''
+                }`}
+            />
+          </button>
 
-            <div className="p-2 overflow-y-auto max-h-[30vh] h-auto "
-              style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(155, 89, 182, 0.6) rgba(0, 0, 0, 0.1)' }}
-            >
-              {filteredChapters.length === 0 ? (
-                <div className="text-center py-8 text-gray-400 font-medium tracking-wide">
-                  <BookOpen className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                  <p>No chapters found</p>
+          {/* Chapter Dropdown List - Keep as is, it's perfect */}
+          {chapterDropdownOpen && (
+            <div className="absolute -bottom-[250%] left-52 ml-2 p-2 w-64 bg-gray-900/40  backdrop-blur-lg border border-purple-700/30 rounded-lg shadow-xl z-50">
+              <div className="p-2 border-b border-purple-700/30 flex flex-col gap-2">
+                <div className="relative">
+                  <Search className="absolute left-2.5 top-1/2 transform -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search chapters..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-9 pr-3 py-1.5 bg-gray-800/60 border border-purple-700/30 rounded-md text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 text-sm "
+                  />
                 </div>
-              ) : (
-                filteredChapters.map((chapter) => (
+
+                <div className="flex gap-1.5">
                   <button
-                    key={chapter.id}
-                    onClick={() => {
-                      goToChapter(chapter);
-                      setChapterDropdownOpen(false);
-                    }}
-                    className={`w-full text-left p-3 rounded-lg mb-2 transition-colors font-medium tracking-wide ${
-                      chapter.id === chapterInfo.id
-                        ? 'bg-purple-900/70 text-white border border-purple-700/60 shadow-md'
-                        : 'text-gray-300 hover:bg-purple-900/40 hover:text-white'
-                    }`}
+                    onClick={() =>
+                      setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'))
+                    }
+                    className="flex items-center gap-1.5 px-2 py-1.5 bg-gray-800/60 hover:bg-purple-900/40 rounded-md text-gray-300 hover:text-white transition-colors  text-xs"
+                    aria-label={`Sort chapters ${sortOrder === 'asc' ? 'descending' : 'ascending'}`}
                   >
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <div className="mb-1 text-lg leading-tight">
-                          Chapter {chapter.chapter}
-                        </div>
-                        <div className="text-sm text-gray-400 flex items-center gap-4">
-                          <div className="flex items-center gap-1">
-                            <File className="w-3 h-3" />
-                            <span>{chapter.pageCount} pages</span>
+                    <ArrowUpDown className="w-3.5 h-3.5" />
+                    <span>{sortOrder === 'asc' ? 'Oldest' : 'Newest'}</span>
+                  </button>
+
+                  <button
+                    onClick={goToFirstChapter}
+                    className="flex-1 px-2 py-1.5 bg-purple-900/60 hover:bg-purple-800/70 text-white rounded-md text-xs   transition-colors"
+                  >
+                    First
+                  </button>
+
+                  <button
+                    onClick={goToLastChapter}
+                    className="flex-1 px-2 py-1.5 bg-purple-900/60 hover:bg-purple-800/70 text-white rounded-md text-xs   transition-colors"
+                  >
+                    Last
+                  </button>
+                </div>
+              </div>
+
+              <div
+                className="p-1.5 overflow-y-auto max-h-[28vh] h-auto"
+                style={{
+                  scrollbarWidth: 'thin',
+                  scrollbarColor: 'rgba(155, 89, 182, 0.6) rgba(0, 0, 0, 0.1)',
+                }}
+              >
+                {filteredChapters.length === 0 ? (
+                  <div className="text-center py-6 text-gray-400 font-medium  text-sm">
+                    <BookOpen className="w-10 h-10 mx-auto mb-2 opacity-50" />
+                    <p>No chapters found</p>
+                  </div>
+                ) : (
+                  filteredChapters.map((chapter) => (
+                    <button
+                      key={chapter.id}
+                      onClick={() => {
+                        goToChapter(chapter);
+                        setChapterDropdownOpen(false);
+                      }}
+                      className={`w-full text-left p-2 rounded-md mb-1.5 transition-colors font-medium  text-sm ${chapter.id === chapterInfo.id
+                          ? 'bg-purple-900/40 text-white border border-purple-700/30 shadow-md'
+                          : 'text-gray-300 hover:bg-purple-900/40 hover:text-white'
+                        }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1 min-w-0">
+                          <div className="mb-0.5 text-base leading-tight truncate">
+                            Chapter {chapter.chapter} : {chapter.title}
                           </div>
-                          <span>{new Date(chapter.publishAt).toLocaleDateString()}</span>
+                          <div className="text-xs text-gray-400 flex items-center gap-3 flex-wrap">
+                            <div className="flex items-center gap-1">
+                              <File className="w-3 h-3" />
+                              <span>{chapter.pageCount} pages</span>
+                            </div>
+                            <span>{new Date(chapter.publishAt).toLocaleDateString()}</span>
+                          </div>
                         </div>
                       </div>
-                      {chapter.id === chapterInfo.id && (
-                        <div className="text-purple-400">
-                          <BookOpen className="w-5 h-5" />
-                        </div>
-                      )}
-                    </div>
-                  </button>
-                ))
-              )}
+                    </button>
+                  ))
+                )}
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {/* Navigation Controls */}
-      <div className="p-4 border-t border-purple-900/20 bg-gray-900/50 flex flex-col gap-3">
-        <div className="flex items-center justify-between">
+      <div className="py-1 px-2 mt-4">
+        <div className="flex gap-2">
           <button
             onClick={goToPrevChapter}
             disabled={!hasPrevChapter}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-colors ${
-              hasPrevChapter
-                ? 'bg-purple-900/60 hover:bg-purple-800/80 text-white'
-                : 'bg-gray-800/30 text-gray-500 cursor-not-allowed'
-            }`}
+            className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md transition-all duration-200 font-medium ${hasPrevChapter
+              ? 'bg-slate-800/60 hover:bg-slate-700/60 text-white border border-slate-700/50 hover:border-slate-600/50'
+              : 'bg-slate-800/30 text-slate-500 cursor-not-allowed border border-slate-800/30'
+              }`}
           >
-            <ChevronUp className="w-4 h-4" />
-            Previous
+            <ArrowBigLeftDash className="w-5 h-5 fill-white" />
           </button>
-
-          <div className="text-center">
-            <div className="text-sm text-gray-400 tracking-wide">Chapter</div>
-            <div className="text-xl font-extrabold text-white tracking-wide">
-              {chapterInfo.chapter}
-            </div>
-          </div>
 
           <button
             onClick={goToNextChapter}
             disabled={!hasNextChapter}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-colors ${
-              hasNextChapter
-                ? 'bg-purple-900/60 hover:bg-purple-800/80 text-white'
-                : 'bg-gray-800/30 text-gray-500 cursor-not-allowed'
-            }`}
+            className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md transition-all duration-200 font-medium ${hasNextChapter
+              ? 'bg-slate-800/60 hover:bg-slate-700/60 text-white border border-slate-700/50 hover:border-slate-600/50'
+              : 'bg-slate-800/30 text-slate-500 cursor-not-allowed border border-slate-800/30'
+              }`}
           >
-            Next
-            <ChevronDown className="w-4 h-4" />
+            <ArrowBigRightDash className="w-5 h-5 fill-white" />
           </button>
         </div>
       </div>
-      <button onClick={()=>setSettingsOpen(!settingsOpen)} className=' flex flex-row justify-between w-full items-center p-4'><Settings className=' w-5 h-5'/>Settings {settingsOpen?<ToggleRight className=' w-5 h-5' />:<ToggleLeft className=' w-5 h-5'/>}</button>
+
+      {/* Bottom Menu */}
+      <div className="mt-3 pt-3 border-t border-slate-800/50">
+        <div className=" space-y-1">
+          {/* Settings Toggle */}
+          <button
+            onClick={() => setSettingsOpen(!settingsOpen)}
+            className="w-full flex items-center justify-between p-3 rounded-lg
+        transition-colors duration-200
+        text-slate-300 hover:text-white focus:outline-none "
+            aria-pressed={settingsOpen}
+            aria-label="Toggle settings"
+            type="button"
+          >
+            <div className="flex items-center gap-3">
+              {/* You can replace this with your Settings icon or SVG */}
+              <Settings className="w-5 h-5 text-slate-300"
+              />
+              <span className="text-sm font-medium select-none">Settings</span>
+            </div>
+
+            {/* Toggle switch */}
+            <div
+              className={`relative w-11 h-6 rounded-full transition-colors duration-300 ${settingsOpen ? 'bg-purple-500' : 'bg-slate-600'
+                }`}
+            >
+              <span
+                className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-md transform transition-transform duration-300 ${settingsOpen ? 'translate-x-5' : 'translate-x-0'
+                  }`}
+              />
+            </div>
+          </button>
+
+          {/* Manga Details */}
+          <button className="w-full flex items-center gap-3 p-3 hover:bg-slate-800/60 rounded-lg transition-all duration-200 text-slate-300 hover:text-white">
+            <Info className="w-5 h-5" />
+            <span className="text-sm font-medium">Manga Details</span>
+          </button>
+
+          {/* Reading List */}
+          <button
+            onClick={toggleFavorite}
+            className="w-full flex items-center gap-3 p-3 hover:bg-slate-800/60 rounded-lg transition-all duration-200 text-slate-300 hover:text-white"
+          >
+            <div className="flex items-center gap-3">
+              {isFavorite ? (
+                <Heart className="w-5 h-5 text-red-600 fill-current" />
+              ) : (
+                <Heart className="w-5 h-5" />
+              )}
+              <span className="text-sm font-medium">
+                Favorites {isFavorite ? "Listed" : "List"}
+              </span>
+            </div>
+          </button>
+        </div>
+      </div>
     </div>
-              </div>
-          </div>
   );
 };
 

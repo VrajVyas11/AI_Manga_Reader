@@ -17,7 +17,7 @@ export default function ReadChapter() {
   const { mangaId, chapterId } = useParams();
   const router = useRouter();
   const [isCollapsed, setIsCollapsed] = useState(true);
-    const [settingsOpen, setSettingsOpen] = useState(false);
+    const [settingsOpen, setSettingsOpen] = useState(true);
   const [layout, setLayout] = useState('horizontal');
   const [panels, setPanels] = useState(1);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -110,7 +110,7 @@ export default function ReadChapter() {
           hasPrevChapter={hasPrevChapter}
           goToChapter={goToChapter}
           chapterInfo={chapterInfo}
-          isCollapsed={isCollapsed}
+          isCollapsed={isCollapsed}gs
           mangaInfo={selectedMemoManga}
           setIsCollapsed={setIsCollapsed}
           settingsOpen={settingsOpen} 
