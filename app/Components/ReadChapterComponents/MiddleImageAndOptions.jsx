@@ -282,7 +282,7 @@ function MiddleImageAndOptions({
                                             </div>
                                         )}
                                         {showMessage && (
-                                            <div className="absolute z-50 text-wrap w-fit min-w-72 max-w-72 -top-96 border-purple-500 border right-12 bg-gray-800 text-white p-4 rounded-lg shadow-lg transition-opacity duration-300">
+                                            <div className="absolute z-50 text-wrap w-fit min-w-72 max-w-72 -top-96 border-gray-500/30 border right-12 bg-black/95 text-white p-4 rounded-lg shadow-lg transition-opacity duration-300">
                                                 <button
                                                     className="absolute top-1 right-1 text-white bg-purple-600 hover:bg-gray-500 rounded-full p-1 px-2.5"
                                                     onClick={() => setShowMessage(false)}

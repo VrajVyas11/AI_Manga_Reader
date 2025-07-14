@@ -25,13 +25,19 @@ Audiotest.jsx
 TranslatorTest.jsx
 AIAudio/
 CoverArts.jsx
+BottomSettingsModules
+InfoSideBarModules
+
 # testing
 /coverage
 apiVersion.ts
+
+
 # next.js
 /.next/
 /out/
-BottomSettingsModules
+
+
 # production
 /build
 
