@@ -149,4 +149,4 @@ function ShowSettingsPopUp({
     )
 }
 
-export default ShowSettingsPopUp
+export default React.memo(ShowSettingsPopUp)

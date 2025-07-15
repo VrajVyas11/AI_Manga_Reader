@@ -25,10 +25,8 @@ export default function RootLayout({
           <TanstackProvider>
             <MangaProvider>
               <ThemeProviderClient>
-
                 <TopNavbar />
                 {children}
-
               </ThemeProviderClient>
             </MangaProvider>
           </TanstackProvider>

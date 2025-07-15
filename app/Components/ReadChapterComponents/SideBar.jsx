@@ -11,30 +11,13 @@ import { useManga } from '../../providers/MangaContext';
 import { langFullNames } from '@/app/constants/Flags';
 import Image from 'next/image';
 import {
-  ChevronUp,
   ChevronDown,
-  Menu,
   BookOpen,
-  File,
   Settings,
-  X,
-  Search,
-  ArrowUpDown,
-  Globe,
   Heart,
   ArrowLeft,
-  List,
   Info,
-  ToggleRight,
-  ToggleLeft,
-  MessageSquare,
-  Bookmark,
-  Star,
-  Calendar,
-  Eye,
-  Layers,
   Logs,
-  ArrowBigLeft,
   ArrowBigRightDash,
   ArrowBigLeftDash,
   Languages,
@@ -44,17 +27,17 @@ import ChaptersQuickSelect from './SideBarModules/ChaptersQuickSelect';
 
 const SideBar = ({
   isCollapsed,
-  pages,
+  // pages,
   setIsCollapsed,
   mangaInfo,
-  panels,
-  setCurrentIndex,
+  // panels,
+  // setCurrentIndex,
   chapterInfo,
   goToNextChapter,
   hasNextChapter,
   hasPrevChapter,
   goToChapter,
-  currentIndex = 1,
+  // currentIndex = 1,
   goToPrevChapter,
   allChapters = [],
   setSettingsOpen,
@@ -99,7 +82,7 @@ const SideBar = ({
 
     // Set default language to English if available, otherwise first available
     const languages = Array.from(languagesSet);
-    const defaultLang = languages.includes('en') ? 'en' : languages[0];
+    // const defaultLang = languages.includes('en') ? 'en' : languages[0];
 
     return {
       uniqueChapters: Array.from(chaptersMap.values()),
@@ -282,31 +265,6 @@ const SideBar = ({
           </h2>
         </div>
       </div>
-      {/* <div className="flex flex-wrap items-center justify-between gap-1  w-full max-w-full px-3">
-  <span
-    className={` py-1 text-xs rounded-md font-semibold whitespace-nowrap ${
-      mangaInfo.status === 'ongoing'
-        ? ' text-green-400 '
-        : mangaInfo.status === 'completed'
-        ? ' text-blue-400 '
-        : mangaInfo.status === 'hiatus'
-        ? ' text-orange-400 '
-        : mangaInfo.status === 'cancelled'
-        ? ' text-red-400 '
-        : ' text-gray-400 '
-    }`}
-  >
-    {mangaInfo.status.toUpperCase()}
-  </span>
-
-  <span className=" py-1 text-xs  text-purple-400 rounded-md font-semibold  whitespace-nowrap">
-    {mangaInfo.year}
-  </span>
-
-  <span className=" py-1 text-xs  text-green-500 rounded-md font-semibold capitalize whitespace-nowrap">
-    {mangaInfo.contentRating}
-  </span>
-  </div> */}
       <div className='pl-4 flex flex-row w-full border-l-4 border-l-yellow-500 ml-2 mt-6 mb-3 items-start justify-start gap-2'>
         <p className="text-gray-400 text-sm">Reading</p>
         <div className="flex items-center gap-2 ">
@@ -480,4 +438,4 @@ const SideBar = ({
   );
 };
 
-export default SideBar;
+export default React.memo(SideBar);

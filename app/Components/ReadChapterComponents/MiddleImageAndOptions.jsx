@@ -1,4 +1,4 @@
-import React, { memo, useCallback, lazy, useState, useEffect } from 'react'
+import React, { memo, useCallback, lazy, useState, useEffect, Suspense } from 'react'
 
 import {
     Languages,
@@ -8,8 +8,7 @@ import {
 import Image from 'next/image';
 const TextToSpeech = memo(lazy(() => import('./TextToSpeech')));
 const OCROverlay = memo(lazy(() => import('./OCROverlay')));
-const LoadingSpinner = memo(lazy(() => import('../LoadingSpinner')));
-const Placeholder = memo(lazy(() => import('./Placeholder')));
+import Placeholder from './Placeholder';
 import handleTranslate from '../../util/ReadChapterUtils/handleTranslate';
 function MiddleImageAndOptions({
     layout,
@@ -151,31 +150,33 @@ function MiddleImageAndOptions({
     }, [memoizedHandleTranslate, translateAll]);
 
 
-      useEffect(() => {
-    
+    useEffect(() => {
+        if (layout === "vertical") {
+            // Remove any cursor class if needed
+            setCursorClass('');
+            return; // Exit early, no event listener added
+        }
+
         const handleMouseMove = (event) => {
+            // Your existing mouse move logic here
             const screenWidth = window.innerWidth;
             const screenHeight = window.innerHeight;
             const mouseX = event.clientX;
             const mouseY = event.clientY;
-            
-            // Check if mouse is in top area (normal cursor)
+
             if (mouseY < screenHeight / 5.5) {
                 setCursorClass('');
                 return;
             }
-            
-            // Calculate the middle 600px area
+
             const middleStart = (screenWidth - 500) / 2;
             const middleEnd = middleStart + 600;
-            
-            // Check if mouse is outside the middle 600px area (normal cursor)
+
             if (mouseX < middleStart || mouseX > middleEnd) {
                 setCursorClass('');
                 return;
             }
-            
-            // Check if mouse is on left half or right half of the middle area
+
             const screenMidPoint = screenWidth / 2;
             if (mouseX < screenMidPoint) {
                 setCursorClass('cursor-left-arrow');
@@ -183,24 +184,23 @@ function MiddleImageAndOptions({
                 setCursorClass('cursor-right-arrow');
             }
         };
-    
-        // Add event listeners to the document instead of just the container
+
         document.addEventListener('mousemove', handleMouseMove);
-    
+
         return () => {
             document.removeEventListener('mousemove', handleMouseMove);
         };
-    }, []);
+    }, [layout]);
     return (
-        <>
+        <Suspense fallback={<div className='w-full flex flex-row justify-center items-center'><Placeholder /></div>}>
             <div
-                className={`flex ${layout=="horizontal"?cursorClass:""}  flex-1 ${layout === "horizontal"
+                className={`flex ${layout == "horizontal" ? cursorClass : ""}  flex-1 ${layout === "horizontal"
                     ? "flex-row space-x-4 overflow-hidden justify-center mt-5 items-start"
                     : "flex-col space-y-4 mt-5 justify-end items-center"
                     } my-1`}
             >
                 {isLoading ? (
-                    <LoadingSpinner />
+                    <Placeholder />
                 ) : (
                     layout === "horizontal"
                         ? pages != undefined &&
@@ -408,7 +408,7 @@ function MiddleImageAndOptions({
                         )
                 )}
             </div>
-        </>
+        </Suspense>
     )
 }
 

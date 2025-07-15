@@ -1,6 +1,5 @@
-import { langFullNames } from '@/app/constants/Flags';
-import React, { memo } from 'react';
-import { ChevronDown, Heart, Menu, BookOpenText, File, ArrowBigDownDash, ArrowBigUpDash } from 'lucide-react';
+import React from 'react';
+import {  Heart, Menu, BookOpenText, ArrowBigDownDash, ArrowBigUpDash } from 'lucide-react';
 import ChaptersQuickSelect from './ChaptersQuickSelect';
 
 function CollapsedSideBarStrip({
@@ -114,4 +113,4 @@ function CollapsedSideBarStrip({
   );
 }
 
-export default CollapsedSideBarStrip;
+export default React.memo(CollapsedSideBarStrip);

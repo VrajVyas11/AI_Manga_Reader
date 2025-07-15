@@ -1,11 +1,4 @@
-import React, {
-  useState,
-  useCallback,
-  useEffect,
-  memo,
-  useRef,
-  useMemo,
-} from 'react';
+import React from 'react';
 import {
   BookOpen,
   File,
@@ -102,4 +95,4 @@ function ChaptersQuickSelect({chapterInfo,searchQuery,setSearchQuery,setSortOrde
     )
 }
 
-export default ChaptersQuickSelect
+export default React.memo(ChaptersQuickSelect);

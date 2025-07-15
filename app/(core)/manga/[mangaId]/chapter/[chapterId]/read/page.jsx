@@ -1,23 +1,25 @@
 "use client";
 
-import React, { useState, useEffect, memo, useCallback, lazy, useRef, useMemo } from 'react';
-
+import React, { useState, useEffect, useCallback, useRef, useMemo, memo } from 'react';
+import ReadChapterSkeleton from "../../../../../../Components/Skeletons/ReadChapter/ReadChapterSkeleton"
 import { useParams, useRouter } from 'next/navigation';
 import { ArrowUp } from 'lucide-react';
 import { useManga } from '../../../../../../providers/MangaContext';
-import TopRightOptions from "../../../../../../Components/ReadChapterComponents/TopRightOptions"
-const InfoSidebar = memo(lazy(() => import('../../../../../../Components/ReadChapterComponents/InfoSideBarModules/InfoSidebar')));
-const LoadingSpinner = memo(lazy(() => import('../../../../../../Components/LoadingSpinner')));
+import _TopRightOptions from "../../../../../../Components/ReadChapterComponents/TopRightOptions"
 import { useChapterPagesFetch } from "../../../../../../hooks/useChapterPagesFetch"
-import MiddleImageAndOptions from "../../../../../../Components/ReadChapterComponents/MiddleImageAndOptions";
-import BottomPagesNavigation from "../../../../../../Components/ReadChapterComponents/BottomPagesNavigation"
-import SideBar from "../../../../../../Components/ReadChapterComponents/SideBar"
+import _MiddleImageAndOptions from "../../../../../../Components/ReadChapterComponents/MiddleImageAndOptions";
+import _BottomPagesNavigation from "../../../../../../Components/ReadChapterComponents/BottomPagesNavigation"
+import _SideBar from "../../../../../../Components/ReadChapterComponents/SideBar"
+const SideBar = memo(_SideBar);
+const MiddleImageAndOptions = memo(_MiddleImageAndOptions);
+const BottomPagesNavigation = memo(_BottomPagesNavigation);
+const TopRightOptions = memo(_TopRightOptions);
 export default function ReadChapter() {
 
   const { mangaId, chapterId } = useParams();
   const router = useRouter();
   const [isCollapsed, setIsCollapsed] = useState(true);
-    const [settingsOpen, setSettingsOpen] = useState(true);
+  const [settingsOpen, setSettingsOpen] = useState(true);
   const [layout, setLayout] = useState('horizontal');
   const [panels, setPanels] = useState(1);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -91,10 +93,11 @@ export default function ReadChapter() {
     [hasNextChapter, currentChapterIndex, chapters, goToChapter]
   );
 
+  console.log(isLoading)
   return (
-    chapters && chapterId && mangaId && pages && !isError ? (
+     chapterId && mangaId && pages && !isError && chapterInfo  && !isLoading ? (
       <div
-        className="tracking-wider relative z-20 flex flex-row w-full h-[90vh] md:h-[91.3vh] justify-between items-start -mt-5   text-white overflow-hidden"
+        className="tracking-wider bg-black/20 relative z-20 flex flex-row w-full h-[90vh] md:h-[91.3vh] justify-between items-start -mt-5   text-white overflow-hidden"
       >
         <SideBar
           panels={panels}
@@ -110,36 +113,16 @@ export default function ReadChapter() {
           hasPrevChapter={hasPrevChapter}
           goToChapter={goToChapter}
           chapterInfo={chapterInfo}
-          isCollapsed={isCollapsed}gs
+          isCollapsed={isCollapsed} gs
           mangaInfo={selectedMemoManga}
           setIsCollapsed={setIsCollapsed}
-          settingsOpen={settingsOpen} 
+          settingsOpen={settingsOpen}
           setSettingsOpen={setSettingsOpen}
         />
-        {/* <InfoSidebar
-          panels={panels}
-          pages={pages && (quality === "low" ? pages?.chapter?.dataSaver : pages?.chapter?.data)}
-          setCurrentIndex={setCurrentIndex}
-          currentIndex={currentIndex}
-          allChapters={chapters}
-          currentChapterIndex={currentChapterIndex}
-          goToNextChapter={goToNextChapter}
-          goToPrevChapter={goToPrevChapter}
-          onChapterChange={handleChapterClick}
-          hasNextChapter={hasNextChapter}
-          hasPrevChapter={hasPrevChapter}
-          goToChapter={goToChapter}
-          chapterInfo={chapterInfo}
-          isCollapsed={isCollapsed}
-          mangaInfo={selectedMemoManga}
-          setIsCollapsed={setIsCollapsed}
-          className="min-w-[200px] max-w-[300px] sm:max-w-[350px] flex-shrink-0"
-        /> */}
-
         <div
           className="tracking-wider flex flex-col flex-grow min-w-0 h-full w-full max-w-full  scrollbar-thin scrollbar-thumb-purple-600 scrollbar-track-gray-900"
         >
-          {settingsOpen &&<TopRightOptions
+          {settingsOpen && <TopRightOptions
             allAtOnce={allAtOnce}
             quality={quality}
             isCollapsed={isCollapsed}
@@ -201,20 +184,6 @@ export default function ReadChapter() {
           </div>
 
           <div className="flex-shrink-0 relative z-50 w-full max-w-full">
-            {/* <BottomSettings
-              allAtOnce={allAtOnce}
-              quality={quality}
-              isCollapsed={isCollapsed}
-              setQuality={setQuality}
-              setAllAtOnce={setAllAtOnce}
-              currentIndex={currentIndex}
-              layout={layout}
-              pages={pages && (quality === "low" ? pages?.chapter?.dataSaver : pages?.chapter?.data)}
-              panels={panels}
-              setCurrentIndex={setCurrentIndex}
-              setLayout={setLayout}
-              setPanels={setPanels}
-            /> */}
             <BottomPagesNavigation
               setCurrentIndex={setCurrentIndex}
               currentIndex={currentIndex}
@@ -241,7 +210,7 @@ export default function ReadChapter() {
         </div>
       </div>
     ) : (
-      <LoadingSpinner text="Loading Chapter..." />
+      <ReadChapterSkeleton />
     )
   );
 }
