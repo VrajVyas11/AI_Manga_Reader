@@ -26,7 +26,7 @@ function CollapsedSideBarStrip({
   chapterDropdownOpen
 }) {
   return (
-    <div className="tracking-wider relative left-0 top-0 h-[90vh] md:h-[91.7vh] z-40 flex justify-center items-center">
+    <div className="tracking-wider relative left-0 top-0 h-[92vh] md:h-[91.7vh] z-40 flex justify-center items-center">
       <div className="tracking-wider h-full pt-5 md:pt-7 w-14 md:w-[70px] bg-black/25 backdrop-blur-3xl border-r border-purple-700/20 py-4 shadow-gray-800/20 md:py-6 px-1.5 md:px-2 flex flex-col items-center justify-between shadow-[5px_0_15px_rgba(0,0,0,0.4)]">
         <div className="tracking-wider flex flex-col items-center  h-full justify-between gap-y-3 md:gap-y-4">
           <button

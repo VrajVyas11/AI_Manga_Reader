@@ -34,6 +34,7 @@ function MiddleImageAndOptions({
     hasPrevChapter,
     goToNextChapter,
     hasNextChapter,
+    isCollapsed
 }) {
     if (!(chapterInfo && pages)) return null
     const [cursorClass, setCursorClass] = useState('');
@@ -194,7 +195,7 @@ function MiddleImageAndOptions({
     return (
         <Suspense fallback={<div className='w-full flex flex-row justify-center items-center'><Placeholder /></div>}>
             <div
-                className={`flex ${layout == "horizontal" ? cursorClass : ""}  flex-1 ${layout === "horizontal"
+                className={`flex ${isCollapsed?"":"ml-14 md:ml-0"} ${layout == "horizontal" ? cursorClass : ""} px-5 md:px-0  flex-1 ${layout === "horizontal"
                     ? "flex-row space-x-4 overflow-hidden justify-center mt-5 items-start"
                     : "flex-col space-y-4 mt-5 justify-end items-center"
                     } my-1`}
@@ -208,7 +209,7 @@ function MiddleImageAndOptions({
                             .slice(Math.abs(currentIndex), Math.abs(currentIndex + panels))
                             .map((page, index) => (
                                 <div key={index} className="tracking-wider   relative h-[87vh] flex justify-center items-center">
-                                    <div className={`relative w-auto  h-[87vh]`}>
+                                    <div className={`relative w-auto  md:h-[87vh]`}>
                                         <Image
                                             key={imageKey}
                                             src={page}

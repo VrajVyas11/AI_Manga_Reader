@@ -241,201 +241,251 @@ const SideBar = ({
     );
   }
 
-  return (
-    <div className="relative  px-3 rounded-r-lg  left-0 -bottom-6 border-[1px] border-l-0 border-gray-800/90  h-[88vh] w-72 bg-black/25 backdrop-blur-3xl flex flex-col z-40 shadow-[0_0_10px_rgba(0,0,0,1)] shadow-black/80">
-      {/* Header */}
-      <div className="py-2 border-b border-slate-800/50">
-        <button
-          onClick={() => setIsCollapsed(true)}
-          className="group absolute top-3 left-3 w-10 h-10 rounded-xl bg-slate-800/80 border border-slate-700/50 flex items-center justify-center text-slate-300 hover:text-white transition-all duration-300 hover:bg-slate-700/80 hover:border-slate-600/50"
-          aria-label="Collapse sidebar"
+return (
+  <div
+    className="
+       absolute md:relative  px-2 rounded-r-lg left-0 bottom-1 md:-bottom-6 border-[1px] border-l-0 border-gray-800/90
+      h-[89vh] w-52 bg-black/90 md:bg-black/25 backdrop-blur-3xl flex flex-col z-40 shadow-[0_0_10px_rgba(0,0,0,1)] shadow-black/80
+      md:w-72 md:h-[88vh] md:px-3
+    "
+  >
+    {/* Header */}
+    <div className="py-1.5 border-b border-slate-800/50 relative md:py-2">
+      <button
+        onClick={() => setIsCollapsed(true)}
+        className="
+          group absolute top-2 left-2 w-7 h-7 rounded-xl bg-slate-800/80 border border-slate-700/50
+          flex items-center justify-center text-slate-300 hover:text-white transition-all duration-300 hover:bg-slate-700/80 hover:border-slate-600/50
+          md:w-10 md:h-10 md:top-3 md:left-3
+        "
+        aria-label="Collapse sidebar"
+      >
+        <ArrowLeft className="w-3 h-3 md:w-5 md:h-5" />
+      </button>
+
+      {/* Manga Info */}
+      <div className="flex flex-col mt-12 justify-center items-center gap-3 md:mt-7 md:gap-4">
+        <div
+          className="
+            w-14 h-14 rounded-full overflow-hidden shadow-[0_0_5px_rgba(0,0,0,1)] shadow-purple-400 flex-shrink-0
+            md:w-20 md:h-20
+          "
         >
-          <ArrowLeft className="w-5 h-5" />
-        </button>
-
-
-        {/* Manga Info */}
-        <div className="flex flex-col mt-7 justify-center items-center gap-4">
-          <div className="w-20 h-20 rounded-full overflow-hidden shadow-[0_0_5px_rgba(0,0,0,1)] shadow-purple-400   flex-shrink-0">
-            <CoverImage {...coverImageProps} />
-          </div>
-
-          <h2 className="text-sm font-serif font-semibold text-center capitalize text-white line-clamp-2 ">
-            {mangaInfo.title}
-          </h2>
+          <CoverImage {...coverImageProps} />
         </div>
-      </div>
-      <div className='pl-4 flex flex-row w-full border-l-4 border-l-yellow-500 ml-2 mt-6 mb-3 items-start justify-start gap-2'>
-        <p className="text-gray-400 text-sm">Reading</p>
-        <div className="flex items-center gap-2 ">
-          <span className="text-yellow-500 text-sm ">By Chapter</span>
-          <ChevronDown className="w-4 h-4 text-gray-400" />
-        </div>
-      </div>
-      <div className='flex justify-start text-sm px-2 items-center gap-4 mt-4 mb-2'><Logs className='w-5 h-5' /> Chapter Navigation</div>
-      {/* Language Selector */}
-      <div className="p-2 py-1 ">
-        <div className="relative" ref={languageDropdownRef}>
-          <button
-            onClick={() => setLanguageDropdownOpen(!languageDropdownOpen)}
-            className="w-full flex items-center justify-between p-3 bg-slate-800/60 hover:bg-slate-700/60 rounded-md transition-all duration-200 text-white border border-slate-700/50 hover:border-slate-600/50"
-            aria-label="Select language"
-          >
-            <div className="flex items-center gap-3">
-              <Languages className="w-4 h-4 text-slate-400" />
-              <span className="text-sm font-medium">
-                Language: {selectedLanguage.toUpperCase() || langFullNames[selectedLanguage]}
-              </span>
-            </div>
-            <ChevronDown
-              className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${languageDropdownOpen ? 'rotate-180' : ''
-                }`}
-            />
-          </button>
 
-          {languageDropdownOpen && (
-            <div
-              style={{
-                scrollbarWidth: "none",
-                scrollbarColor: "rgba(155, 89, 182, 0.6) rgba(0, 0, 0, 0.1)",
-              }}
-              className="absolute top-full left-0 right-0 mt-2 bg-slate-900/95 backdrop-blur-sm border border-slate-700/50 rounded-lg shadow-xl z-50 max-h-48 overflow-y-auto">
-              {availableLanguages.map((lang) => (
-                <button
-                  key={lang}
-                  onClick={() => handleLanguageChange(lang)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-800/60 transition-colors text-sm ${selectedLanguage === lang
-                    ? 'bg-purple-500/20 text-white border-l-2 border-purple-500'
-                    : 'text-slate-300'
-                    }`}
-                >
-                  <StableFlag
-                    code={lang || "en"}
-                    className="w-5 h-5 rounded shadow-sm"
-                    alt="flag"
-                  />
-                  <span className="font-medium">{langFullNames[lang] || lang}</span>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Chapter Selector */}
-      <div className="p-2 py-1">
-        <div className="relative" ref={dropdownRef}>
-          <button
-            onClick={() => setChapterDropdownOpen(!chapterDropdownOpen)}
-            className="w-full flex items-center justify-between p-3 bg-slate-800/60 hover:bg-slate-700/60 rounded-md transition-all duration-200 text-white border border-slate-700/50 hover:border-slate-600/50"
-            aria-label="Select chapter"
-          >
-            <div className="flex items-center gap-0.5 ">
-              <BookOpen className="w-4 h-4 min-w-fit text-slate-400 " />
-              <span className="text-sm font-medium line-clamp-1">Chapter {chapterInfo.chapter} : {chapterInfo.title}</span>
-            </div>
-            <ChevronDown
-              className={`w-4 h-4 ml-4 min-w-fit text-slate-400 transition-transform duration-200 ${chapterDropdownOpen ? 'rotate-180' : ''
-                }`}
-            />
-          </button>
-
-          {/* Chapter Dropdown List - Keep as is, it's perfect */}
-          {chapterDropdownOpen && (
-            <div className="absolute -bottom-[250%] left-56 z-50">
-              <ChaptersQuickSelect
-                searchQuery={searchQuery} chapterInfo={chapterInfo} setSearchQuery={setSearchQuery} setSortOrder={setSortOrder} sortOrder={sortOrder} goToFirstChapter={goToFirstChapter} goToLastChapter={goToLastChapter} filteredChapters={filteredChapters} goToChapter={goToChapter} setChapterDropdownOpen={setChapterDropdownOpen}
-              />
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Navigation Controls */}
-      <div className="py-1 px-2 mt-4">
-        <div className="flex gap-2">
-          <button
-            onClick={goToPrevChapter}
-            disabled={!hasPrevChapter}
-            className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md transition-all duration-200 font-medium ${hasPrevChapter
-              ? 'bg-slate-800/60 hover:bg-slate-700/60 text-white border border-slate-700/50 hover:border-slate-600/50'
-              : 'bg-slate-800/30 text-slate-500 cursor-not-allowed border border-slate-800/30'
-              }`}
-          >
-            <ArrowBigLeftDash className="w-5 h-5 fill-white" />
-          </button>
-
-          <button
-            onClick={goToNextChapter}
-            disabled={!hasNextChapter}
-            className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md transition-all duration-200 font-medium ${hasNextChapter
-              ? 'bg-slate-800/60 hover:bg-slate-700/60 text-white border border-slate-700/50 hover:border-slate-600/50'
-              : 'bg-slate-800/30 text-slate-500 cursor-not-allowed border border-slate-800/30'
-              }`}
-          >
-            <ArrowBigRightDash className="w-5 h-5 fill-white" />
-          </button>
-        </div>
-      </div>
-
-      {/* Bottom Menu */}
-      <div className="mt-3 pt-3 border-t border-slate-800/50">
-        <div className=" space-y-1">
-          {/* Settings Toggle */}
-          <button
-            onClick={() => setSettingsOpen(!settingsOpen)}
-            className="w-full flex items-center justify-between p-3 rounded-lg
-        transition-colors duration-200
-        text-slate-300 hover:text-white focus:outline-none "
-            aria-pressed={settingsOpen}
-            aria-label="Toggle settings"
-            type="button"
-          >
-            <div className="flex items-center gap-3">
-              {/* You can replace this with your Settings icon or SVG */}
-              <Settings className="w-5 h-5 text-slate-300"
-              />
-              <span className="text-sm font-medium select-none">Settings</span>
-            </div>
-
-            {/* Toggle switch */}
-            <div
-              className={`relative w-11 h-6 rounded-full transition-colors duration-300 ${settingsOpen ? 'bg-purple-500' : 'bg-slate-600'
-                }`}
-            >
-              <span
-                className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-md transform transition-transform duration-300 ${settingsOpen ? 'translate-x-5' : 'translate-x-0'
-                  }`}
-              />
-            </div>
-          </button>
-
-          {/* Manga Details */}
-          <button className="w-full flex items-center gap-3 p-3 hover:bg-slate-800/60 rounded-lg transition-all duration-200 text-slate-300 hover:text-white">
-            <Info className="w-5 h-5" />
-            <span className="text-sm font-medium">Manga Details</span>
-          </button>
-
-          {/* Reading List */}
-          <button
-            onClick={toggleFavorite}
-            className="w-full flex items-center gap-3 p-3 hover:bg-slate-800/60 rounded-lg transition-all duration-200 text-slate-300 hover:text-white"
-          >
-            <div className="flex items-center gap-3">
-              {isFavorite ? (
-                <Heart className="w-5 h-5 text-red-600 fill-current" />
-              ) : (
-                <Heart className="w-5 h-5" />
-              )}
-              <span className="text-sm font-medium">
-                Favorites {isFavorite ? "Listed" : "List"}
-              </span>
-            </div>
-          </button>
-        </div>
+        <h2
+          className="
+            text-[11px] font-serif font-semibold text-center capitalize text-white line-clamp-2
+            md:text-sm
+          "
+        >
+          {mangaInfo.title}
+        </h2>
       </div>
     </div>
-  );
+
+    <div className="pl-2 flex flex-row w-full border-l-4 border-l-yellow-500 ml-1 mt-4 mb-2 items-start justify-start gap-2 md:pl-4 md:ml-2 md:mt-6 md:mb-3">
+      <p className="text-gray-400 text-[11px] md:text-sm">Reading</p>
+      <div className="flex items-center gap-2">
+        <span className="text-yellow-500 text-[11px] md:text-sm">By Chapter</span>
+        <ChevronDown className="w-3 h-3 text-gray-400 md:w-4 md:h-4" />
+      </div>
+    </div>
+
+    <div className="flex mt-5   justify-start text-[11px] px-1.5 items-center gap-2 md:text-sm md:px-2 md:gap-4 md:mt-4 md:mb-2">
+      <Logs className="w-4 h-4 md:w-5 md:h-5" /> Chapter Navigation
+    </div>
+
+    {/* Language Selector */}
+    <div className=" p-2 py-1">
+      <div className="relative" ref={languageDropdownRef}>
+        <button
+          onClick={() => setLanguageDropdownOpen(!languageDropdownOpen)}
+          className="
+            w-full flex items-center justify-between p-2 bg-slate-800/60 hover:bg-slate-700/60 rounded-md
+            transition-all duration-200 text-white border border-slate-700/50 hover:border-slate-600/50
+            md:p-3
+          "
+          aria-label="Select language"
+        >
+          <div className="flex items-center gap-2 md:gap-3">
+            <Languages className="w-3 h-3 text-slate-400 md:w-4 md:h-4" />
+            <span className="text-[11px] font-medium md:text-sm">
+              Language: {selectedLanguage.toUpperCase() || langFullNames[selectedLanguage]}
+            </span>
+          </div>
+          <ChevronDown
+            className={`w-3 h-3 text-slate-400 transition-transform duration-200 ${
+              languageDropdownOpen ? 'rotate-180' : ''
+            } md:w-4 md:h-4`}
+          />
+        </button>
+
+        {languageDropdownOpen && (
+          <div
+            style={{
+              scrollbarWidth: 'none',
+              scrollbarColor: 'rgba(155, 89, 182, 0.6) rgba(0, 0, 0, 0.1)',
+            }}
+            className="absolute top-full left-0 right-0 mt-2 bg-slate-900/95 backdrop-blur-sm border border-slate-700/50 rounded-lg shadow-xl z-50 max-h-36 overflow-y-auto md:max-h-48"
+          >
+            {availableLanguages.map((lang) => (
+              <button
+                key={lang}
+                onClick={() => handleLanguageChange(lang)}
+                className={`w-full flex items-center gap-3 px-3 py-2 hover:bg-slate-800/60 transition-colors text-[11px] md:px-4 md:py-3 md:text-sm ${
+                  selectedLanguage === lang
+                    ? 'bg-purple-500/20 text-white border-l-2 border-purple-500'
+                    : 'text-slate-300'
+                }`}
+              >
+                <StableFlag
+                  code={lang || 'en'}
+                  className="w-4 h-4 rounded shadow-sm md:w-5 md:h-5"
+                  alt="flag"
+                />
+                <span className="font-medium">{langFullNames[lang] || lang}</span>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+
+    {/* Chapter Selector */}
+    <div className=" p-2 py-1">
+      <div className="relative" ref={dropdownRef}>
+        <button
+          onClick={() => setChapterDropdownOpen(!chapterDropdownOpen)}
+          className="
+            w-full flex items-center justify-between p-2 bg-slate-800/60 hover:bg-slate-700/60 rounded-md
+            transition-all duration-200 text-white border border-slate-700/50 hover:border-slate-600/50
+            md:p-3
+          "
+          aria-label="Select chapter"
+        >
+          <div className="flex items-center gap-1 md:gap-0.5">
+            <BookOpen className="w-3 h-3 min-w-fit text-slate-400 md:w-4 md:h-4" />
+            <span className="text-[11px] font-medium line-clamp-1 md:text-sm">
+              Chapter {chapterInfo.chapter} : {chapterInfo.title}
+            </span>
+          </div>
+          <ChevronDown
+            className={`w-3 h-3 ml-2 min-w-fit text-slate-400 transition-transform duration-200 ${
+              chapterDropdownOpen ? 'rotate-180' : ''
+            } md:w-4 md:h-4 md:ml-4`}
+          />
+        </button>
+
+        {chapterDropdownOpen && (
+          <div className="absolute -bottom-[220%] left-40 z-50 md:left-56 md:-bottom-[250%]">
+            <ChaptersQuickSelect
+              searchQuery={searchQuery}
+              chapterInfo={chapterInfo}
+              setSearchQuery={setSearchQuery}
+              setSortOrder={setSortOrder}
+              sortOrder={sortOrder}
+              goToFirstChapter={goToFirstChapter}
+              goToLastChapter={goToLastChapter}
+              filteredChapters={filteredChapters}
+              goToChapter={goToChapter}
+              setChapterDropdownOpen={setChapterDropdownOpen}
+            />
+          </div>
+        )}
+      </div>
+    </div>
+
+    {/* Navigation Controls */}
+    <div className="py-1  mt-3 md:mt-4 px-2">
+      <div className="flex gap-2">
+        <button
+          onClick={goToPrevChapter}
+          disabled={!hasPrevChapter}
+          className={`flex-1 flex items-center justify-center gap-2  rounded-md transition-all duration-200 font-medium ${
+            hasPrevChapter
+              ? 'bg-slate-800/60 hover:bg-slate-700/60 text-white border border-slate-700/50 hover:border-slate-600/50'
+              : 'bg-slate-800/30 text-slate-500 cursor-not-allowed border border-slate-800/30'
+          } px-4 py-2 md:text-sm`}
+        >
+          <ArrowBigLeftDash className="w-4 h-4 fill-white md:w-5 md:h-5" />
+        </button>
+
+        <button
+          onClick={goToNextChapter}
+          disabled={!hasNextChapter}
+          className={`flex-1 flex items-center justify-center gap-2 rounded-md transition-all duration-200 font-medium ${
+            hasNextChapter
+              ? 'bg-slate-800/60 hover:bg-slate-700/60 text-white border border-slate-700/50 hover:border-slate-600/50'
+              : 'bg-slate-800/30 text-slate-500 cursor-not-allowed border border-slate-800/30'
+          } px-4 py-2 md:text-sm`}
+        >
+          <ArrowBigRightDash className="w-4 h-4 fill-white md:w-5 md:h-5" />
+        </button>
+      </div>
+    </div>
+
+    {/* Bottom Menu */}
+    <div className="mt-2 my-1 md:my-0  pt-2 border-t border-slate-800/50 md:mt-3 md:pt-3">
+      <div className="space-y-1">
+        {/* Settings Toggle */}
+        <button
+          onClick={() => setSettingsOpen(!settingsOpen)}
+          className="
+            w-full flex items-center justify-between rounded-lg transition-colors duration-200
+            text-slate-300 hover:text-white focus:outline-none p-3 md:text-sm
+          "
+          aria-pressed={settingsOpen}
+          aria-label="Toggle settings"
+          type="button"
+        >
+          <div className="flex items-center gap-2 md:gap-3">
+            <Settings className="w-4 h-4 text-slate-300 md:w-5 md:h-5" />
+            <span className="text-[11px] font-medium select-none md:text-sm">
+              Settings
+            </span>
+          </div>
+
+          <div
+            className={`relative w-9 h-5 rounded-full transition-colors duration-300 ${
+              settingsOpen ? 'bg-purple-500' : 'bg-slate-600'
+            } md:w-9 md:h-6`}
+          >
+            <span
+              className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
+                settingsOpen ? 'translate-x-4' : 'translate-x-0'
+              } md:w-5 md:h-5 md:top-0.5 md:left-0.5 md:translate-x-5`}
+            />
+          </div>
+        </button>
+
+        {/* Manga Details */}
+        <button className="w-full flex items-center gap-2 p-2 hover:bg-slate-800/60 rounded-lg transition-all duration-200 text-slate-300 hover:text-white md:p-3 md:text-sm">
+          <Info className="w-4 h-4 md:w-5 md:h-5" />
+          <span className="text-[11px] font-medium md:text-sm">Manga Details</span>
+        </button>
+
+        {/* Reading List */}
+        <button
+          onClick={toggleFavorite}
+          className="w-full flex items-center gap-2 p-2 hover:bg-slate-800/60 rounded-lg transition-all duration-200 text-slate-300 hover:text-white md:p-3 md:text-sm"
+        >
+          <div className="flex items-center gap-2">
+            {isFavorite ? (
+              <Heart className="w-4 h-4 text-red-600 fill-current md:w-5 md:h-5" />
+            ) : (
+              <Heart className="w-4 h-4 md:w-5 md:h-5" />
+            )}
+            <span className="text-[11px] font-medium md:text-sm">
+              Favorites {isFavorite ? 'Listed' : 'List'}
+            </span>
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+);
 };
 
 export default React.memo(SideBar);

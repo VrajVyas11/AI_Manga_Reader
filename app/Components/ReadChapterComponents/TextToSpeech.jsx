@@ -72,7 +72,7 @@ const TextToSpeech = ({ text, handleUpload, page, ready, layout = "horizontal" }
           <button
             onClick={() => handleUpload(page, "speak")}
             disabled={isSpeaking}
-            className={`group py-2 px-1.5 before:bg-opacity-60 flex items-center justify-start min-w-[36px] sm:min-w-[48px] h-12 sm:h-20 text-gray-100 rounded-full cursor-pointer relative overflow-hidden transition-all duration-300  
+            className={`group py-2 px-0.5 md:px-1.5 before:bg-opacity-60 flex items-center justify-start min-w-[36px] sm:min-w-[48px] h-12 sm:h-20 text-gray-100 rounded-full cursor-pointer relative overflow-hidden transition-all duration-300  
             shadow-[0px_0px_10px_rgba(0,0,0,1)] shadow-violet-500 bg-[#2f0a6e] border-2 border-violet-800 hover:min-w-[140px] sm:hover:min-w-[189px] hover:shadow-lg disabled:cursor-not-allowed 
             backdrop-blur-md lg:font-semibold before:absolute before:w-full before:transition-all before:duration-700 
             before:hover:w-full before:-right-full before:hover:right-0 before:rounded-full before:bg-[#FFFFFF] 

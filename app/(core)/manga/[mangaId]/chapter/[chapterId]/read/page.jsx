@@ -93,11 +93,10 @@ export default function ReadChapter() {
     [hasNextChapter, currentChapterIndex, chapters, goToChapter]
   );
 
-  console.log(isLoading)
   return (
      chapterId && mangaId && pages && !isError && chapterInfo  && !isLoading ? (
       <div
-        className="tracking-wider bg-black/20 relative z-20 flex flex-row w-full h-[90vh] md:h-[91.3vh] justify-between items-start -mt-5   text-white overflow-hidden"
+        className="tracking-wider bg-black/20 relative z-20 flex flex-row w-full h-[92vh] md:h-[91.3vh] justify-between items-start -mt-5   text-white overflow-hidden"
       >
         <SideBar
           panels={panels}
@@ -113,7 +112,7 @@ export default function ReadChapter() {
           hasPrevChapter={hasPrevChapter}
           goToChapter={goToChapter}
           chapterInfo={chapterInfo}
-          isCollapsed={isCollapsed} gs
+          isCollapsed={isCollapsed}
           mangaInfo={selectedMemoManga}
           setIsCollapsed={setIsCollapsed}
           settingsOpen={settingsOpen}
@@ -175,6 +174,7 @@ export default function ReadChapter() {
               showMessage={showMessage}
               setShowMessage={setShowMessage}
               allAtOnce={allAtOnce}
+              isCollapsed={isCollapsed}
               goToPrevChapter={goToPrevChapter}
               hasPrevChapter={hasPrevChapter}
               goToNextChapter={goToNextChapter}
