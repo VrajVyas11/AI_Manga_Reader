@@ -2,9 +2,11 @@
 import { NextResponse } from 'next/server';
 import axios from 'axios';
 
-export async function GET(req: Request, { params }: { params: { authorId: string } }) {
-  const { authorId } = await params;
-
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ authorId: string }> }
+) {
+  const { authorId } = await params
   try {
     console.log(`Fetching author information for authorId: ${authorId}`);
 

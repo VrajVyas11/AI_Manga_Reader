@@ -1,13 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from 'next/server';
 import axios from 'axios';
-
 export async function GET(
-  req: Request,
-  { params }: { params: { chapterId: string } }
+  request: Request,
+  { params }: { params: Promise<{ chapterId: string }> }
 ) {
-  const { chapterId } = await params;
-
+  const { chapterId } = await params
   try {
     console.log('Fetching pages for chapterId:', chapterId);
     const response = await axios.get(

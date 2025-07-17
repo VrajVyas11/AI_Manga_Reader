@@ -1,8 +1,11 @@
 import { NextResponse } from 'next/server';
 import axios from 'axios';
 
-export async function GET(req: Request, { params }: { params: { mangaId: string } }) {
-  const { mangaId } = await params;
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ mangaId: string }> }
+) {
+  const { mangaId } = await params
   const baseUrl = 'https://api.mangadex.org';
 
   // Handle comma-separated IDs
@@ -86,7 +89,7 @@ export async function GET(req: Request, { params }: { params: { mangaId: string 
         acc.flatTags.push(tagName);
         return acc;
       }, { groupedTags: {} as Record<string, string[]>, flatTags: [] as string[] });
-      
+
       return {
         id,
         title: title?.en || Object.values(altTitles[0] || {})[0] || 'Untitled',

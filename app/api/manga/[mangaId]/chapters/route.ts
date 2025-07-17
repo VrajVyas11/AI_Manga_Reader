@@ -7,10 +7,10 @@ const chaptersPerPage = 90; // Adjust the number of chapters per request
 const totalChaptersToFetch = 500; // Total chapters you want to fetch
 
 export async function GET(
-    req: Request,
-    { params }: { params: { mangaId: string } }
+  request: Request,
+  { params }: { params: Promise<{ mangaId: string }> }
 ) {
-    const { mangaId } = await params;
+  const { mangaId } = await params
     let allChapters: any[] = [];
 
     const maxBatches = Math.ceil(totalChaptersToFetch / chaptersPerPage);
@@ -49,10 +49,10 @@ export async function GET(
             );
 
             // Helper to find included data by id and type
-            const findIncluded = (id: string, type: string) =>
-                included.find(
-                    (item: any) => item.id === id && item.type === type
-                ) || null;
+            // const findIncluded = (id: string, type: string) =>
+            //     included.find(
+            //         (item: any) => item.id === id && item.type === type
+            //     ) || null;
 
             // Map chapters with detailed info
             const chapters = fetchedChapters.map((chapter: any) => ({
