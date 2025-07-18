@@ -208,8 +208,8 @@ function MiddleImageAndOptions({
                         (quality === "low" ? pages?.chapter?.dataSaver : pages?.chapter?.data)
                             .slice(Math.abs(currentIndex), Math.abs(currentIndex + panels))
                             .map((page, index) => (
-                                <div key={index} className="tracking-wider   relative h-[87vh] flex justify-center items-center">
-                                    <div className={`relative w-auto  md:h-[87vh]`}>
+                                <div key={index} className="tracking-wider   relative h-screen md:h-[87vh] flex justify-center items-center">
+                                    <div className={`relative w-auto h-screen md:h-[87vh]`}>
                                         <Image
                                             key={imageKey}
                                             src={page}
