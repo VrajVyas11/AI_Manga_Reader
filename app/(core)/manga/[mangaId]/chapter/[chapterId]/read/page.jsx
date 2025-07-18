@@ -18,7 +18,7 @@ export default function ReadChapter() {
 
   const { mangaId, chapterId } = useParams();
   const router = useRouter();
-  const [isCollapsed, setIsCollapsed] = useState(true);
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(true);
   const [layout, setLayout] = useState('horizontal');
   const [panels, setPanels] = useState(1);
@@ -94,7 +94,7 @@ export default function ReadChapter() {
   );
 
   return (
-     chapterId && mangaId && pages && !isError && chapterInfo  && !isLoading ? (
+    chapterId && mangaId && pages && !isError && chapterInfo && !isLoading ? (
       <div
         className="tracking-wider bg-black/20 relative z-20 flex flex-row w-full h-[92vh] md:h-[91.3vh] justify-between items-start -mt-5   text-white overflow-hidden"
       >
@@ -193,7 +193,7 @@ export default function ReadChapter() {
             />
             {layout === "vertical" && (
               <button
-                className="tracking-wider cursor-pointer fixed bottom-12 right-8 w-16 h-16 rounded-full border-4 border-violet-200 bg-black flex items-center justify-center duration-300 hover:rounded-[50px] hover:w-24 group/button overflow-hidden active:scale-90"
+                className="tracking-wider cursor-pointer fixed bottom-5 right-3 md:bottom-12 md:right-8 w-12 h-12 md:w-16 md:h-16 rounded-full border-4 border-violet-200 bg-black flex items-center justify-center duration-300 hover:rounded-[50px] hover:w-24 group/button overflow-hidden active:scale-90"
                 onClick={() => {
                   if (scrollContainerRef.current) {
                     scrollContainerRef.current.scrollTo({ top: 0, behavior: "smooth" });

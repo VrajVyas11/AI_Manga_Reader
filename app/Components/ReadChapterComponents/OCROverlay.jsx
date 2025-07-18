@@ -42,7 +42,7 @@ const OCROverlay = ({ fullOCRResult, translatedTexts, loading, ready,layout="ver
            return (
             <div
             key={i}
-            className="absolute  shadow-md shadow-black/20 bg-white w-fit h-[9px] text-black font-extrabold text-[8px] flex justify-center items-center overflow-hidden rounded-sm p-0.5"
+            className="absolute font-serif  rounded-lg  shadow-md shadow-black/20 bg-white flex-wrap w-fit max-w-[180px] h-auto text-black font-bold text-xs flex justify-center items-center overflow-hidden p-0.5"
             style={{
               left: `${scaledX*item.confidence }px`,
               top: `${scaledY}px`,

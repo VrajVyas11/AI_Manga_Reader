@@ -195,7 +195,7 @@ function MiddleImageAndOptions({
     return (
         <Suspense fallback={<div className='w-full flex flex-row justify-center items-center'><Placeholder /></div>}>
             <div
-                className={`flex ${isCollapsed?"":"ml-14 md:ml-0"} ${layout == "horizontal" ? cursorClass : ""} px-5 md:px-0  flex-1 ${layout === "horizontal"
+                className={`flex ${isCollapsed ? "" : "ml-14 md:ml-0"} ${layout == "horizontal" ? cursorClass : ""} pl-3 md:px-0  flex-1 ${layout === "horizontal"
                     ? "flex-row space-x-4 overflow-hidden justify-center mt-5 items-start"
                     : "flex-col space-y-4 mt-5 justify-end items-center"
                     } my-1`}

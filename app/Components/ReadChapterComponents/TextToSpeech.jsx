@@ -137,7 +137,7 @@ const TextToSpeech = ({ text, handleUpload, page, ready, layout = "horizontal" }
             </button>
             {/* Speech controls popover */}
             {showControls && (
-              <div className="tracking-wider z-50 absolute  right-10  md:right-10 -top-16 md:bottom-full mb-2 bg-[#1a063e] bg-opacity-90 backdrop-blur-md rounded-lg p-3 sm:p-4 shadow-lg border border-violet-500 w-32 sm:w-64">
+              <div className="tracking-wider h-fit z-50 absolute  right-10  md:right-10 -top-16 md:bottom-full mb-2 bg-[#1a063e] bg-opacity-90 backdrop-blur-md rounded-lg p-3 sm:p-4 shadow-lg border border-violet-500 w-32 sm:w-64">
                 <div className="tracking-wider mb-3">
                   <label className="tracking-wider text-white text-xs sm:text-sm block mb-1">
                     Voice
