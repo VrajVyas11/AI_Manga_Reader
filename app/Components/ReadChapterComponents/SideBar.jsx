@@ -50,6 +50,8 @@ const SideBar = ({
   const [selectedLanguage, setSelectedLanguage] = useState(
     chapterInfo.translatedLanguage
   );
+  // console.log(allChapters);
+  
   const { addToFavorite, getAllFavorites } = useManga();
   const dropdownRef = useRef(null);
   const languageDropdownRef = useRef(null);
@@ -89,15 +91,14 @@ const SideBar = ({
       availableLanguages: languages,
       chapterLanguageMap: chapterLangMap,
     };
-  }, [allChapters]);
+  }, [allChapters,chapterInfo]);
 
-  // Get chapters for selected language
-  const chaptersForLanguage = useMemo(() => {
-    return allChapters.filter(
-      (chapter) => chapter.translatedLanguage === selectedLanguage
-    );
-  }, [allChapters, selectedLanguage]);
-
+  // Get languages for selected chapter
+const availableLanguagesForCurrentChapter = useMemo(() => {
+  const currentChapterNum = chapterInfo.chapter;
+  const chaptersForCurrent = chapterLanguageMap.get(currentChapterNum) || [];
+  return chaptersForCurrent.map((ch) => ch.translatedLanguage);
+}, [chapterLanguageMap, chapterInfo.chapter]);
   // Handle click outside
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -128,12 +129,12 @@ const SideBar = ({
 
   const sortedChapters = useMemo(
     () =>
-      [...chaptersForLanguage].sort((a, b) => {
+      [...uniqueChapters].sort((a, b) => {
         const aNum = parseFloat(a.chapter);
         const bNum = parseFloat(b.chapter);
         return sortOrder === 'asc' ? aNum - bNum : bNum - aNum;
       }),
-    [chaptersForLanguage, sortOrder]
+    [uniqueChapters, sortOrder]
   );
 
   const filteredChapters = useMemo(
@@ -147,24 +148,24 @@ const SideBar = ({
   );
 
   const goToFirstChapter = useCallback(() => {
-    if (chaptersForLanguage.length > 0) {
-      const firstChapter = [...chaptersForLanguage].sort(
+    if (uniqueChapters.length > 0) {
+      const firstChapter = [...uniqueChapters].sort(
         (a, b) => parseFloat(a.chapter) - parseFloat(b.chapter)
       )[0];
       goToChapter(firstChapter);
       setChapterDropdownOpen(false);
     }
-  }, [chaptersForLanguage, goToChapter]);
+  }, [uniqueChapters, goToChapter]);
 
   const goToLastChapter = useCallback(() => {
-    if (chaptersForLanguage.length > 0) {
-      const lastChapter = [...chaptersForLanguage].sort(
+    if (uniqueChapters.length > 0) {
+      const lastChapter = [...uniqueChapters].sort(
         (a, b) => parseFloat(b.chapter) - parseFloat(a.chapter)
       )[0];
       goToChapter(lastChapter);
       setChapterDropdownOpen(false);
     }
-  }, [chaptersForLanguage, goToChapter]);
+  }, [uniqueChapters, goToChapter]);
 
   const handleLanguageChange = useCallback(
     (language) => {
@@ -329,7 +330,7 @@ const SideBar = ({
               }}
               className="absolute top-full left-0 right-0 mt-2 bg-slate-900/95 backdrop-blur-sm border border-slate-700/50 rounded-lg shadow-xl z-50 max-h-36 overflow-y-auto md:max-h-48"
             >
-              {availableLanguages.map((lang) => (
+              {availableLanguagesForCurrentChapter.map((lang) => (
                 <button
                   key={lang}
                   onClick={() => handleLanguageChange(lang)}
@@ -376,7 +377,7 @@ const SideBar = ({
           </button>
 
           {chapterDropdownOpen && (
-            <div className="absolute -bottom-[220%] left-40 z-50 md:left-56 md:-bottom-[250%]">
+            <div className="absolute -bottom-[220%] left-48 z-50 md:left-56 md:-bottom-[250%]">
               <ChaptersQuickSelect
                 searchQuery={searchQuery}
                 chapterInfo={chapterInfo}
@@ -393,7 +394,6 @@ const SideBar = ({
           )}
         </div>
       </div>
-
       {/* Navigation Controls */}
       <div className="py-1  mt-3 md:mt-4 px-2">
         <div className="flex gap-2">

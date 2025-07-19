@@ -245,12 +245,12 @@ export function MangaProvider({ children }: { children: ReactNode }) {
         updatedHistory = prev.map((entry) =>
           entry.manga.id === manga.id
             ? {
-                manga,
-                chapters: updatedChapters,
-                lastChapterRead: chapter || existingEntry.lastChapterRead,
-                allChaptersList: allChaptersList || existingEntry.allChaptersList,
-                lastReadAT: new Date(),
-              }
+              manga,
+              chapters: updatedChapters,
+              lastChapterRead: chapter || existingEntry.lastChapterRead,
+              allChaptersList: allChaptersList || existingEntry.allChaptersList,
+              lastReadAT: new Date(),
+            }
             : entry
         );
       } else {
@@ -328,13 +328,28 @@ export function MangaProvider({ children }: { children: ReactNode }) {
           chapterInfo: [],
         };
       } else {
-        updatedFavorites[mangaId].mangaInfo = manga;
+        // Create a completely new object to avoid mutation
+        updatedFavorites[mangaId] = {
+          ...updatedFavorites[mangaId],
+          mangaInfo: manga,
+        };
       }
 
       if (chapter) {
         const existingChapters = updatedFavorites[mangaId].chapterInfo;
-        if (!existingChapters.some((ch) => ch.id === chapter.id)) {
+        const chapterExists = existingChapters.some((ch) => ch.id === chapter.id);
+
+        if (!chapterExists) {
+          // Add chapter - create new array
           updatedFavorites[mangaId].chapterInfo = [chapter, ...existingChapters];
+        } else {
+          // Remove chapter - create new array without the chapter
+          updatedFavorites[mangaId].chapterInfo = existingChapters.filter((ch) => ch.id !== chapter.id);
+
+          // Optional: Remove the entire manga entry if no chapters left
+          if (updatedFavorites[mangaId].chapterInfo.length === 0) {
+            delete updatedFavorites[mangaId];
+          }
         }
       }
 

@@ -92,7 +92,7 @@ const TextToSpeech = ({ text, handleUpload, page, ready, layout = "horizontal" }
           <button
             onClick={() => handleUpload(page, "speak")}
             disabled={isSpeaking}
-            className="tracking-wider text-[11px] font-sans before:bg-opacity-60 min-w-[125px] sm:min-w-[189px] transition-colors flex gap-2 justify-start items-center mx-auto shadow-xl sm:text-lg text-white bg-[#1a063e] backdrop-blur-md lg:font-semibold isolation-auto border-gray-50 before:absolute before:w-full before:transition-all before:duration-700 before:hover:w-full before:-right-full before:hover:right-0 before:rounded-full before:bg-[#FFFFFF] hover:text-black before:-z-10 before:aspect-square before:hover:scale-200 before:hover:duration-300 relative z-10 px-2 py-1 sm:px-3 sm:py-2 ease-in-out overflow-hidden border-2 rounded-full group"
+            className="tracking-wider text-[11px] font-sans before:bg-opacity-60 min-w-[125px] sm:min-w-[189px] transition-colors flex gap-2 justify-start items-center mx-auto shadow-xl sm:text-lg text-white bg-[#1a063e] backdrop-blur-md lg:font-semibold isolation-auto border-gray-50/50 before:absolute before:w-full before:transition-all before:duration-700 before:hover:w-full before:-right-full before:hover:right-0 before:rounded-full before:bg-[#FFFFFF] hover:text-black before:-z-10 before:aspect-square before:hover:scale-200 before:hover:duration-300 relative z-10 px-2 py-1 sm:px-3 sm:py-2 ease-in-out overflow-hidden border-2 rounded-full group"
             type="submit"
           >
             <AudioLines
@@ -208,7 +208,7 @@ const TextToSpeech = ({ text, handleUpload, page, ready, layout = "horizontal" }
               type="submit"
             >
               <AudioLines
-                className="tracking-wider w-8 h-8 sm:w-12 sm:h-12 group-hover:border-2 group-hover:border-violet-500 transition-all bg-gray-50 text-purple-800 ease-in-out duration-300 rounded-full border border-gray-700 p-2 sm:p-3 transform group-hover:rotate-[360deg]"
+                className="tracking-wider w-8 h-8 sm:w-12 sm:h-12 group-hover:border-2 group-hover:border-violet-500 transition-all bg-gray-50/50 text-purple-800 ease-in-out duration-300 rounded-full border border-gray-700 p-2 sm:p-3 transform group-hover:rotate-[360deg]"
               />
               Speak
             </button>
