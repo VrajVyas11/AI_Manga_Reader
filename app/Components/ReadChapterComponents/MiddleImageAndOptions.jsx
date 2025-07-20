@@ -1,9 +1,10 @@
-import React, { memo, useCallback, lazy, useState, useEffect, Suspense } from 'react'
+import React, { memo, useCallback, lazy, useState, useEffect, Suspense, useMemo } from 'react'
 
 import {
     Languages,
-    ArrowRight,
-    ArrowLeft,
+    ScrollText,
+    ArrowBigLeftDash,
+    ArrowBigRightDash,
 } from 'lucide-react';
 import Image from 'next/image';
 const TextToSpeech = memo(lazy(() => import('./TextToSpeech')));
@@ -192,6 +193,8 @@ function MiddleImageAndOptions({
             document.removeEventListener('mousemove', handleMouseMove);
         };
     }, [layout]);
+
+
     return (
         <Suspense fallback={<div className='w-full flex flex-row justify-center items-center'><Placeholder /></div>}>
             <div
@@ -282,17 +285,24 @@ function MiddleImageAndOptions({
                                                 </div>
                                             </div>
                                         )}
-                                        {showMessage && (
-                                            <div className="absolute z-50 text-wrap w-fit min-w-72 max-w-72 -top-96 border-gray-500/30 border right-12 bg-black/95 text-white p-4 rounded-lg shadow-lg transition-opacity duration-300">
-                                                <button
-                                                    className="absolute top-1 right-1 text-white bg-purple-600 hover:bg-gray-500 rounded-full p-1 px-2.5"
-                                                    onClick={() => setShowMessage(false)}
-                                                >
-                                                    ✖
-                                                </button>
-                                                <p>{((pageTTS[page] && isItTextToSpeech) || pageTranslations[page]) && pageTranslations[page] ? pageTranslations[page]?.textResult : pageTTS[page]?.textResult || "No text Available"}</p>
-                                            </div>
-                                        )}
+
+                                        {((pageTTS[page] && isItTextToSpeech) || pageTranslations[page]) &&
+                                            pageTranslations[page] ? pageTranslations[page]?.textResult : pageTTS[page]?.textResult &&
+                                        <div>
+                                            {showMessage ? (
+                                                <div className="absolute z-50 text-wrap w-fit min-w-72 max-w-72 -top-96 border-gray-500/30 border right-12 bg-black/95 text-white p-4 rounded-lg shadow-lg transition-opacity duration-300">
+                                                    <button
+                                                        className="absolute top-1 right-1 text-xs flex justify-center items-center text-white bg-purple-600/70 hover:bg-purple-700 rounded-full py-[7px] px-2.5"
+                                                        onClick={() => setShowMessage(false)}
+                                                    >
+                                                        ✖
+                                                    </button>
+                                                    <p className=' text-sm tracking-widest lowercase'>{((pageTTS[page] && isItTextToSpeech) || pageTranslations[page]) && pageTranslations[page] ? pageTranslations[page]?.textResult : pageTTS[page]?.textResult || "No text Available"}</p>
+                                                </div>
+                                            ) : <button
+                                                onClick={() => setShowMessage((prev) => !prev)}
+                                                className="absolute z-50 text-wrap w-fit  -top-96 border-gray-500/30 border -right-2 bg-black/95 text-white p-3 rounded-xl shadow-lg transition-opacity duration-300 text-xs flex flex-row justify-center items-center gap-3"><ScrollText className=' w-4 h-4' /></button>}
+                                        </div>}
                                     </div>)}
                                 </div>
                             ))
@@ -374,34 +384,45 @@ function MiddleImageAndOptions({
                                         </div>
                                     )
                                 )}
-                                <div className={`tracking-wider ${allAtOnce && (quality === "low" ? pages?.chapter?.dataSaver : pages?.chapter?.data).map((p) => {
-                                    if (!imageCache.includes(p)) return false
-                                }).includes(false) ? "hidden" : "block"} px-[27%] mt-4 mb-20 h-20 grid grid-cols-2 gap-2`}>
+
+                                {/* bottom next and previous buttons  */}
+                                <div
+                                    className={`tracking-wider px-[27%] mt-4 mb-1 h-16 grid grid-cols-2 gap-8 ${allAtOnce &&
+                                            (quality === "low"
+                                                ? pages?.chapter?.dataSaver
+                                                : pages?.chapter?.data
+                                            ).some((p) => !imageCache.includes(p))
+                                            ? "hidden"
+                                            : "block"
+                                        }`}
+                                >
                                     <button
                                         onClick={goToPrevChapter}
                                         disabled={!hasPrevChapter}
-                                        className={`flex  gap-3 items-center justify-center py-2 rounded-lg ${hasPrevChapter
-                                            ? 'bg-purple-900/30 text-white border border-purple-700/20 hover:bg-purple-800/40'
-                                            : 'bg-gray-800/30 text-gray-500 border border-gray-700/20 cursor-not-allowed'
-                                            }`}
                                         aria-label="Previous chapter"
+                                        className={`flex items-center justify-center gap-3 py-2 rounded-lg border font-bold transition-colors duration-200 ${hasPrevChapter
+                                                ? "bg-purple-900/30 text-white border-purple-700/40 hover:bg-purple-800/50"
+                                                : "bg-gray-800/30 text-gray-500 border-gray-700/40 cursor-not-allowed"
+                                            }`}
                                     >
-                                        <ArrowLeft className="w-5 h-5 font-bold" />
-                                        <span className=" ml-1 text-base font-bold">Previous</span>
+                                        <ArrowBigLeftDash className="w-5 h-5 fill-white" />
+                                        <span className="text-base">Previous</span>
                                     </button>
+
                                     <button
                                         onClick={goToNextChapter}
                                         disabled={!hasNextChapter}
-                                        className={`flex items-center gap-3 justify-center py-2 rounded-lg ${hasNextChapter
-                                            ? 'bg-purple-900/30 text-white border border-purple-700/20 hover:bg-purple-800/40'
-                                            : 'bg-gray-800/30 text-gray-500 border border-gray-700/20 cursor-not-allowed'
-                                            }`}
                                         aria-label="Next chapter"
+                                        className={`flex items-center justify-center gap-3 py-2 rounded-lg border font-bold transition-colors duration-200 ${hasNextChapter
+                                                ? "bg-purple-900/30 text-white border-purple-700/40 hover:bg-purple-800/50"
+                                                : "bg-gray-800/30 text-gray-500 border-gray-700/40 cursor-not-allowed"
+                                            }`}
                                     >
-                                        <span className=" mr-1 text-base font-bold">Next</span>
-                                        <ArrowRight className="w-5 h-5 font-bold" />
+                                        <span className="text-base">Next</span>
+                                        <ArrowBigRightDash className="w-5 h-5 fill-white" />
                                     </button>
                                 </div>
+                                {/*loading place holder */}
                                 {(allAtOnce && (quality === "low" ? pages?.chapter?.dataSaver : pages?.chapter?.data).map((p) => {
                                     if (!imageCache.includes(p)) return false
                                 }).includes(false)) && <div className=' absolute top-7 left-[40%]'><Placeholder /></div>}
