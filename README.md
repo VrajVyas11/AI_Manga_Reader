@@ -80,13 +80,13 @@ Feast your eyes on the stunning UI, two previews per row.
 
 ## Light Theme
 
-| 🔍 Search Page | 🔍 Library Page |
+| 📚 Manga List| 📚 Manga List|
 | ------------- | ------------- |
 | ![Search Page](./livedemoimages/l2.png) |  ![Library Page](./livedemoimages/l3.png) | 
 
-| 🌐 Not Found Page | 
-| -------------- |
-| ![Not Found Page](./livedemoimages/l4.png) |
+| 📚 Manga List |  📄 Manga Chapter | 
+| -------------- | -------------- |
+| ![Not Found Page](./livedemoimages/l4.png) | ![Not Found Page](./livedemoimages/l5.png) |
 
 ---
 
