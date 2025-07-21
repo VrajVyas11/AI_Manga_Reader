@@ -51,7 +51,7 @@ const SideBar = ({
     chapterInfo.translatedLanguage
   );
   // console.log(allChapters);
-  
+
   const { addToFavorite, getAllFavorites } = useManga();
   const dropdownRef = useRef(null);
   const languageDropdownRef = useRef(null);
@@ -91,14 +91,14 @@ const SideBar = ({
       availableLanguages: languages,
       chapterLanguageMap: chapterLangMap,
     };
-  }, [allChapters,chapterInfo]);
+  }, [allChapters, chapterInfo]);
 
   // Get languages for selected chapter
-const availableLanguagesForCurrentChapter = useMemo(() => {
-  const currentChapterNum = chapterInfo.chapter;
-  const chaptersForCurrent = chapterLanguageMap.get(currentChapterNum) || [];
-  return chaptersForCurrent.map((ch) => ch.translatedLanguage);
-}, [chapterLanguageMap, chapterInfo.chapter]);
+  const availableLanguagesForCurrentChapter = useMemo(() => {
+    const currentChapterNum = chapterInfo.chapter;
+    const chaptersForCurrent = chapterLanguageMap.get(currentChapterNum) || [];
+    return chaptersForCurrent.map((ch) => ch.translatedLanguage);
+  }, [chapterLanguageMap, chapterInfo.chapter]);
   // Handle click outside
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -171,7 +171,7 @@ const availableLanguagesForCurrentChapter = useMemo(() => {
     (language) => {
       setSelectedLanguage(language);
       setLanguageDropdownOpen(false);
-
+      // console.log(language)
       // Find the same chapter in the new language, or fallback to first available
       const currentChapterNum = chapterInfo.chapter;
       const sameChapterInNewLang = allChapters.find(
@@ -180,12 +180,13 @@ const availableLanguagesForCurrentChapter = useMemo(() => {
 
       if (sameChapterInNewLang) {
         goToChapter(sameChapterInNewLang);
+        // console.log(sameChapterInNewLang)
       } else {
         // Fallback to first chapter in new language
         const firstChapterInNewLang = allChapters
           .filter((ch) => ch.translatedLanguage === language)
           .sort((a, b) => parseFloat(a.chapter) - parseFloat(b.chapter))[0];
-
+        // console.log("here in else", firstChapterInNewLang)
         if (firstChapterInNewLang) {
           goToChapter(firstChapterInNewLang);
         }

@@ -33,7 +33,7 @@ export default function ReadChapter() {
   const [showTranslationAndSpeakingOptions, setShowTranslationAndSpeakingOptions] = useState(true);
   const scrollContainerRef = useRef(null);
   const { selectedManga, getChapterListForManga, addToReadHistory } = useManga();
-  const selectedMemoManga = useMemo(() => selectedManga, [selectedManga])
+  const selectedMemoManga = useMemo(() => selectedManga, [selectedManga,mangaId])
   const chapters = useMemo(() => getChapterListForManga(mangaId))
   const chapterInfo = useMemo(() => chapters.filter((x) => x.id == chapterId)[0]);
   // console.log(chapters)
@@ -42,11 +42,13 @@ export default function ReadChapter() {
 
   const handleChapterClick = useCallback(
     (id) => {
+      // console.log("adding to the history",selectedMemoManga,id)
       addToReadHistory(selectedMemoManga, id)
       router.push(`/manga/${mangaId}/chapter/${id.id}/read`);
     },
-    [router, mangaId, pages]
+    [router, selectedMemoManga,mangaId, pages]
   );
+console.log(selectedMemoManga);
 
   useEffect(() => {
     if (pages && pages?.chapter?.dataSaver?.length > 0 && pages?.chapter?.data?.length > 0) {

@@ -72,7 +72,8 @@ export const getRatingColor = (rating) => ({
     safeBorder:"border-green-600",
     suggestiveBorder: "border-yellow-600",
     eroticaBorder: "border-red-600",
-  }[rating] || "bg-gray-600");
+    light:"bg-gray-300/40"
+  }[rating] || "bg-gray-600/40");
 
 export const allAvailableLanguages = [
     "en", // English

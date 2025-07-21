@@ -19,10 +19,12 @@ import { getRatingColor } from "../../constants/Flags"
 import StableFlag from "../StableFlag";
 import { useManga } from '../../providers/MangaContext';
 import AboutMangaSkeleton from '../Skeletons/MangaChapters/AboutMangaSkeleton';
+import { useTheme } from '@/app/providers/ThemeContext';
 const MemoStableFlag = React.memo(StableFlag);
 const AboutManga = ({ manga, handleChapterClick, chapters }) => {
    const [isClient, setIsClient] = useState(false);
-  
+  const {theme}=useTheme()
+  const isDark = theme=="dark"
   useEffect(() => {
     setIsClient(true);
   }, []);
@@ -67,25 +69,25 @@ const isBookMarked = useMemo(() => {
   }[key] || link);
 
   const iconMap = {
-    raw: <Book className="w-4 h-4 mr-2 text-white" />,
-    bw: <BookOpen className="w-4 h-4 mr-2 text-white" />,
-    amz: <ShoppingCart className="w-4 h-4 mr-2 text-white" />,
-    ebj: <Book className="w-4 h-4 mr-2 text-white" />,
-    cdj: <Library className="w-4 h-4 mr-2 text-white" />,
-    mu: <BookMarked className="w-4 h-4 mr-2 text-white" />,
-    ap: <Library className="w-4 h-4 mr-2 text-white" />,
-    al: <Book className="w-4 h-4 mr-2 text-white" />,
-    mal: <Library className="w-4 h-4 mr-2 text-white" />,
+    raw: <Book className={`w-4 h-4 mr-2 ${isDark ? 'text-white' : 'text-gray-800'}`} />,
+    bw: <BookOpen className={`w-4 h-4 mr-2 ${isDark ? 'text-white' : 'text-gray-800'}`} />,
+    amz: <ShoppingCart className={`w-4 h-4 mr-2 ${isDark ? 'text-white' : 'text-gray-800'}`} />,
+    ebj: <Book className={`w-4 h-4 mr-2 ${isDark ? 'text-white' : 'text-gray-800'}`} />,
+    cdj: <Library className={`w-4 h-4 mr-2 ${isDark ? 'text-white' : 'text-gray-800'}`} />,
+    mu: <BookMarked className={`w-4 h-4 mr-2 ${isDark ? 'text-white' : 'text-gray-800'}`} />,
+    ap: <Library className={`w-4 h-4 mr-2 ${isDark ? 'text-white' : 'text-gray-800'}`} />,
+    al: <Book className={`w-4 h-4 mr-2 ${isDark ? 'text-white' : 'text-gray-800'}`} />,
+    mal: <Library className={`w-4 h-4 mr-2 ${isDark ? 'text-white' : 'text-gray-800'}`} />,
   };
   return (
-    <div suppressHydrationWarning className="min-h-full  w-full">
+    <div suppressHydrationWarning className={`min-h-full w-full ${!isDark ? 'bg-gray-50' : ''}`}>
       <div className="relative ">
         {/* Background Image */}
         <div
           className="absolute  inset-x-0 top-0 h-[180px] sm:h-[220px] md:h-[350px] bg-cover bg-center"
           style={{ backgroundImage: `url('${manga.coverImageUrl}')` }}
         >
-          <div className="absolute inset-0 h-[180px] sm:h-[220px] md:h-[350px] bg-black/60 backdrop-blur-sm z-10"></div>
+          <div className={`absolute inset-0 h-[180px] sm:h-[220px] md:h-[350px] bg-black/60 drop-blur-sm z-10`}></div>
         </div>
 
         <main className="relative px-4 sm:px-6 md:px-10">
@@ -97,8 +99,8 @@ const isBookMarked = useMemo(() => {
               <div className="flex justify-center mb-6">
                 <div className="relative w-36 h-52 sm:w-40 sm:h-56 group select-none shadow-2xl">
                   <a href={manga.coverImageUrl} className="block relative w-full h-full">
-                    <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-lg">
-                      <List className="text-white" size={18} />
+                    <div className={`absolute inset-0 z-50 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-lg`}>
+                      <List className={`${isDark ? 'text-white' : 'text-gray-800'}`} size={18} />
                     </div>
                     <Image
                       className="w-full h-full rounded-lg shadow-2xl transition-transform duration-200 group-hover:scale-105 object-cover"
@@ -114,14 +116,14 @@ const isBookMarked = useMemo(() => {
 
               {/* Mobile Title Section */}
               <div className="text-center mb-6 px-2">
-                <h1 className="text-white text-2xl sm:text-3xl font-bold drop-shadow-lg mb-2 leading-tight">
+                <h1 className={`text-white text-2xl sm:text-3xl font-bold drop-shadow-lg mb-2 leading-tight`}>
                   {manga.title}
                 </h1>
-                <p className="text-white/80 text-sm sm:text-base mb-3 font-medium">
+                <p className={`text-white/80 text-sm sm:text-base mb-3 font-medium`}>
                   {manga.altTitles.find(alt => alt.en)?.en || manga.altTitle}
                 </p>
-                <p className="text-white/70 text-sm mb-4">
-                  Author: <span className="text-white font-medium">{manga.authorName.map(author => author.attributes.name).join(', ')}</span>
+                <p className={`text-white/70 text-sm mb-4`}>
+                  Author: <span className={`text-white font-medium`}>{manga.authorName.map(author => author.attributes.name).join(', ')}</span>
                 </p>
               </div>
 
@@ -132,7 +134,8 @@ const isBookMarked = useMemo(() => {
                     onClick={handleAddToLibrary}
                     variant="secondary"
                     Icon={Bookmark}
-                    className={`w-full bg-gray-700/50 hover:bg-gray-600/50 text-white font-medium py-6 rounded-lg border border-gray-600/30`}
+                    className={`w-full ${isDark ? 'bg-gray-700/50 hover:bg-gray-600/50 text-white border border-gray-600/30' : 'bg-gray-200/70 hover:bg-gray-300/70 text-gray-900 border border-gray-300/50'} font-medium py-6 rounded-lg`}
+                    isDark={isDark}
                   >
                     {isBookMarked?"Added To Library":"Add To Library"}
                   </Button>
@@ -143,7 +146,8 @@ const isBookMarked = useMemo(() => {
                     onClick={() => { handleChapterClick(LastChapter) }}
                     variant="primary"
                     Icon={BookOpen}
-                    className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-6 rounded-lg shadow-lg"
+                    className={`w-full ${isDark ? 'bg-purple-600 hover:bg-purple-700 text-white' : 'bg-blue-600 hover:bg-blue-700 text-white'} font-semibold py-6 rounded-lg shadow-lg`}
+                    isDark={isDark}
                   >
                     Read Latest
                   </Button>
@@ -157,8 +161,8 @@ const isBookMarked = useMemo(() => {
                   <span className="text-yellow-400 text-sm font-semibold">{manga?.rating?.rating?.bayesian?.toFixed(2)}</span>
                 </div>
                 <div className="flex items-center">
-                  <Eye className="w-4 h-4 mr-1 text-white/70" />
-                  <span className="text-white text-sm">{manga?.rating?.comments?.repliesCount}</span>
+                  <Eye className={`w-4 h-4 mr-1 ${isDark ? 'text-white/70' : 'text-gray-600'}`} />
+                  <span className={`${isDark ? 'text-white' : 'text-gray-900'} text-sm`}>{manga?.rating?.comments?.repliesCount}</span>
                 </div>
                 <div className="flex items-center">
                   <Users className="w-4 h-4 mr-1 text-pink-400" />
@@ -168,7 +172,7 @@ const isBookMarked = useMemo(() => {
 
               {/* Mobile Publication Info */}
               <div className="text-center mb-6">
-                <div className="flex items-center justify-center text-white/60 text-sm">
+                <div className={`flex items-center justify-center ${isDark ? 'text-white/60' : 'text-gray-600'} text-sm`}>
                   <Book className="w-4 h-4 mr-2" />
                   <span className="uppercase font-medium">
                     Publication: {manga.year}, {manga.status}
@@ -182,7 +186,7 @@ const isBookMarked = useMemo(() => {
 
                 <button
                   onClick={() => setShowFullDescription(!showFullDescription)}
-                  className="flex items-center justify-center gap-2 bg-white/10 backdrop-blur-md rounded px-4 py-2 text-white hover:bg-white/20 transition-colors duration-200 w-fit mx-auto lg:mx-0"
+                  className={`flex items-center justify-center gap-2 ${isDark ? 'bg-white/10 text-white hover:bg-white/20' : 'bg-gray-900/10 text-gray-900 hover:bg-gray-900/20'} backdrop-blur-md rounded px-4 py-2 transition-colors duration-200 w-fit mx-auto lg:mx-0`}
                 >
                   <span className="text-sm font-medium">
                     {showFullDescription ? 'Show Less' : 'Show More Details'}
@@ -198,13 +202,13 @@ const isBookMarked = useMemo(() => {
                   <div className="mt-0 space-y-4 animate-in slide-in-from-top-2 duration-200">
                     {/* Tags Section */}
                     <div>
-                      <h3 className="text-white font-semibold text-sm mb-2 uppercase tracking-wide">Genres</h3>
+                      <h3 className={`${isDark ? 'text-white' : 'text-gray-900'} font-semibold text-sm mb-2 uppercase tracking-wide`}>Genres</h3>
                       <div className="flex flex-wrap gap-2">
-                        <Tag variant={manga.contentRating.trim()} size="small" className=" text-white">
+                        <Tag variant={manga.contentRating.trim()} size="small" className={`${isDark ? 'text-white' : 'text-gray-900'}`} isDark={isDark}>
                           {manga.contentRating}
                         </Tag>
                         {manga.flatTags.slice(0, 8).map((tag, index) => (
-                          <Tag key={index} size="small" className="bg-gray-700/60 text-white/90 hover:bg-gray-600/60">
+                          <Tag key={index} size="small" className={`${isDark ? 'bg-gray-700/60 text-white/90 hover:bg-gray-600/60' : 'bg-gray-200/80 text-gray-900 hover:bg-gray-300/80'}`} isDark={isDark}>
                             {tag}
                           </Tag>
                         ))}
@@ -213,41 +217,41 @@ const isBookMarked = useMemo(() => {
 
                     {/* Description */}
                     <div>
-                      <h3 className="text-white font-semibold text-sm mb-2 uppercase tracking-wide">Description</h3>
-                      <p className="text-white/80 text-sm leading-relaxed">
+                      <h3 className={`${isDark ? 'text-white' : 'text-gray-900'} font-semibold text-sm mb-2 uppercase tracking-wide`}>Description</h3>
+                      <p className={`${isDark ? 'text-white/80' : 'text-gray-700'} text-sm leading-relaxed`}>
                         {manga.description}
                       </p>
                     </div>
                     <div className='w-full sm:w-5/12 flex flex-wrap gap-6 sm:gap-9 h-fit'>
                       <div className="flex flex-row gap-4 w-full">
                         <div className='min-w-1/3'>
-                          <h3 className="text-white font-bold text-lg mb-2">Author</h3>
-                          <div className='bg-white/10 backdrop-blur-md min-w-fit px-3 py-2 text-sm inline-flex items-center Capitalize rounded transition-colors duration-200'>
+                          <h3 className={`${isDark ? 'text-white' : 'text-gray-900'} font-bold text-lg mb-2`}>Author</h3>
+                          <div className={`${isDark ? 'bg-white/10' : 'bg-gray-900/10'} backdrop-blur-md min-w-fit px-3 py-2 text-sm inline-flex items-center Capitalize rounded transition-colors duration-200 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                             {manga.authorName[0].attributes.name}
                           </div>
                         </div>
                         <div>
-                          <h3 className="text-white font-bold text-lg mb-2">Artist</h3>
-                          <div className='bg-white/10 backdrop-blur-md min-w-fit px-3 py-2 text-sm inline-flex items-center Capitalize rounded transition-colors duration-200'>
+                          <h3 className={`${isDark ? 'text-white' : 'text-gray-900'} font-bold text-lg mb-2`}>Artist</h3>
+                          <div className={`${isDark ? 'bg-white/10' : 'bg-gray-900/10'} backdrop-blur-md min-w-fit px-3 py-2 text-sm inline-flex items-center Capitalize rounded transition-colors duration-200 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                             {manga.artistName[0].attributes.name}
                           </div>
                         </div>
                       </div>
                       <div className='h-fit'>
-                        <h3 className="text-white font-bold text-lg mb-2">Genres</h3>
+                        <h3 className={`${isDark ? 'text-white' : 'text-gray-900'} font-bold text-lg mb-2`}>Genres</h3>
                         <div className='flex gap-2 flex-wrap'>
                           {manga.tags.find(group => group.group === 'genre')?.tags.map((genre, index) => (
-                            <div key={index} className='bg-white/10 backdrop-blur-md min-w-fit px-3 py-2 text-xs inline-flex items-center Capitalize rounded transition-colors duration-200'>
+                            <div key={index} className={`${isDark ? 'bg-white/10 text-white' : 'bg-gray-900/10 text-gray-900'} backdrop-blur-md min-w-fit px-3 py-2 text-xs inline-flex items-center Capitalize rounded transition-colors duration-200`}>
                               {genre}
                             </div>
                           ))}
                         </div>
                       </div>
                       <div className="h-fit">
-                        <h3 className="text-white font-bold text-lg mb-2">Themes</h3>
+                        <h3 className={`${isDark ? 'text-white' : 'text-gray-900'} font-bold text-lg mb-2`}>Themes</h3>
                         <div className="flex flex-wrap gap-2">
                           {manga.tags.find(group => group.group === 'theme')?.tags.map((theme, index) => (
-                            <div key={index} className='bg-white/10 backdrop-blur-md min-w-fit px-3 py-2 text-xs inline-flex items-center Capitalize rounded transition-colors duration-200'>
+                            <div key={index} className={`${isDark ? 'bg-white/10 text-white' : 'bg-gray-900/10 text-gray-900'} backdrop-blur-md min-w-fit px-3 py-2 text-xs inline-flex items-center Capitalize rounded transition-colors duration-200`}>
                               {theme}
                             </div>
                           ))}
@@ -255,24 +259,24 @@ const isBookMarked = useMemo(() => {
                       </div>
                       <div className="h-fit">
                         {manga.tags.find(group => group.group === 'format')?.tags.length > 0 && (
-                          <h3 className="text-white font-bold text-lg mb-2">Format</h3>
+                          <h3 className={`${isDark ? 'text-white' : 'text-gray-900'} font-bold text-lg mb-2`}>Format</h3>
                         )}
                         <div className="flex flex-wrap gap-2">
                           {manga.tags.find(group => group.group === 'format')?.tags.map((format, index) => (
-                            <div key={index} className='bg-white/10 backdrop-blur-md min-w-fit px-3 py-2 text-xs inline-flex items-center Capitalize rounded transition-colors duration-200'>
+                            <div key={index} className={`${isDark ? 'bg-white/10 text-white' : 'bg-gray-900/10 text-gray-900'} backdrop-blur-md min-w-fit px-3 py-2 text-xs inline-flex items-center Capitalize rounded transition-colors duration-200`}>
                               {format}
                             </div>
                           ))}
                         </div>
                       </div>
                       <div className="">
-                        <h3 className="text-white font-bold text-lg mb-2">Demographic</h3>
-                        <div className='bg-white/10 backdrop-blur-md min-w-fit px-3 py-2 text-xs inline-flex items-center Capitalize rounded transition-colors duration-200'>
+                        <h3 className={`${isDark ? 'text-white' : 'text-gray-900'} font-bold text-lg mb-2`}>Demographic</h3>
+                        <div className={`${isDark ? 'bg-white/10 text-white' : 'bg-gray-900/10 text-gray-900'} backdrop-blur-md min-w-fit px-3 py-2 text-xs inline-flex items-center Capitalize rounded transition-colors duration-200`}>
                           {manga.MangaStoryType}
                         </div>
                       </div>
                       <div className="">
-                        <h3 className="text-white font-bold text-lg mb-4">Read or Buy</h3>
+                        <h3 className={`${isDark ? 'text-white' : 'text-gray-900'} font-bold text-lg mb-4`}>Read or Buy</h3>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                           {Object.entries(manga.links).map(([key, link], index) => (
                             key !== 'kt' && (
@@ -281,17 +285,17 @@ const isBookMarked = useMemo(() => {
                                 href={getFullLink(key, link)}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="bg-white/10 backdrop-blur-md rounded px-3 py-2 flex items-center"
+                                className={`${isDark ? 'bg-white/10' : 'bg-gray-900/10'} backdrop-blur-md rounded px-3 py-2 flex items-center`}
                               >
-                                {iconMap[key] || <Book className="w-4 h-4 mr-2 text-white" />}
-                                <span className="text-white text-xs">{websiteNames[key]}</span>
+                                {iconMap[key] || <Book className={`w-4 h-4 mr-2 ${isDark ? 'text-white' : 'text-gray-800'}`} />}
+                                <span className={`${isDark ? 'text-white' : 'text-gray-900'} text-xs`}>{websiteNames[key]}</span>
                               </a>
                             )
                           ))}
                         </div>
                       </div>
                       <div className="">
-                        <h3 className="text-white font-bold text-lg mb-4">Track</h3>
+                        <h3 className={`${isDark ? 'text-white' : 'text-gray-900'} font-bold text-lg mb-4`}>Track</h3>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                           {['mu', 'ap', 'al', 'mal'].map((key, index) => (
                             manga.links[key] && (
@@ -300,29 +304,29 @@ const isBookMarked = useMemo(() => {
                                 href={getFullLink(key, manga.links[key])}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="bg-white/10 backdrop-blur-md rounded px-3 py-2 flex items-center"
+                                className={`${isDark ? 'bg-white/10' : 'bg-gray-900/10'} backdrop-blur-md rounded px-3 py-2 flex items-center`}
                               >
-                                {iconMap[key] || <Book className="w-4 h-4 mr-2 text-white" />}
-                                <span className="text-white text-xs">{websiteNames[key]}</span>
+                                {iconMap[key] || <Book className={`w-4 h-4 mr-2 ${isDark ? 'text-white' : 'text-gray-800'}`} />}
+                                <span className={`${isDark ? 'text-white' : 'text-gray-900'} text-xs`}>{websiteNames[key]}</span>
                               </a>
                             )
                           ))}
                         </div>
                       </div>
                       <div className="">
-                        <h3 className="text-white font-bold text-lg mb-4">Alternative Titles</h3>
+                        <h3 className={`${isDark ? 'text-white' : 'text-gray-900'} font-bold text-lg mb-4`}>Alternative Titles</h3>
                         <div className="space-y-2">
                           {manga.altTitles.map((title, index) => (
                             <div
                               key={index}
-                              className="flex items-center gap-2 py-1 px-2 rounded-md hover:bg-gray-800 transition-all duration-150"
+                              className={`flex items-center gap-2 py-1 px-2 rounded-md ${isDark ? 'hover:bg-gray-800' : 'hover:bg-gray-200'} transition-all duration-150`}
                             >
                               <MemoStableFlag
                                 code={Object.keys(title)[0] || "en"}
                                 className="w-6 sm:w-8 h-6 sm:h-8 rounded-md shadow-sm"
                                 alt="flag"
                               />
-                              <span className="text-xs sm:text-sm line-clamp-1 font-medium text-gray-200">
+                              <span className={`text-xs sm:text-sm line-clamp-1 font-medium ${isDark ? 'text-gray-200' : 'text-gray-700'}`}>
                                 {Object.values(title)[0]}
                               </span>
                             </div>
@@ -340,8 +344,8 @@ const isBookMarked = useMemo(() => {
               {/* Left Column - Manga Cover */}
               <div className="relative w-40 h-60 lg:w-48 lg:h-[295px] group select-none mx-auto md:mx-0">
                 <a href={manga.coverImageUrl} className="block relative w-full h-full">
-                  <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded">
-                    <List className="text-white" size={20} />
+                  <div className={`absolute inset-0 z-50 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded`}>
+                    <List className={`text-white`} size={20} />
                   </div>
                   <Image
                     className="w-full h-full rounded shadow-md transition-transform duration-200 group-hover:translate-y-0 object-cover"
@@ -358,20 +362,20 @@ const isBookMarked = useMemo(() => {
               <div className="flex-1">
                 <div className="h-72 flex justify-between flex-col">
                   <div className="flex flex-col">
-                    <h1 className="text-white text-5xl lg:text-7xl line-clamp-1 max-w-[80%] font-bold drop-shadow-lg">
+                    <h1 className={`text-white text-5xl lg:text-7xl line-clamp-1 max-w-[80%] font-bold drop-shadow-lg`}>
                       {manga.title}
                     </h1>
-                    <p className="text-white text-lg mb-6 line-clamp-1 max-w-[50%]">
+                    <p className={`text-white text-lg mb-6 line-clamp-1 max-w-[50%]`}>
                       {manga.altTitles.find(alt => alt.en)?.en || manga.altTitle}
                     </p>
                   </div>
-                  <p className="text-white text-base mb-8">
+                  <p className={`text-white text-base mb-8`}>
                     {manga.authorName.map(author => author.attributes.name).join(', ')}
                   </p>
                 </div>
 
                 <div className="flex gap-4 mb-5">
-                  <Button isBookMarked={isBookMarked} Icon={Bookmark} onClick={handleAddToLibrary} variant={`${isBookMarked?"none":"primary"}`} size="large" className={`${isBookMarked?"bg-purple-800/50 border border-purple-500":""}`} >
+                  <Button isBookMarked={isBookMarked} Icon={Bookmark} onClick={handleAddToLibrary} variant={`${isBookMarked?"none":"primary"}`} size="large" className={`${isBookMarked ? (isDark ? "bg-purple-800/50 border border-purple-500" : "bg-blue-800/50 border border-blue-500") : ""}`} isDark={isDark} >
                     {isBookMarked?"Added To Library":"Add To Library"}
                   </Button>
                   <Button
@@ -379,6 +383,7 @@ const isBookMarked = useMemo(() => {
                     variant="secondary"
                     size="large"
                     Icon={BookOpen}
+                    isDark={isDark}
                   >
                     Start Reading
                   </Button>
@@ -388,16 +393,16 @@ const isBookMarked = useMemo(() => {
                       <span className="text-yellow-400 text-base">{manga.rating.rating.bayesian.toFixed(2)}</span>
                     </div>
                     <div className="flex items-center">
-                      <UserPlus className="w-4 h-4 mr-1 text-white" />
-                      <span className="text-white text-base">{manga?.rating?.follows || 0}</span>
+                      <UserPlus className={`w-4 h-4 mr-1 ${isDark ? 'text-white' : 'text-gray-800'}`} />
+                      <span className={`${isDark ? 'text-white' : 'text-gray-800'} text-base`}>{manga?.rating?.follows || 0}</span>
                     </div>
                     <div className="flex items-center">
-                      <Library className="w-4 h-4 mr-1 text-white" />
-                      <span className="text-white text-base">{manga?.rating?.comments?.repliesCount || 0}</span>
+                      <Library className={`w-4 h-4 mr-1 ${isDark ? 'text-white' : 'text-gray-800'}`} />
+                      <span className={`${isDark ? 'text-white' : 'text-gray-800'} text-base`}>{manga?.rating?.comments?.repliesCount || 0}</span>
                     </div>
                     <div className="flex items-center ml-2">
-                      <Book className="w-4 h-4 mr-2 text-white" />
-                      <span className="text-white text-xs font-bold uppercase">
+                      <Book className={`w-4 h-4 mr-2 ${isDark ? 'text-white' : 'text-gray-800'}`} />
+                      <span className={`${isDark ? 'text-white' : 'text-gray-800'} text-xs font-bold uppercase`}>
                         Publication: {manga.year}, {manga.status}
                       </span>
                     </div>
@@ -405,9 +410,9 @@ const isBookMarked = useMemo(() => {
                 </div>
 
                 <div className="flex flex-wrap gap-2 mb-6">
-                  <Tag variant={manga.contentRating.trim()}>{manga.contentRating}</Tag>
+                  <Tag variant={manga.contentRating.trim()} isDark={isDark}>{manga.contentRating}</Tag>
                   {manga.flatTags.map((tag, index) => (
-                    <Tag key={index}>
+                    <Tag key={index} isDark={isDark}>
                       {tag}
                     </Tag>
                   ))}
@@ -417,10 +422,10 @@ const isBookMarked = useMemo(() => {
 
             {/* Desktop Description */}
             <div className="hidden md:block mt-4">
-              <p className="text-white text-base mb-4">
+              <p className={`${isDark ? 'text-white' : 'text-gray-700'} text-base mb-4`}>
                 {manga.altTitle}
               </p>
-              <p className="text-white text-base leading-relaxed">
+              <p className={`${isDark ? 'text-white' : 'text-gray-700'} text-base leading-relaxed`}>
                 {manga.description}
               </p>
             </div>
@@ -441,15 +446,22 @@ const Button = ({
   disabled = false,
   Icon = null,
   className = '',
-  isBookMarked=false,
+  isBookMarked = false,
+  isDark = true,
   ...props
 }) => {
   const baseClasses = 'font-medium rounded transition-colors duration-200 focus:outline-none  flex items-center justify-center';
 
   const variants = {
-    primary: 'bg-purple-900/70 text-white hover:bg-purple-950 disabled:bg-gray-400',
-    secondary: 'bg-gray-600/30 text-white hover:bg-[#666666] disabled:bg-gray-400',
-    outline: 'border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:border-gray-200 disabled:text-gray-400',
+    primary: isDark 
+      ? 'bg-purple-900/70 text-white hover:bg-purple-950 disabled:bg-gray-400'
+      : 'bg-purple-600 text-white hover:bg-purple-700 disabled:bg-gray-400',
+    secondary: isDark 
+      ? 'bg-gray-600/30 text-white hover:bg-[#666666] disabled:bg-gray-400'
+      : 'bg-gray-300/70 text-gray-900 hover:bg-gray-400/70 disabled:bg-gray-400',
+    outline: isDark 
+      ? 'border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:border-gray-200 disabled:text-gray-400'
+      : 'border border-gray-400 text-gray-800 hover:bg-gray-100 disabled:border-gray-200 disabled:text-gray-400',
   };
 
   const sizes = {
@@ -467,7 +479,7 @@ const Button = ({
       className={buttonClasses}
       {...props}
     >
-      {Icon && <Icon alt="icon" className={`w-5 h-5 mr-2 ${(Icon==Bookmark && isBookMarked)?"fill-white":""}`} />}
+      {Icon && <Icon alt="icon" className={`w-5 h-5 mr-2 ${(Icon==Bookmark && isBookMarked) ? (isDark ? "fill-white" : "fill-gray-800") : ""}`} />}
       {children}
     </button>
   );
@@ -479,9 +491,10 @@ const Tag = ({
   size = 'small',
   onClick,
   className = '',
+  isDark = true,
   ...props
 }) => {
-  const baseClasses = 'inline-flex bg-gray-600/30 text-white items-center font-bold uppercase rounded transition-colors duration-200';
+  const baseClasses = `inline-flex items-center font-bold uppercase rounded transition-colors duration-200 ${isDark ?' text-white' : ' text-black shadow-md'}`;
 
   const sizes = {
     small: 'px-2 py-1 text-xs',
@@ -489,7 +502,7 @@ const Tag = ({
     large: 'px-4 py-2 text-base',
   };
 
-  const tagClasses = `${baseClasses} ${getRatingColor(variant)} ${sizes[size]} ${onClick ? 'cursor-pointer hover:opacity-80' : ''} ${className}`;
+  const tagClasses = `${baseClasses} ${sizes[size]} ${onClick ? 'cursor-pointer hover:opacity-80' : ''} ${className}  ${getRatingColor(variant || (isDark?"dark":"light"))} ${variant && "text-white"} `;
 
   return (
     <span
@@ -500,4 +513,4 @@ const Tag = ({
       {children}
     </span>
   );
-};
+}; 
