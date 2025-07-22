@@ -40,7 +40,7 @@ const TopNavbar = () => {
   const headerClasses = `
     fixed top-0 w-full z-[9999] 
     bg-gradient-to-b 
-    ${isDark ? "from-purple-900/10 to-gray-950/30 bg-opacity-80 border-b-purple-400/20 border-b-[1px]" : "bg-white bg-opacity-90 border-b-purple-300/40 border-b-[1px]"}
+     ${isDark ? "from-purple-900/10 to-gray-950/30 bg-opacity-80 border-b-purple-400/20 border-b-[1px]" : "from-purple-200/10 to-gray-200/30 bg-opacity-80 border-b-purple-300/40 border-b-[1px]"}
     backdrop-blur-sm 
     flex items-center justify-between 
     h-16 sm:h-20 

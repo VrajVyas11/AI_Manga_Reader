@@ -31,9 +31,11 @@ export default function ReadChapter() {
   const [pageTTS, setPageTTS] = useState({});
   const [quality, setQuality] = useState("low");
   const [showTranslationAndSpeakingOptions, setShowTranslationAndSpeakingOptions] = useState(true);
+  const [showTranslationTextOverlay, setShowTranslationTextOverlay] = useState(true);
+
   const scrollContainerRef = useRef(null);
   const { selectedManga, getChapterListForManga, addToReadHistory } = useManga();
-  const selectedMemoManga = useMemo(() => selectedManga, [selectedManga,mangaId])
+  const selectedMemoManga = useMemo(() => selectedManga, [selectedManga, mangaId])
   const chapters = useMemo(() => getChapterListForManga(mangaId))
   const chapterInfo = useMemo(() => chapters.filter((x) => x.id == chapterId)[0]);
   // console.log(chapters)
@@ -46,9 +48,9 @@ export default function ReadChapter() {
       addToReadHistory(selectedMemoManga, id)
       router.push(`/manga/${mangaId}/chapter/${id.id}/read`);
     },
-    [router, selectedMemoManga,mangaId, pages]
+    [router, selectedMemoManga, mangaId, pages]
   );
-console.log(selectedMemoManga);
+  console.log(selectedMemoManga);
 
   useEffect(() => {
     if (pages && pages?.chapter?.dataSaver?.length > 0 && pages?.chapter?.data?.length > 0) {
@@ -129,6 +131,8 @@ console.log(selectedMemoManga);
             isCollapsed={isCollapsed}
             setQuality={setQuality}
             allChapters={chapters}
+            showTranslationTextOverlay={showTranslationTextOverlay}
+            setShowTranslationTextOverlay={setShowTranslationTextOverlay}
             currentChapterIndex={currentChapterIndex}
             goToNextChapter={goToNextChapter}
             goToPrevChapter={goToPrevChapter}
@@ -160,6 +164,7 @@ console.log(selectedMemoManga);
               layout={layout}
               isLoading={isLoading}
               pages={pages}
+              showTranslationTextOverlay={showTranslationTextOverlay}
               showTranslationAndSpeakingOptions={showTranslationAndSpeakingOptions}
               quality={quality}
               currentIndex={currentIndex}

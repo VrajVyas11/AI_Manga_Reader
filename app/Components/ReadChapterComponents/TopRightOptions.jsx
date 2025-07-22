@@ -6,12 +6,8 @@ import ShowSettingsPopUP from "./TopRightOptionsModules/ShowSettingsPopUp"
 import ChapterQuickSelect from "./TopRightOptionsModules/ChapterQuickSelect"
 function TopRightOptions({
     setLayout,
-    setCurrentIndex,
     layout,
-    isCollapsed,
-    currentIndex,
     panels,
-    pages,
     setPanels,
     allAtOnce,
     setAllAtOnce,
@@ -21,14 +17,20 @@ function TopRightOptions({
     chapterInfo,
     allChapters = [],
     goToChapter,
-    currentChapterIndex,
-    goToNextChapter,
-    goToPrevChapter,
-    onChapterChange,
-    hasNextChapter,
-    hasPrevChapter,
+    // setCurrentIndex,
+    // isCollapsed,
+    // currentIndex,
+    // pages,
+    // currentChapterIndex,
+    // goToNextChapter,
+    // goToPrevChapter,
+    // onChapterChange,
+    // hasNextChapter,
+    // hasPrevChapter,
     showTranslationAndSpeakingOptions,
-    setShowTranslationAndSpeakingOptions
+    setShowTranslationAndSpeakingOptions,
+    showTranslationTextOverlay,
+    setShowTranslationTextOverlay,
 }) {
     const [showSettings, setShowSettings] = useState(false)
     const [showChapters, setShowChapters] = useState(false)
@@ -128,6 +130,7 @@ function TopRightOptions({
             {/* Settings Panel */}
             {showSettings && (
                 <ShowSettingsPopUP
+                    chapterInfo={chapterInfo}
                     toggleSettings={toggleSettings}
                     setLayout={setLayout}
                     layout={layout}
@@ -139,6 +142,8 @@ function TopRightOptions({
                     quality={quality}
                     showTranslationAndSpeakingOptions={showTranslationAndSpeakingOptions}
                     setShowTranslationAndSpeakingOptions={setShowTranslationAndSpeakingOptions}
+                    showTranslationTextOverlay={showTranslationTextOverlay}
+                    setShowTranslationTextOverlay={setShowTranslationTextOverlay}
                 />
             )}
 

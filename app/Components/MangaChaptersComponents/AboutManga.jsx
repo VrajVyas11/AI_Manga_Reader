@@ -22,25 +22,25 @@ import AboutMangaSkeleton from '../Skeletons/MangaChapters/AboutMangaSkeleton';
 import { useTheme } from '@/app/providers/ThemeContext';
 const MemoStableFlag = React.memo(StableFlag);
 const AboutManga = ({ manga, handleChapterClick, chapters }) => {
-   const [isClient, setIsClient] = useState(false);
-  const {theme}=useTheme()
-  const isDark = theme=="dark"
+  const [isClient, setIsClient] = useState(false);
+  const { theme } = useTheme()
+  const isDark = theme == "dark"
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  if (!manga && isClient) return <AboutMangaSkeleton/>
+  if (!manga && isClient) return <AboutMangaSkeleton />
   const [showFullDescription, setShowFullDescription] = useState(false);
-  const { addToBookMarks,getAllBookMarks } = useManga()
-  
+  const { addToBookMarks, getAllBookMarks } = useManga()
+
   const handleAddToLibrary = () => {
     addToBookMarks(manga)
   };
-const isBookMarked = useMemo(() => {
+  const isBookMarked = useMemo(() => {
     if (!isClient) return false; // Consistent server-side value
     return getAllBookMarks().some((m) => m.manga.id === manga.id);
-  }, [isClient, manga,handleAddToLibrary]);
-  const LastChapter = useMemo(()=>chapters.sort((a,b)=>a.chapter-b.chapter)[chapters.length-1],[chapters])
+  }, [isClient, manga, handleAddToLibrary]);
+  const LastChapter = useMemo(() => chapters.sort((a, b) => a.chapter - b.chapter)[chapters.length - 1], [chapters])
 
   const websiteNames = {
     al: "AniList",
@@ -87,7 +87,14 @@ const isBookMarked = useMemo(() => {
           className="absolute  inset-x-0 top-0 h-[180px] sm:h-[220px] md:h-[350px] bg-cover bg-center"
           style={{ backgroundImage: `url('${manga.coverImageUrl}')` }}
         >
-          <div className={`absolute inset-0 h-[180px] sm:h-[220px] md:h-[350px] bg-black/60 drop-blur-sm z-10`}></div>
+          {/* <div
+            className={`${isDark?"hidden":""} absolute inset-0 opacity-70`}
+            style={{
+              backgroundImage:
+                "url('data:image/svg+xml,%3Csvg%20viewBox%3D%270%200%20200%20200%27%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%3E%3Cfilter%20id%3D%27noiseFilter%27%3E%3CfeTurbulence%20type%3D%27fractalNoise%27%20baseFrequency%3D%270.65%27%20numOctaves%3D%273%27%20stitchTiles%3D%27stitch%27%2F%3E%3C%2Ffilter%3E%3Crect%20width%3D%27100%25%27%20height%3D%27100%25%27%20filter%3D%27url%28%23noiseFilter%29%27%2F%3E%3C%2Fsvg%3E')",
+            }}
+          /> */}
+          <div className={`absolute inset-0 h-[180px] backdrop-blur-sm sm:h-[220px] md:h-[350px] ${isDark?"bg-black/50":"bg-white/10"} drop-blur-sm z-10`}></div>
         </div>
 
         <main className="relative px-4 sm:px-6 md:px-10">
@@ -137,7 +144,7 @@ const isBookMarked = useMemo(() => {
                     className={`w-full ${isDark ? 'bg-gray-700/50 hover:bg-gray-600/50 text-white border border-gray-600/30' : 'bg-gray-200/70 hover:bg-gray-300/70 text-gray-900 border border-gray-300/50'} font-medium py-6 rounded-lg`}
                     isDark={isDark}
                   >
-                    {isBookMarked?"Added To Library":"Add To Library"}
+                    {isBookMarked ? "Added To Library" : "Add To Library"}
                   </Button>
                 </div>
                 {/* Mobile Action Button */}
@@ -348,7 +355,7 @@ const isBookMarked = useMemo(() => {
                     <List className={`text-white`} size={20} />
                   </div>
                   <Image
-                    className="w-full h-full rounded shadow-md transition-transform duration-200 group-hover:translate-y-0 object-cover"
+                    className={`w-full h-full rounded ${isDark?"shadow-black":"shadow-gray-600"} shadow-lg  transition-all duration-200 group-hover:translate-y-0 object-cover`}
                     src={manga.coverImageUrl}
                     alt="Cover image"
                     width={384}
@@ -375,8 +382,8 @@ const isBookMarked = useMemo(() => {
                 </div>
 
                 <div className="flex gap-4 mb-5">
-                  <Button isBookMarked={isBookMarked} Icon={Bookmark} onClick={handleAddToLibrary} variant={`${isBookMarked?"none":"primary"}`} size="large" className={`${isBookMarked ? (isDark ? "bg-purple-800/50 border border-purple-500" : "bg-blue-800/50 border border-blue-500") : ""}`} isDark={isDark} >
-                    {isBookMarked?"Added To Library":"Add To Library"}
+                  <Button isBookMarked={isBookMarked} Icon={Bookmark} onClick={handleAddToLibrary} variant={`${isBookMarked ? "none" : "primary"}`} size="large" className={`${isBookMarked ? (isDark ? "bg-purple-800/50 border border-purple-500" : "bg-blue-800/50 border border-blue-500") : ""}`} isDark={isDark} >
+                    {isBookMarked ? "Added To Library" : "Add To Library"}
                   </Button>
                   <Button
                     onClick={() => { handleChapterClick(LastChapter) }}
@@ -453,13 +460,13 @@ const Button = ({
   const baseClasses = 'font-medium rounded transition-colors duration-200 focus:outline-none  flex items-center justify-center';
 
   const variants = {
-    primary: isDark 
+    primary: isDark
       ? 'bg-purple-900/70 text-white hover:bg-purple-950 disabled:bg-gray-400'
       : 'bg-purple-600 text-white hover:bg-purple-700 disabled:bg-gray-400',
-    secondary: isDark 
+    secondary: isDark
       ? 'bg-gray-600/30 text-white hover:bg-[#666666] disabled:bg-gray-400'
       : 'bg-gray-300/70 text-gray-900 hover:bg-gray-400/70 disabled:bg-gray-400',
-    outline: isDark 
+    outline: isDark
       ? 'border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:border-gray-200 disabled:text-gray-400'
       : 'border border-gray-400 text-gray-800 hover:bg-gray-100 disabled:border-gray-200 disabled:text-gray-400',
   };
@@ -479,7 +486,7 @@ const Button = ({
       className={buttonClasses}
       {...props}
     >
-      {Icon && <Icon alt="icon" className={`w-5 h-5 mr-2 ${(Icon==Bookmark && isBookMarked) ? (isDark ? "fill-white" : "fill-gray-800") : ""}`} />}
+      {Icon && <Icon alt="icon" className={`w-5 h-5 mr-2 ${(Icon == Bookmark && isBookMarked) ? (isDark ? "fill-white" : "fill-gray-800") : ""}`} />}
       {children}
     </button>
   );
@@ -494,7 +501,7 @@ const Tag = ({
   isDark = true,
   ...props
 }) => {
-  const baseClasses = `inline-flex items-center font-bold uppercase rounded transition-colors duration-200 ${isDark ?' text-white' : ' text-black shadow-md'}`;
+  const baseClasses = `inline-flex items-center font-bold uppercase rounded transition-colors duration-200 ${isDark ? ' text-white' : ' text-black shadow-md'}`;
 
   const sizes = {
     small: 'px-2 py-1 text-xs',
@@ -502,7 +509,7 @@ const Tag = ({
     large: 'px-4 py-2 text-base',
   };
 
-  const tagClasses = `${baseClasses} ${sizes[size]} ${onClick ? 'cursor-pointer hover:opacity-80' : ''} ${className}  ${getRatingColor(variant || (isDark?"dark":"light"))} ${variant && "text-white"} `;
+  const tagClasses = `${baseClasses} ${sizes[size]} ${onClick ? 'cursor-pointer hover:opacity-80' : ''} ${className}  ${getRatingColor(variant || (isDark ? "dark" : "light"))} ${variant && "text-white"} `;
 
   return (
     <span

@@ -109,7 +109,7 @@ function TabsAndSections({ manga, chapters, handleChapterClick }) {
         <Tabs tabs={tabs} activeTab={activeTab} onTabChange={handleTabClick} />
       </div>
       <div className="flex flex-col sm:flex-row w-full gap-4 sm:gap-2">
-        <div className="w-full hidden md:flex sm:w-5/12 flex-wrap gap-6 sm:gap-9 h-fit">
+        <div className="w-full hidden md:flex sm:w-5/12 flex-wrap gap-y-6 sm:gap-y-9 gap-x-6 h-fit">
           <div className="flex flex-row gap-4 w-full">
             <div className="min-w-1/3">
               <h3 className="text-white font-bold text-lg mb-2">Author</h3>
@@ -126,7 +126,7 @@ function TabsAndSections({ manga, chapters, handleChapterClick }) {
           </div>
           <div className="h-fit">
             <h3 className="text-white font-bold text-lg mb-2">Genres</h3>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               {memoManga.tags
                 .find((group) => group.group === 'genre')
                 ?.tags.map((genre, index) => (
@@ -171,10 +171,10 @@ function TabsAndSections({ manga, chapters, handleChapterClick }) {
                 ))}
             </div>
           </div>
-          <div className="">
+          <div className="relative h-fit">
             <h3 className="text-white font-bold text-lg mb-2">Demographic</h3>
             <div className="bg-white/10 backdrop-blur-md min-w-fit px-3 py-2 text-xs inline-flex items-center Capitalize rounded transition-colors duration-200">
-              {memoManga.MangaStoryType}
+              {memoManga.MangaStoryType || "None"}
             </div>
           </div>
           <div className="">
@@ -190,7 +190,7 @@ function TabsAndSections({ manga, chapters, handleChapterClick }) {
                     className="bg-white/10 backdrop-blur-md rounded px-3 py-2 flex items-center"
                   >
                     {iconMap[key] || <Book className="w-4 h-4 mr-2 text-white" />}
-                    <span className="text-white text-xs">{websiteNames[key]}</span>
+                    <span className="text-white text-xs">{websiteNames[key] || "Unknown" }</span>
                   </a>
                 )
               ))}

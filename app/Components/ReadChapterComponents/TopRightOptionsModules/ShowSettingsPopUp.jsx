@@ -1,9 +1,9 @@
 import React from 'react'
-import { X, Languages, Layers2, Sparkles, LayoutDashboard } from 'lucide-react'
+import { X, Languages, Layers2, Sparkles, LayoutDashboard, BookCopy } from 'lucide-react'
 
 function ShowSettingsPopUp({
     toggleSettings,
-     setLayout,
+    setLayout,
     layout,
     panels,
     setPanels,
@@ -12,8 +12,13 @@ function ShowSettingsPopUp({
     setQuality,
     quality,
     showTranslationAndSpeakingOptions,
-    setShowTranslationAndSpeakingOptions
+    setShowTranslationAndSpeakingOptions,
+    chapterInfo,
+    showTranslationTextOverlay,
+    setShowTranslationTextOverlay,
 }) {
+    // console.log(chapterInfo.translatedLanguage);
+
     return (
         <div className="bg-black/95 border tracking-wider absolute top-12 -left-12 border-white/10 rounded-2xl p-3 px-5 pb-5 min-w-[259px] backdrop-blur-xl">
             <div className="flex items-center justify-between mb-6">
@@ -121,6 +126,31 @@ function ShowSettingsPopUp({
                     </div>
                 )}
 
+                {/* Show Overlay Toggle Button */}
+                {chapterInfo.translatedLanguage != "en" && <div className="mt-4">
+                    <label className="flex flex-row gap-1.5 justify-start items-center text-sm font-medium text-white mb-2">
+                        <BookCopy className='w-4 h-4' /> Translation Overaly
+                    </label>
+
+                    <div className="flex gap-2">
+                        {[true, false].map((option) => (
+                            <button
+                                key={option.toString()}
+                                onClick={() =>  setShowTranslationTextOverlay(option)}
+                                className={`flex-1 py-1.5 px-2 text-[10px] rounded border font-semibold transition-colors ${showTranslationTextOverlay === option
+                                    ? 'bg-purple-500/30 border-purple-500/50 text-white'
+                                        : 'bg-white/5 border-white/10 text-white hover:bg-white/10'
+                                        }`}
+                                aria-pressed={showTranslationTextOverlay === option}
+                                title={option ? 'Enable Translation & Speaking' : 'Disable Translation & Speaking'}
+                            >
+                                {option ? 'Enable' : 'Disable'}
+                            </button>
+                        ))}
+                    </div>
+
+                </div>}
+
                 {/* Exclusive Translation & Speaking Toggle */}
                 <div className="mt-4">
                     <label className="flex flex-row gap-1.5 justify-start items-center text-sm font-medium text-white mb-2">
@@ -143,7 +173,9 @@ function ShowSettingsPopUp({
                             </button>
                         ))}
                     </div>
+
                 </div>
+
             </div>
         </div>
     )

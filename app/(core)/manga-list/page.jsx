@@ -1,4 +1,3 @@
-"use client"
 import React from 'react';
 import MangaReadHistory from '../../Components/MangaListComponents/MangaReadHistory';
 import LatestActivityComments from '../../Components/MangaListComponents/LatestActivityComments';

@@ -9,7 +9,7 @@ import { useTheme } from '../../providers/ThemeContext';
 
 function MangaReadHistory() {
     const { getAllFromReadHistory, addToReadHistory, setChapterListForManga } = useManga();
-    const { theme } = useTheme();
+    const { theme,mounted } = useTheme();
     const isDark = theme === "dark";
     const [readHistory, setReadHistory] = useState([]);
     const router = useRouter();
@@ -61,7 +61,8 @@ function MangaReadHistory() {
         };
     };
 
-    if(readHistory.length<=0) return <MangaReadHistorySkeleton/>
+
+    if(!mounted) return <MangaReadHistorySkeleton/>
     return (
         <div className="w-[100% -12px] mx-2 md:ml-2 md:px-6 mb-6">
             <div className="flex mb-7 items-center justify-between">
@@ -81,7 +82,7 @@ function MangaReadHistory() {
             </div>
             <div className="space-y-4">
                 {readHistory.length === 0 ? (
-                    <div className={`flex flex-col items-center sm:ml-2 mt-4 md:mt-11 justify-center py-6 md:py-16 px-4 ${isDark ? "bg-gradient-to-br from-gray-900/50 to-gray-800/30" : "bg-gradient-to-br from-gray-200/50 to-gray-100/30"} rounded-xl backdrop-blur-sm relative overflow-hidden`}>
+                    <div className={`flex flex-col items-center sm:ml-2 mt-4 md:mt-11 justify-center py-6 md:py-10 px-4 ${isDark ? "bg-gradient-to-br from-gray-900/50 to-gray-800/30" : "bg-gradient-to-br from-gray-200/50 to-gray-100/30"} rounded-xl backdrop-blur-sm relative overflow-hidden`}>
                         <div className="relative z-10 flex flex-col items-center">
                             <div className={`w-16 h-16 md:w-20 md:h-20 ${isDark ? "bg-gradient-to-br from-purple-500/20 to-blue-500/20" : "bg-gradient-to-br from-purple-400/20 to-blue-400/20"} rounded-lg md:rounded-full flex items-center justify-center mb-3 md:mb-6 shadow-lg`}>
                                 <BookOpen className={`w-10 h-10 ${isDark ? "text-purple-400" : "text-purple-600"}`} />

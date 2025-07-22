@@ -1,4 +1,4 @@
-import React, { memo, useCallback, lazy, useState, useEffect, Suspense, useMemo } from 'react'
+import React, { memo, useCallback, lazy, useState, useEffect, Suspense, useRef } from 'react'
 
 import {
     Languages,
@@ -35,7 +35,8 @@ function MiddleImageAndOptions({
     hasPrevChapter,
     goToNextChapter,
     hasNextChapter,
-    isCollapsed
+    isCollapsed,
+    showTranslationTextOverlay
 }) {
     if (!(chapterInfo && pages)) return null
     const [cursorClass, setCursorClass] = useState('');
@@ -44,6 +45,7 @@ function MiddleImageAndOptions({
     const [isLoadingOCR, setIsLoadingOCR] = useState(false);
     const [translatedTexts, setTranslatedTexts] = useState({});
     const [overlayLoading, setOverlayLoading] = useState(false);
+    const imageRef = useRef(null);
     const handleImageLoad = useCallback((url) => {
         setImageCache((prevCache) => [...prevCache, url]);
     }, []);
@@ -214,6 +216,7 @@ function MiddleImageAndOptions({
                                 <div key={index} className="tracking-wider   relative h-screen md:h-[87vh] flex justify-center items-center">
                                     <div className={`relative w-auto h-screen md:h-[87vh]`}>
                                         <Image
+                                            ref={imageRef}
                                             key={imageKey}
                                             src={page}
                                             alt={`Page ${currentIndex + index + 1}`}
@@ -228,12 +231,13 @@ function MiddleImageAndOptions({
                                             placeholder="blur"
                                             blurDataURL="/placeholder.jpg"
                                         />
-                                        {!isLoadingOCR && chapterInfo?.translatedLanguage?.trim() !== "en" ? (
+                                        {!isLoadingOCR && chapterInfo?.translatedLanguage?.trim() !== "en" && showTranslationTextOverlay ? (
                                             <OCROverlay
-                                                loading={overlayLoading}
-                                                handleTranslate={memoizedHandleTranslate} // Use memoized version
-                                                translatedTexts={translatedTexts}
                                                 fullOCRResult={fullOCRResult}
+                                                translatedTexts={translatedTexts}
+                                                loading={false}
+                                                ready={true}
+                                                imageElement={imageRef.current}
                                             />
                                         ) : (
                                             ""
@@ -286,23 +290,23 @@ function MiddleImageAndOptions({
                                             </div>
                                         )}
 
-                                        {((pageTTS[page] && isItTextToSpeech) || pageTranslations[page]) &&
-                                            pageTranslations[page] ? pageTranslations[page]?.textResult : pageTTS[page]?.textResult &&
-                                        <div>
-                                            {showMessage ? (
-                                                <div className="absolute z-50 text-wrap w-fit min-w-72 max-w-72 -top-96 border-gray-500/30 border right-12 bg-black/95 text-white p-4 rounded-lg shadow-lg transition-opacity duration-300">
-                                                    <button
-                                                        className="absolute top-1 right-1 text-xs flex justify-center items-center text-white bg-purple-600/70 hover:bg-purple-700 rounded-full py-[7px] px-2.5"
-                                                        onClick={() => setShowMessage(false)}
-                                                    >
-                                                        ✖
-                                                    </button>
-                                                    <p className=' text-sm tracking-widest lowercase'>{((pageTTS[page] && isItTextToSpeech) || pageTranslations[page]) && pageTranslations[page] ? pageTranslations[page]?.textResult : pageTTS[page]?.textResult || "No text Available"}</p>
-                                                </div>
-                                            ) : <button
-                                                onClick={() => setShowMessage((prev) => !prev)}
-                                                className="absolute z-50 text-wrap w-fit  -top-96 border-gray-500/30 border -right-2 bg-black/95 text-white p-3 rounded-xl shadow-lg transition-opacity duration-300 text-xs flex flex-row justify-center items-center gap-3"><ScrollText className=' w-4 h-4' /></button>}
-                                        </div>}
+                                        {(((pageTTS[page] && isItTextToSpeech) || pageTranslations[page]) &&
+                                            pageTranslations[page] ? pageTranslations[page]?.textResult : pageTTS[page]?.textResult) &&
+                                            <div>
+                                                {showMessage ? (
+                                                    <div className="absolute z-50 text-wrap w-fit min-w-72 max-w-72 -top-[21rem] border-gray-500/30 border right-12 bg-black/95 text-white p-4 rounded-lg shadow-lg transition-opacity duration-300">
+                                                        <button
+                                                            className="absolute top-1 right-1 text-xs flex justify-center items-center text-white bg-purple-600/70 hover:bg-purple-700 rounded-full py-[7px] px-2.5"
+                                                            onClick={() => setShowMessage(false)}
+                                                        >
+                                                            ✖
+                                                        </button>
+                                                        <p className=' text-sm tracking-widest lowercase'>{((pageTTS[page] && isItTextToSpeech) || pageTranslations[page]) && pageTranslations[page] ? pageTranslations[page]?.textResult : pageTTS[page]?.textResult || "No text Available"}</p>
+                                                    </div>
+                                                ) : <button
+                                                    onClick={() => setShowMessage((prev) => !prev)}
+                                                    className="absolute z-50 text-wrap w-fit  -top-[21rem] border-gray-500/30 border -right-2 bg-black/95 text-white p-3 rounded-xl shadow-lg transition-opacity duration-300 text-xs flex flex-row justify-center items-center gap-3"><ScrollText className=' w-4 h-4' /></button>}
+                                            </div>}
                                     </div>)}
                                 </div>
                             ))
@@ -318,6 +322,7 @@ function MiddleImageAndOptions({
                                         >
                                             <div className={`relative w-auto h-fit`}>
                                                 <Image
+                                                    ref={imageRef}
                                                     key={imageKey}
                                                     src={page}
                                                     alt={`Page ${index + 1}`}
@@ -332,8 +337,9 @@ function MiddleImageAndOptions({
                                                     placeholder="blur"
                                                     blurDataURL="/placeholder.jpg"
                                                 />
-                                                {!isLoadingOCR && chapterInfo?.translatedLanguage?.trim() !== "en" ? (
+                                                {!isLoadingOCR && chapterInfo?.translatedLanguage?.trim() !== "en" && showTranslationTextOverlay ? (
                                                     <OCROverlay
+                                                        imageElement={imageRef.current}
                                                         loading={overlayLoading}
                                                         handleTranslate={memoizedHandleTranslate} // Use memoized version
                                                         ready={Boolean(pageTranslations[page]?.translatedocrResult)}
@@ -388,12 +394,12 @@ function MiddleImageAndOptions({
                                 {/* bottom next and previous buttons  */}
                                 <div
                                     className={`tracking-wider px-[27%] mt-4 mb-1 h-16 grid grid-cols-2 gap-8 ${allAtOnce &&
-                                            (quality === "low"
-                                                ? pages?.chapter?.dataSaver
-                                                : pages?.chapter?.data
-                                            ).some((p) => !imageCache.includes(p))
-                                            ? "hidden"
-                                            : "block"
+                                        (quality === "low"
+                                            ? pages?.chapter?.dataSaver
+                                            : pages?.chapter?.data
+                                        ).some((p) => !imageCache.includes(p))
+                                        ? "hidden"
+                                        : "block"
                                         }`}
                                 >
                                     <button
@@ -401,8 +407,8 @@ function MiddleImageAndOptions({
                                         disabled={!hasPrevChapter}
                                         aria-label="Previous chapter"
                                         className={`flex items-center justify-center gap-3 py-2 rounded-lg border font-bold transition-colors duration-200 ${hasPrevChapter
-                                                ? "bg-purple-900/30 text-white border-purple-700/40 hover:bg-purple-800/50"
-                                                : "bg-gray-800/30 text-gray-500 border-gray-700/40 cursor-not-allowed"
+                                            ? "bg-purple-900/30 text-white border-purple-700/40 hover:bg-purple-800/50"
+                                            : "bg-gray-800/30 text-gray-500 border-gray-700/40 cursor-not-allowed"
                                             }`}
                                     >
                                         <ArrowBigLeftDash className="w-5 h-5 fill-white" />
@@ -414,8 +420,8 @@ function MiddleImageAndOptions({
                                         disabled={!hasNextChapter}
                                         aria-label="Next chapter"
                                         className={`flex items-center justify-center gap-3 py-2 rounded-lg border font-bold transition-colors duration-200 ${hasNextChapter
-                                                ? "bg-purple-900/30 text-white border-purple-700/40 hover:bg-purple-800/50"
-                                                : "bg-gray-800/30 text-gray-500 border-gray-700/40 cursor-not-allowed"
+                                            ? "bg-purple-900/30 text-white border-purple-700/40 hover:bg-purple-800/50"
+                                            : "bg-gray-800/30 text-gray-500 border-gray-700/40 cursor-not-allowed"
                                             }`}
                                     >
                                         <span className="text-base">Next</span>
