@@ -24,7 +24,7 @@ const MangaThumbnail = React.memo(
     return (
       <div
         className={`
-          relative cursor-pointer transition-all duration-300
+          relative cursor-pointer transition-all duration-0
           ${index === activeIndex ? 'ring-2 ring-purple-600' : ` ${isDark?"opacity-70 hover:opacity-100":""} `}
         `}
         onClick={() => handleThumbnailClick(index)}
@@ -302,7 +302,7 @@ const SliderComponent = React.memo(() => {
                   </span>
                 </div>
                 <h1
-                  className={`text-xl sm:text-3xl md:text-5xl font-bold mb-4 md:mb-6 leading-tight transition-all duration-500 ${
+                  className={`text-xl sm:text-3xl md:text-5xl font-bold mb-4 md:mb-6 leading-tight transition-all duration-0 ${
                     isDark ? 'text-white' : 'text-black'
                   }`}
                 >
@@ -316,7 +316,7 @@ const SliderComponent = React.memo(() => {
                   </span>
                 </h1>
                 <p
-                  className={`text-[11px] line-clamp-3 sm:text-sm md:text-base mb-6 md:mb-8 max-w-xl md:max-w-2xl transition-all duration-500 ${
+                  className={`text-[11px] line-clamp-3 sm:text-sm md:text-base mb-6 md:mb-8 max-w-xl md:max-w-2xl transition-all duration-0 ${
                     isDark ? 'text-gray-300' : 'text-gray-700'
                   }`}
                 >
@@ -325,14 +325,14 @@ const SliderComponent = React.memo(() => {
                 <div className="flex flex-wrap gap-3 md:gap-4">
                   <button
                     onClick={() => handleMangaClicked(activeManga)}
-                    className={`px-3 md:px-6 py-2 md:py-3 font-medium rounded-sm transition-colors text-[11px] sm:text-sm md:text-base ${
+                    className={`px-3 md:px-6 py-2 md:py-3 font-medium rounded-sm  transition-colors duration-0 text-[11px] sm:text-sm md:text-base ${
                       btnPurpleBg
                     } ${btnPurpleText} hover:${btnPurpleHover}`}
                   >
                     Read Now
                   </button>
                   <button
-                    className={`px-3 md:px-6 py-2 md:py-3 bg-transparent border rounded-sm transition-colors text-[11px] sm:text-sm md:text-base ${
+                    className={`px-3 md:px-6 py-2 md:py-3 bg-transparent border rounded-sm  transition-colors duration-0 text-[11px] sm:text-sm md:text-base ${
                       btnBorderPurple
                     } text-purple-600 hover:bg-purple-600/10`}
                   >
@@ -388,12 +388,12 @@ const SliderComponent = React.memo(() => {
             >
               <button
                 onClick={handlePrev}
-                className={`flex items-center gap-3 transition-colors group ${
+                className={`flex items-center gap-3  transition-colors duration-0 group ${
                   isDark ? 'text-white/70 hover:text-purple-600' : 'text-gray-700 hover:text-purple-700'
                 }`}
               >
                 <span
-                  className={`w-8 h-8 flex items-center justify-center rounded-full border transition-colors group-hover:border-purple-600 ${
+                  className={`w-8 h-8 flex items-center justify-center rounded-full border  transition-colors duration-0 group-hover:border-purple-600 ${
                     isDark ? 'border-white/30 bg-black/50' : 'border-gray-300 bg-white/50'
                   }`}
                 >
@@ -413,7 +413,7 @@ const SliderComponent = React.memo(() => {
               </div>
               <button
                 onClick={handleNext}
-                className={`flex items-center gap-3 transition-colors group ${
+                className={`flex items-center gap-3  transition-colors duration-0 group ${
                   isDark ? 'text-white/70 hover:text-purple-600' : 'text-gray-700 hover:text-purple-700'
                 }`}
               >
@@ -421,7 +421,7 @@ const SliderComponent = React.memo(() => {
                   Next
                 </span>
                 <span
-                  className={`w-8 h-8 flex items-center justify-center rounded-full border transition-colors group-hover:border-purple-600 ${
+                  className={`w-8 h-8 flex items-center justify-center rounded-full border  transition-colors duration-0 group-hover:border-purple-600 ${
                     isDark ? 'border-white/30 bg-black/50' : 'border-gray-300 bg-white/50'
                   }`}
                 >
@@ -459,7 +459,7 @@ const SliderComponent = React.memo(() => {
         <div className="absolute top-1/2 left-4 transform -translate-y-1/2 z-40 hidden md:block">
           <button
             onClick={handlePrev}
-            className={`w-12 h-12 mb-3 rounded-full flex items-center justify-center transition-colors hover:bg-purple-600 hover:text-black hover:border-purple-600 border ${
+            className={`w-12 h-12 mb-3 rounded-full flex items-center justify-center  transition-colors duration-0 hover:bg-purple-600 hover:text-black hover:border-purple-600 border ${
               isDark ? 'bg-black/50 border-white/10 text-white' : 'bg-white/50 border-gray-300 text-gray-700'
             }`}
           >

@@ -81,7 +81,7 @@ const MangaCard = React.memo(() => {
                 </div>
                 {loadMoreMangas && currentPage === totalPages && (
                     <button
-                        className={`px-8 py-3 mt-12 ml-12 ${isDark ? "bg-purple-700 hover:bg-purple-800 text-white" : "bg-purple-500 hover:bg-purple-600 text-gray-900"} font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg`}
+                        className={`px-8 py-3 mt-12 ml-12 ${isDark ? "bg-purple-700 hover:bg-purple-800 text-white" : "bg-purple-500 hover:bg-purple-600 text-gray-900"} font-semibold rounded-lg transition-all duration-0 transform hover:scale-105 shadow-lg`}
                     >
                         Load More
                     </button>
@@ -192,7 +192,7 @@ const Card = ({ manga, stableHandleMangaClicked, isDark }) => {
                             {manga.flatTags.slice(0, 4).map((tag) => (
                                 <span
                                     key={tag}
-                                    className={`${isDark ? "bg-[#070920] border-gray-700 hover:bg-gray-800" : "bg-gray-200 border-gray-300 hover:bg-gray-300"} backdrop-blur-md sm:min-w-16 shadow-lg px-2 sm:px-3 py-1 sm:py-1.5 border transition-colors text-center flex flex-row font-bold items-start justify-center text-[9px] sm:text-[10px] sm:tracking-[1px] ${isDark ? "text-white" : "text-gray-900"}`}
+                                    className={`${isDark ? "bg-[#070920] border-gray-700 hover:bg-gray-800" : "bg-gray-200 border-gray-300 hover:bg-gray-300"} backdrop-blur-md sm:min-w-16 duration-0 shadow-lg px-2 sm:px-3 py-1 sm:py-1.5 border transition-colors text-center flex flex-row font-bold items-start justify-center text-[9px] sm:text-[10px] sm:tracking-[1px] ${isDark ? "text-white" : "text-gray-900"}`}
                                 >
                                     {tag.length > 12 ? tag.slice(0, 12) + "..." : tag}
                                 </span>

@@ -238,12 +238,12 @@ const LatestComments = () => {
                 <hr className={`w-full border-[1px] ${isDark ? "border-white/20" : "border-gray-300/50"}`} />
                 <button
                     onClick={() => setVisible((prev) => !prev)}
-                    className={`px-5 py-3 min-w-fit gap-2 flex flex-row justify-start items-center border-[1px] ${isDark ? "bg-black/30 border-white/20 text-gray-300" : "bg-gray-100/50 border-gray-300/50 text-gray-700"} rounded-xl font-semibold shadow-lg transition-transform duration-300`}
+                    className={`px-5 py-3 min-w-fit gap-2 flex flex-row justify-start items-center border-[1px] ${isDark ? "bg-black/30 border-white/20 text-gray-300" : "bg-gray-100/50 border-gray-300/50 text-gray-700"} rounded-xl font-semibold shadow-lg transition-transform duration-0`}
                     aria-label="Toggle comments visibility"
                     title="Show Comments"
                 >
-                    <div className={`w-8 h-4 rounded-full relative transition-colors duration-300 ${isDark ? "bg-gray-600" : "bg-gray-400"}`}>
-                        <div className="w-4 h-4 bg-white rounded-full absolute top-0 transition-transform duration-300 translate-x-0.5" />
+                    <div className={`w-8 h-4 rounded-full relative transition-colors duration-0 ${isDark ? "bg-gray-600" : "bg-gray-400"}`}>
+                        <div className="w-4 h-4 bg-white rounded-full absolute top-0 transition-transform duration-0 translate-x-0.5" />
                     </div>
                     <span>Show Comments</span>
                 </button>
@@ -286,7 +286,7 @@ const LatestComments = () => {
                         <div className="flex items-center space-x-3">
                             <button
                                 onClick={() => fetchComments(true)}
-                                className={`px-5 py-3.5 min-w-fit gap-2 flex flex-row justify-start items-center border-[1px] ${isDark ? "bg-black/30 border-white/20 text-gray-300 hover:bg-black/40 hover:border-purple-400/40" : "bg-gray-100/50 border-gray-300/50 text-gray-700 hover:bg-gray-200/50 hover:border-purple-600/40"} rounded-xl font-semibold shadow-lg transition-transform duration-300`}
+                                className={`px-5 py-3.5 min-w-fit gap-2 flex flex-row justify-start items-center border-[1px] ${isDark ? "bg-black/30 border-white/20 text-gray-300 hover:bg-black/40 hover:border-purple-400/40" : "bg-gray-100/50 border-gray-300/50 text-gray-700 hover:bg-gray-200/50 hover:border-purple-600/40"} rounded-xl font-semibold shadow-lg transition-transform duration-0`}
                                 disabled={loading}
                                 aria-label="Refresh comments"
                             >
@@ -298,12 +298,12 @@ const LatestComments = () => {
                             </button>
                             <button
                                 onClick={() => setVisible((prev) => !prev)}
-                                className={`px-5 py-3 min-w-fit gap-2 flex flex-row justify-start items-center border-[1px] ${isDark ? "bg-black/30 border-white/20 text-gray-300 hover:bg-black/40" : "bg-gray-100/50 border-gray-300/50 text-gray-700 hover:bg-gray-200/50"} rounded-xl font-semibold shadow-lg transition-transform duration-300`}
+                                className={`px-5 py-3 min-w-fit gap-2 flex flex-row justify-start items-center border-[1px] ${isDark ? "bg-black/30 border-white/20 text-gray-300 hover:bg-black/40" : "bg-gray-100/50 border-gray-300/50 text-gray-700 hover:bg-gray-200/50"} rounded-xl font-semibold shadow-lg transition-transform duration-0`}
                                 aria-label="Toggle comments visibility"
                                 title="Hide Comments"
                             >
-                                <div className={`w-8 h-4 rounded-full relative transition-colors duration-300 ${isDark ? "bg-purple-600/70" : "bg-purple-400/70"}`}>
-                                    <div className="w-4 h-4 bg-white rounded-full absolute top-0 transition-transform duration-300 translate-x-4" />
+                                <div className={`w-8 h-4 rounded-full relative transition-colors duration-0 ${isDark ? "bg-purple-600/70" : "bg-purple-400/70"}`}>
+                                    <div className="w-4 h-4 bg-white rounded-full absolute top-0 transition-transform duration-0 translate-x-4" />
                                 </div>
                                 <span>Hide Comments</span>
                             </button>
@@ -344,14 +344,14 @@ const LatestComments = () => {
                                         key={comment.id || index}
                                         className="flex-shrink-0 w-80 relative group"
                                     >
-                                        <div className={`relative ${showMore[comment.id] ? "h-auto" : "h-[290px]"} ${isDark ? "bg-gray-800/10 border-purple-500/20 hover:border-purple-500/40" : "bg-gray-100/50 border-purple-400/20 hover:border-purple-400/40"} mt-1 backdrop-blur-2xl border rounded-2xl p-5 pb-0 transition-all duration-300 shadow-xl`}>
+                                        <div className={`relative ${showMore[comment.id] ? "h-auto" : "h-[290px]"} ${isDark ? "bg-gray-800/10 border-purple-500/20 hover:border-purple-500/40" : "bg-gray-100/50 border-purple-400/20 hover:border-purple-400/40"} mt-1 backdrop-blur-2xl border rounded-2xl p-5 pb-0 transition-all duration-0 shadow-xl`}>
                                             <div className="flex items-start space-x-4 mb-4">
                                                 <div className="relative">
                                                     <div className={`absolute -inset-1 ${isDark ? "bg-gradient-to-r from-purple-500/80 to-cyan-500/80" : "bg-gradient-to-r from-purple-400/80 to-cyan-400/80"} rounded-full blur opacity-40`}></div>
                                                     <img
                                                         src={comment.avatarUrl}
                                                         alt={`${comment.username}'s avatar`}
-                                                        className={`relative min-w-14 w-14 h-14 rounded-full border-2 ${isDark ? "border-purple-500/30 group-hover:border-purple-400/60" : "border-purple-400/30 group-hover:border-purple-600/60"} transition-all duration-300 object-cover shadow-lg`}
+                                                        className={`relative min-w-14 w-14 h-14 rounded-full border-2 ${isDark ? "border-purple-500/30 group-hover:border-purple-400/60" : "border-purple-400/30 group-hover:border-purple-600/60"} transition-all duration-0 object-cover shadow-lg`}
                                                         onError={(e) => {
                                                             e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(comment.username)}&background=8b5cf6&color=fff`;
                                                         }}
@@ -388,7 +388,7 @@ const LatestComments = () => {
                                                                 href={`https://forums.mangadex.org${comment.postUrl}`}
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
-                                                                className={`ml-1 ${isDark ? "text-cyan-400 hover:text-cyan-300 decoration-cyan-500/30 hover:decoration-cyan-400/60" : "text-cyan-600 hover:text-cyan-500 decoration-cyan-400/30 hover:decoration-cyan-500/60"} transition-colors duration-300 underline line-clamp-1`}
+                                                                className={`ml-1 ${isDark ? "text-cyan-400 hover:text-cyan-300 decoration-cyan-500/30 hover:decoration-cyan-400/60" : "text-cyan-600 hover:text-cyan-500 decoration-cyan-400/30 hover:decoration-cyan-500/60"} transition-colors duration-0 underline line-clamp-1`}
                                                             >
                                                                 {comment.repliedTO}
                                                             </a>
@@ -487,11 +487,11 @@ const LatestComments = () => {
                                                                 href={`https://forums.mangadx.org${comment.postUrl}`}
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
-                                                                className={`group/link flex items-center space-x-1 px-3 py-1.5 ${isDark ? "bg-purple-600/20 hover:bg-purple-600/40 border-purple-500/30 hover:border-purple-400/60" : "bg-purple-400/20 hover:bg-purple-400/40 border-purple-400/30 hover:border-purple-600/60"} border rounded-lg transition-all duration-300 hover:scale-105`}
+                                                                className={`group/link flex items-center space-x-1 px-3 py-1.5 ${isDark ? "bg-purple-600/20 hover:bg-purple-600/40 border-purple-500/30 hover:border-purple-400/60" : "bg-purple-400/20 hover:bg-purple-400/40 border-purple-400/30 hover:border-purple-600/60"} border rounded-lg transition-all duration-0 hover:scale-105`}
                                                                 aria-label="View full post"
                                                             >
                                                                 <span className={`text-xs font-medium ${isDark ? "text-purple-300 group-hover/link:text-purple-200" : "text-purple-600 group-hover/link:text-purple-500"}`}>View Post</span>
-                                                                <ExternalLink className={`w-3 h-3 ${isDark ? "text-purple-400 group-hover/link:text-purple-300" : "text-purple-600 group-hover/link:text-purple-500"} group-hover/link:rotate-12 transition-transform duration-300`} />
+                                                                <ExternalLink className={`w-3 h-3 ${isDark ? "text-purple-400 group-hover/link:text-purple-300" : "text-purple-600 group-hover/link:text-purple-500"} group-hover/link:rotate-12 transition-transform duration-0`} />
                                                             </a>
                                                         </div>
                                                     </div>
@@ -521,7 +521,7 @@ const LatestComments = () => {
                                             </p>
                                             <button
                                                 onClick={() => fetchComments(true)}
-                                                className={`mt-4 px-6 py-2 ${isDark ? "bg-purple-600/30 hover:bg-purple-600/50 border-purple-500/30 hover:border-purple-400/60 text-purple-300 hover:text-purple-200" : "bg-purple-400/30 hover:bg-purple-400/50 border-purple-400/30 hover:border-purple-600/60 text-purple-600 hover:text-purple-500"} rounded-xl transition-all duration-300 text-sm font-medium`}
+                                                className={`mt-4 px-6 py-2 ${isDark ? "bg-purple-600/30 hover:bg-purple-600/50 border-purple-500/30 hover:border-purple-400/60 text-purple-300 hover:text-purple-200" : "bg-purple-400/30 hover:bg-purple-400/50 border-purple-400/30 hover:border-purple-600/60 text-purple-600 hover:text-purple-500"} rounded-xl transition-all duration-0 text-sm font-medium`}
                                            >
                                                 Refresh Activity
                                             </button>
