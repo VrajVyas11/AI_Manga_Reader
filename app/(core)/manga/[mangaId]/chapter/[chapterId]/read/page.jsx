@@ -10,6 +10,7 @@ import { useChapterPagesFetch } from "../../../../../../hooks/useChapterPagesFet
 import _MiddleImageAndOptions from "../../../../../../Components/ReadChapterComponents/MiddleImageAndOptions";
 import _BottomPagesNavigation from "../../../../../../Components/ReadChapterComponents/BottomPagesNavigation"
 import _SideBar from "../../../../../../Components/ReadChapterComponents/SideBar"
+import { useTheme } from '@/app/providers/ThemeContext';
 const SideBar = memo(_SideBar);
 const MiddleImageAndOptions = memo(_MiddleImageAndOptions);
 const BottomPagesNavigation = memo(_BottomPagesNavigation);
@@ -17,6 +18,8 @@ const TopRightOptions = memo(_TopRightOptions);
 export default function ReadChapter() {
 
   const { mangaId, chapterId } = useParams();
+  const { theme } = useTheme();
+  const isDark = theme == "dark";
   const router = useRouter();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(true);
@@ -100,10 +103,11 @@ export default function ReadChapter() {
   return (
     chapterId && mangaId && pages && !isError && chapterInfo && !isLoading ? (
       <div
-        className="tracking-wider bg-black/20 relative z-20 flex flex-row w-full h-[92vh] md:h-[91.3vh] justify-between items-start -mt-5   text-white overflow-hidden"
+        className={`tracking-wider ${isDark ? "bg-black/20  text-white" : "bg-white text-black"} relative z-20 flex flex-row w-full h-[92vh] md:h-[91.3vh] justify-between items-start -mt-5   overflow-hidden`}
       >
         <SideBar
           panels={panels}
+          isDark={isDark}
           pages={pages && (quality === "low" ? pages?.chapter?.dataSaver : pages?.chapter?.data)}
           setCurrentIndex={setCurrentIndex}
           currentIndex={currentIndex}
@@ -126,6 +130,7 @@ export default function ReadChapter() {
           className="tracking-wider flex flex-col flex-grow min-w-0 h-full w-full max-w-full  scrollbar-thin scrollbar-thumb-purple-600 scrollbar-track-gray-900"
         >
           {settingsOpen && <TopRightOptions
+          isDark={isDark}
             allAtOnce={allAtOnce}
             quality={quality}
             isCollapsed={isCollapsed}
@@ -161,6 +166,7 @@ export default function ReadChapter() {
             }}
             className={`flex-grow scroll overflow-y-auto min-w-0 max-w-full scrollbar-thin scrollbar-thumb-purple-600 scrollbar-track-gray-900`}>
             <MiddleImageAndOptions
+              isDark={isDark}
               layout={layout}
               isLoading={isLoading}
               pages={pages}
@@ -192,6 +198,7 @@ export default function ReadChapter() {
 
           <div className="flex-shrink-0 relative z-50 w-full max-w-full">
             <BottomPagesNavigation
+              isDark={isDark}
               setCurrentIndex={setCurrentIndex}
               currentIndex={currentIndex}
               layout={layout}
@@ -199,19 +206,27 @@ export default function ReadChapter() {
               pages={pages && (quality === "low" ? pages?.chapter?.dataSaver : pages?.chapter?.data)}
             />
             {layout === "vertical" && (
-              <button
-                className="tracking-wider cursor-pointer fixed bottom-5 right-3 md:bottom-12 md:right-8 w-12 h-12 md:w-16 md:h-16 rounded-full border-4 border-violet-200 bg-black flex items-center justify-center duration-300 hover:rounded-[50px] hover:w-24 group/button overflow-hidden active:scale-90"
-                onClick={() => {
-                  if (scrollContainerRef.current) {
-                    scrollContainerRef.current.scrollTo({ top: 0, behavior: "smooth" });
-                  }
-                }}
-              >
-                <ArrowUp className="tracking-wider w-3 fill-white delay-50 duration-200 group-hover/button:-translate-y-12" />
-                <span className="tracking-wider absolute text-white text-xs opacity-0 group-hover/button:opacity-100 transition-opacity duration-200">
-                  Top
-                </span>
-              </button>
+<button
+ className={`tracking-wider cursor-pointer fixed bottom-5 right-3 md:bottom-12 md:right-8 w-12 h-12 md:w-16 md:h-16 rounded-full border-4 flex items-center justify-center duration-300 hover:rounded-[50px] hover:w-24 group/button overflow-hidden active:scale-90 ${
+   isDark
+     ? "border-violet-200 bg-black"
+     : "border-purple-600 bg-white"
+ }`}
+ onClick={() => {
+   if (scrollContainerRef.current) {
+     scrollContainerRef.current.scrollTo({ top: 0, behavior: "smooth" });
+   }
+ }}
+>
+ <ArrowUp className={`tracking-wider w-3 h-4 fill-current delay-50 duration-200 group-hover/button:-translate-y-12 ${
+   isDark ? "text-white" : "text-gray-800"
+ }`} />
+ <span className={`tracking-wider font-semibold absolute text-xs opacity-0 group-hover/button:opacity-100 transition-opacity duration-200 ${
+   isDark ? "text-white" : "text-gray-800"
+ }`}>
+   Top
+ </span>
+</button>
             )}
           </div>
         </div>

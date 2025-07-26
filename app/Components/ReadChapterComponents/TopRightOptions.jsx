@@ -1,9 +1,10 @@
+// TopRightOptions.jsx
 import React, { useState, useCallback, useMemo, memo } from 'react'
 import { Settings, BookOpen, Maximize2, Heart, X, ChevronDown, File, Languages, GalleryHorizontalEnd, Layers2, RectangleGoggles, Sparkles, LayoutDashboard } from 'lucide-react'
 import { useManga } from '../../providers/MangaContext'
-// import PageAndChapterNavigation from './InfoSideBarModules/PageAndChaptersNavigation'
 import ShowSettingsPopUP from "./TopRightOptionsModules/ShowSettingsPopUp"
 import ChapterQuickSelect from "./TopRightOptionsModules/ChapterQuickSelect"
+
 function TopRightOptions({
     setLayout,
     layout,
@@ -17,16 +18,7 @@ function TopRightOptions({
     chapterInfo,
     allChapters = [],
     goToChapter,
-    // setCurrentIndex,
-    // isCollapsed,
-    // currentIndex,
-    // pages,
-    // currentChapterIndex,
-    // goToNextChapter,
-    // goToPrevChapter,
-    // onChapterChange,
-    // hasNextChapter,
-    // hasPrevChapter,
+    isDark = true,
     showTranslationAndSpeakingOptions,
     setShowTranslationAndSpeakingOptions,
     showTranslationTextOverlay,
@@ -93,7 +85,11 @@ function TopRightOptions({
             <div className="flex gap-3 mb-4">
                 <button
                     onClick={toggleSettings}
-                    className="bg-purple-950/40 border border-white/10 text-white rounded-xl p-3 hover:bg-black/70 transition-all duration-200 hover:-translate-y-0.5 backdrop-blur-md"
+                    className={`border rounded-xl p-3 transition-all duration-200 hover:-translate-y-0.5 backdrop-blur-md ${
+                        isDark 
+                            ? "bg-purple-950/40 border-white/10 text-white hover:bg-black/70" 
+                            : "bg-blue-50/60 border-gray-300 text-gray-700 hover:bg-white/80"
+                    }`}
                     title="Settings"
                 >
                     <Settings size={16} />
@@ -101,7 +97,11 @@ function TopRightOptions({
 
                 <button
                     onClick={toggleChapters}
-                    className="bg-purple-950/40 border border-white/10 text-white rounded-xl p-3 hover:bg-black/70 transition-all duration-200 hover:-translate-y-0.5 backdrop-blur-md"
+                    className={`border rounded-xl p-3 transition-all duration-200 hover:-translate-y-0.5 backdrop-blur-md ${
+                        isDark 
+                            ? "bg-purple-950/40 border-white/10 text-white hover:bg-black/70" 
+                            : "bg-blue-50/60 border-gray-300 text-gray-700 hover:bg-white/80"
+                    }`}
                     title="Chapters"
                 >
                     <BookOpen size={16} />
@@ -109,7 +109,11 @@ function TopRightOptions({
 
                 <button
                     onClick={toggleFullscreen}
-                    className="bg-purple-950/40 border border-white/10 text-white rounded-xl p-3 hover:bg-black/70 transition-all duration-200 hover:-translate-y-0.5 backdrop-blur-md"
+                    className={`border rounded-xl p-3 transition-all duration-200 hover:-translate-y-0.5 backdrop-blur-md ${
+                        isDark 
+                            ? "bg-purple-950/40 border-white/10 text-white hover:bg-black/70" 
+                            : "bg-blue-50/60 border-gray-300 text-gray-700 hover:bg-white/80"
+                    }`}
                     title="Fullscreen"
                 >
                     <Maximize2 size={16} />
@@ -117,10 +121,13 @@ function TopRightOptions({
 
                 <button
                     onClick={toggleFavorite}
-                    className={`border border-white/10 rounded-xl p-3 transition-all duration-200 hover:-translate-y-0.5 backdrop-blur-md ${isFavorite
-                        ? 'bg-red-500/80 text-white hover:bg-red-500/60'
-                        : 'bg-purple-950/40 text-white hover:bg-black/70'
-                        }`}
+                    className={`border rounded-xl p-3 transition-all duration-200 hover:-translate-y-0.5 backdrop-blur-md ${
+                        isFavorite
+                            ? 'bg-red-500/80 text-white hover:bg-red-500/60 border-red-400'
+                            : isDark 
+                                ? 'bg-purple-950/40 text-white hover:bg-black/70 border-white/10'
+                                : 'bg-blue-50/60 text-gray-700 hover:bg-white/80 border-gray-300'
+                    }`}
                     title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
                 >
                     <Heart size={16} fill={isFavorite ? 'currentColor' : 'none'} />
@@ -144,15 +151,28 @@ function TopRightOptions({
                     setShowTranslationAndSpeakingOptions={setShowTranslationAndSpeakingOptions}
                     showTranslationTextOverlay={showTranslationTextOverlay}
                     setShowTranslationTextOverlay={setShowTranslationTextOverlay}
+                    isDark={isDark}
                 />
             )}
 
             {/* Chapter Selector */}
             {showChapters && (
-                <ChapterQuickSelect chapterInfo={chapterInfo} toggleChapters={toggleChapters} goToChapter={goToChapter} sortOrder={sortOrder} searchQuery={searchQuery} goToFirstChapter={goToFirstChapter} goToLastChapter={goToLastChapter} filteredChapters={filteredChapters} setSearchQuery={setSearchQuery} setSortOrder={setSortOrder} />
+                <ChapterQuickSelect 
+                    chapterInfo={chapterInfo} 
+                    toggleChapters={toggleChapters} 
+                    goToChapter={goToChapter} 
+                    sortOrder={sortOrder} 
+                    searchQuery={searchQuery} 
+                    goToFirstChapter={goToFirstChapter} 
+                    goToLastChapter={goToLastChapter} 
+                    filteredChapters={filteredChapters} 
+                    setSearchQuery={setSearchQuery} 
+                    setSortOrder={setSortOrder}
+                    isDark={isDark}
+                />
             )}
         </div>
     )
 }
 
-export default TopRightOptions
+export default TopRightOptions;

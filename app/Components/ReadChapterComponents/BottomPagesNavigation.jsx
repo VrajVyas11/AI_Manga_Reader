@@ -5,7 +5,8 @@ function BottomPagesNavigation({
     currentIndex,
     layout,
     panels,
-    pages
+    pages,
+    isDark=true,
 }) {
     const handlePrev = useCallback(() => {
         setCurrentIndex((prevIndex) =>
@@ -83,50 +84,61 @@ console.log(currentIndex);
         };
     }, [handlePrev, handleNext]);
 
-    return (
-        layout == "horizontal" ? <div className='bg-transparent h-fit w-full'>
-            {/* Page counter */}
-            <div className="mb-4 ml-5 font-bold   absolute bottom-0">
-                <span className="text-base sm:text-sm text-gray-300">
-                    {currentIndex + 1}
-                    {panels === 2 && "-" + Math.min(currentIndex + panels, pages.length)} / {pages.length}
-                </span>
-            </div>
+return (
+  layout == "horizontal" ? (
+    <div className="bg-transparent h-fit w-full">
+      {/* Page counter */}
+      <div className="mb-4 ml-5 font-bold absolute bottom-0">
+        <span className={`${isDark ? 'text-gray-300' : 'text-gray-700'} text-base sm:text-sm`}>
+          {currentIndex + 1}
+          {panels === 2 && "-" + Math.min(currentIndex + panels, pages.length)} / {pages.length}
+        </span>
+      </div>
 
-            {/* Bottom tabs */}
-            <div className="flex group gap-1 w-full justify-center">
-                {pages.map((_, index) => {
-                    // Determine if this tab should be active
-                    const isActive = panels === 2
-                        ? index >= currentIndex && index < currentIndex + panels
-                        : index === currentIndex;
+      {/* Bottom tabs */}
+      <div className="flex group gap-1 w-full justify-center">
+        {pages.map((_, index) => {
+          // Determine if this tab should be active
+          const isActive = panels === 2
+            ? index >= currentIndex && index < currentIndex + panels
+            : index === currentIndex;
 
-                    return (
-                        <button
-                            key={index}
-                            onClick={(e) => {
-                                console.log(index)
-                                e.stopPropagation(); // Prevent triggering screen click
-                                handleTabClick(index);
-                            }}
-                            className={`h-1.5 group-hover:h-3 hover:duration-500 group-hover:transform group-hover:ease-in-out group-hover:transition-all w-[25%] rounded-sm transition-colors duration-200 ${isActive
-                                ? 'bg-purple-800 hover:bg-purple-700'
-                                : 'bg-white/20 backdrop-blur-md hover:bg-white/30'
-                                }`}
-                            aria-label={`Go to page ${index + 1}`}
-                        />
-                    );
-                })}
-            </div>
+          return (
+            <button
+              key={index}
+              onClick={(e) => {
+                console.log(index);
+                e.stopPropagation(); // Prevent triggering screen click
+                handleTabClick(index);
+              }}
+              className={`
+                h-1.5 group-hover:h-3 hover:duration-500 group-hover:transform group-hover:ease-in-out group-hover:transition-all
+                w-[25%] rounded-sm transition-colors duration-0
+                ${
+                  isActive
+                    ? isDark
+                      ? 'bg-purple-800 hover:bg-purple-700'
+                      : 'bg-purple-600 hover:bg-purple-500'
+                    : isDark
+                    ? 'bg-white/20 backdrop-blur-md hover:bg-white/30'
+                    : 'bg-gray-600/70 backdrop-blur-sm hover:bg-gray-400/50'
+                }
+              `}
+              aria-label={`Go to page ${index + 1}`}
+            />
+          );
+        })}
+      </div>
 
-            {/* Instructions */}
-            {/* <div className="mt-2 text-center">
-                <span className="text-xs text-gray-400">
-                    Click left/right side of screen or tabs to navigate
-                </span>
-            </div> */}
-        </div> : null
-    );
+      {/* Instructions */}
+      {/* <div className="mt-2 text-center">
+          <span className="text-xs text-gray-400">
+              Click left/right side of screen or tabs to navigate
+          </span>
+      </div> */}
+    </div>
+  ) : null
+);
 }
 
 export default BottomPagesNavigation;

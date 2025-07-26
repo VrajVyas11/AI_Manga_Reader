@@ -19,12 +19,9 @@ import { getRatingColor } from "../../constants/Flags"
 import StableFlag from "../StableFlag";
 import { useManga } from '../../providers/MangaContext';
 import AboutMangaSkeleton from '../Skeletons/MangaChapters/AboutMangaSkeleton';
-import { useTheme } from '@/app/providers/ThemeContext';
 const MemoStableFlag = React.memo(StableFlag);
-const AboutManga = ({ manga, handleChapterClick, chapters }) => {
+const AboutManga = ({ manga, handleChapterClick, chapters, isDark = true }) => {
   const [isClient, setIsClient] = useState(false);
-  const { theme } = useTheme()
-  const isDark = theme == "dark"
   useEffect(() => {
     setIsClient(true);
   }, []);
@@ -94,7 +91,7 @@ const AboutManga = ({ manga, handleChapterClick, chapters }) => {
                 "url('data:image/svg+xml,%3Csvg%20viewBox%3D%270%200%20200%20200%27%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%3E%3Cfilter%20id%3D%27noiseFilter%27%3E%3CfeTurbulence%20type%3D%27fractalNoise%27%20baseFrequency%3D%270.65%27%20numOctaves%3D%273%27%20stitchTiles%3D%27stitch%27%2F%3E%3C%2Ffilter%3E%3Crect%20width%3D%27100%25%27%20height%3D%27100%25%27%20filter%3D%27url%28%23noiseFilter%29%27%2F%3E%3C%2Fsvg%3E')",
             }}
           /> */}
-          <div className={`absolute inset-0 h-[180px] backdrop-blur-sm sm:h-[220px] md:h-[350px] ${isDark?"bg-black/50":"bg-white/10"} drop-blur-sm z-10`}></div>
+          <div className={`absolute inset-0 h-[180px] backdrop-blur-sm sm:h-[220px] md:h-[350px] ${isDark ? "bg-black/50" : "bg-white/10"} drop-blur-sm z-10`}></div>
         </div>
 
         <main className="relative px-4 sm:px-6 md:px-10">
@@ -106,11 +103,11 @@ const AboutManga = ({ manga, handleChapterClick, chapters }) => {
               <div className="flex justify-center mb-6">
                 <div className="relative w-36 h-52 sm:w-40 sm:h-56 group select-none shadow-2xl">
                   <a href={manga.coverImageUrl} className="block relative w-full h-full">
-                    <div className={`absolute inset-0 z-50 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-lg`}>
+                    <div className={`absolute inset-0 z-50 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-0 rounded-lg`}>
                       <List className={`${isDark ? 'text-white' : 'text-gray-800'}`} size={18} />
                     </div>
                     <Image
-                      className="w-full h-full rounded-lg shadow-2xl transition-transform duration-200 group-hover:scale-105 object-cover"
+                      className="w-full h-full rounded-lg shadow-2xl transition-transform duration-0 group-hover:scale-105 object-cover"
                       src={manga.coverImageUrl}
                       alt="Cover image"
                       width={160}
@@ -153,7 +150,7 @@ const AboutManga = ({ manga, handleChapterClick, chapters }) => {
                     onClick={() => { handleChapterClick(LastChapter) }}
                     variant="primary"
                     Icon={BookOpen}
-                    className={`w-full ${isDark ? 'bg-purple-600 hover:bg-purple-700 text-white' : 'bg-blue-600 hover:bg-blue-700 text-white'} font-semibold py-6 rounded-lg shadow-lg`}
+                    className={`w-full ${isDark ? 'bg-purple-600 hover:bg-purple-700 text-white' : 'bg-purple-600 hover:bg-purple-700 text-white'} font-semibold py-6 rounded-lg shadow-lg`}
                     isDark={isDark}
                   >
                     Read Latest
@@ -193,7 +190,7 @@ const AboutManga = ({ manga, handleChapterClick, chapters }) => {
 
                 <button
                   onClick={() => setShowFullDescription(!showFullDescription)}
-                  className={`flex items-center justify-center gap-2 ${isDark ? 'bg-white/10 text-white hover:bg-white/20' : 'bg-gray-900/10 text-gray-900 hover:bg-gray-900/20'} backdrop-blur-md rounded px-4 py-2 transition-colors duration-200 w-fit mx-auto lg:mx-0`}
+                  className={`flex items-center justify-center gap-2 ${isDark ? 'bg-white/10 text-white hover:bg-white/20' : 'bg-gray-900/10 text-gray-900 hover:bg-gray-900/20'} backdrop-blur-md rounded px-4 py-2 transition-colors duration-0 w-fit mx-auto lg:mx-0`}
                 >
                   <span className="text-sm font-medium">
                     {showFullDescription ? 'Show Less' : 'Show More Details'}
@@ -206,7 +203,7 @@ const AboutManga = ({ manga, handleChapterClick, chapters }) => {
                 </button>
 
                 {showFullDescription && (
-                  <div className="mt-0 space-y-4 animate-in slide-in-from-top-2 duration-200">
+                  <div className="mt-0 space-y-4 animate-in slide-in-from-top-2 duration-0">
                     {/* Tags Section */}
                     <div>
                       <h3 className={`${isDark ? 'text-white' : 'text-gray-900'} font-semibold text-sm mb-2 uppercase tracking-wide`}>Genres</h3>
@@ -233,13 +230,13 @@ const AboutManga = ({ manga, handleChapterClick, chapters }) => {
                       <div className="flex flex-row gap-4 w-full">
                         <div className='min-w-1/3'>
                           <h3 className={`${isDark ? 'text-white' : 'text-gray-900'} font-bold text-lg mb-2`}>Author</h3>
-                          <div className={`${isDark ? 'bg-white/10' : 'bg-gray-900/10'} backdrop-blur-md min-w-fit px-3 py-2 text-sm inline-flex items-center Capitalize rounded transition-colors duration-200 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                          <div className={`${isDark ? 'bg-white/10' : 'bg-gray-900/10'} backdrop-blur-md min-w-fit px-3 py-2 text-sm inline-flex items-center Capitalize rounded transition-colors duration-0 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                             {manga.authorName[0].attributes.name}
                           </div>
                         </div>
                         <div>
                           <h3 className={`${isDark ? 'text-white' : 'text-gray-900'} font-bold text-lg mb-2`}>Artist</h3>
-                          <div className={`${isDark ? 'bg-white/10' : 'bg-gray-900/10'} backdrop-blur-md min-w-fit px-3 py-2 text-sm inline-flex items-center Capitalize rounded transition-colors duration-200 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                          <div className={`${isDark ? 'bg-white/10' : 'bg-gray-900/10'} backdrop-blur-md min-w-fit px-3 py-2 text-sm inline-flex items-center Capitalize rounded transition-colors duration-0 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                             {manga.artistName[0].attributes.name}
                           </div>
                         </div>
@@ -248,7 +245,7 @@ const AboutManga = ({ manga, handleChapterClick, chapters }) => {
                         <h3 className={`${isDark ? 'text-white' : 'text-gray-900'} font-bold text-lg mb-2`}>Genres</h3>
                         <div className='flex gap-2 flex-wrap'>
                           {manga.tags.find(group => group.group === 'genre')?.tags.map((genre, index) => (
-                            <div key={index} className={`${isDark ? 'bg-white/10 text-white' : 'bg-gray-900/10 text-gray-900'} backdrop-blur-md min-w-fit px-3 py-2 text-xs inline-flex items-center Capitalize rounded transition-colors duration-200`}>
+                            <div key={index} className={`${isDark ? 'bg-white/10 text-white' : 'bg-gray-900/10 text-gray-900'} backdrop-blur-md min-w-fit px-3 py-2 text-xs inline-flex items-center Capitalize rounded transition-colors duration-0`}>
                               {genre}
                             </div>
                           ))}
@@ -258,7 +255,7 @@ const AboutManga = ({ manga, handleChapterClick, chapters }) => {
                         <h3 className={`${isDark ? 'text-white' : 'text-gray-900'} font-bold text-lg mb-2`}>Themes</h3>
                         <div className="flex flex-wrap gap-2">
                           {manga.tags.find(group => group.group === 'theme')?.tags.map((theme, index) => (
-                            <div key={index} className={`${isDark ? 'bg-white/10 text-white' : 'bg-gray-900/10 text-gray-900'} backdrop-blur-md min-w-fit px-3 py-2 text-xs inline-flex items-center Capitalize rounded transition-colors duration-200`}>
+                            <div key={index} className={`${isDark ? 'bg-white/10 text-white' : 'bg-gray-900/10 text-gray-900'} backdrop-blur-md min-w-fit px-3 py-2 text-xs inline-flex items-center Capitalize rounded transition-colors duration-0`}>
                               {theme}
                             </div>
                           ))}
@@ -270,7 +267,7 @@ const AboutManga = ({ manga, handleChapterClick, chapters }) => {
                         )}
                         <div className="flex flex-wrap gap-2">
                           {manga.tags.find(group => group.group === 'format')?.tags.map((format, index) => (
-                            <div key={index} className={`${isDark ? 'bg-white/10 text-white' : 'bg-gray-900/10 text-gray-900'} backdrop-blur-md min-w-fit px-3 py-2 text-xs inline-flex items-center Capitalize rounded transition-colors duration-200`}>
+                            <div key={index} className={`${isDark ? 'bg-white/10 text-white' : 'bg-gray-900/10 text-gray-900'} backdrop-blur-md min-w-fit px-3 py-2 text-xs inline-flex items-center Capitalize rounded transition-colors duration-0`}>
                               {format}
                             </div>
                           ))}
@@ -278,7 +275,7 @@ const AboutManga = ({ manga, handleChapterClick, chapters }) => {
                       </div>
                       <div className="">
                         <h3 className={`${isDark ? 'text-white' : 'text-gray-900'} font-bold text-lg mb-2`}>Demographic</h3>
-                        <div className={`${isDark ? 'bg-white/10 text-white' : 'bg-gray-900/10 text-gray-900'} backdrop-blur-md min-w-fit px-3 py-2 text-xs inline-flex items-center Capitalize rounded transition-colors duration-200`}>
+                        <div className={`${isDark ? 'bg-white/10 text-white' : 'bg-gray-900/10 text-gray-900'} backdrop-blur-md min-w-fit px-3 py-2 text-xs inline-flex items-center Capitalize rounded transition-colors duration-0`}>
                           {manga.MangaStoryType}
                         </div>
                       </div>
@@ -351,11 +348,11 @@ const AboutManga = ({ manga, handleChapterClick, chapters }) => {
               {/* Left Column - Manga Cover */}
               <div className="relative w-40 h-60 lg:w-48 lg:h-[295px] group select-none mx-auto md:mx-0">
                 <a href={manga.coverImageUrl} className="block relative w-full h-full">
-                  <div className={`absolute inset-0 z-50 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded`}>
+                  <div className={`absolute inset-0 z-50 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-0 rounded`}>
                     <List className={`text-white`} size={20} />
                   </div>
                   <Image
-                    className={`w-full h-full rounded ${isDark?"shadow-black":"shadow-gray-600"} shadow-lg  transition-all duration-200 group-hover:translate-y-0 object-cover`}
+                    className={`w-full h-full rounded ${isDark ? "shadow-black" : "shadow-gray-600"} shadow-lg  transition-all duration-0 group-hover:translate-y-0 object-cover`}
                     src={manga.coverImageUrl}
                     alt="Cover image"
                     width={384}
@@ -382,7 +379,7 @@ const AboutManga = ({ manga, handleChapterClick, chapters }) => {
                 </div>
 
                 <div className="flex gap-4 mb-5">
-                  <Button isBookMarked={isBookMarked} Icon={Bookmark} onClick={handleAddToLibrary} variant={`${isBookMarked ? "none" : "primary"}`} size="large" className={`${isBookMarked ? (isDark ? "bg-purple-800/50 border border-purple-500" : "bg-blue-800/50 border border-blue-500") : ""}`} isDark={isDark} >
+                  <Button isBookMarked={isBookMarked} Icon={Bookmark} onClick={handleAddToLibrary} variant={`${isBookMarked ? "none" : "primary"}`} size="large" className={`${isBookMarked ? (isDark ? "bg-purple-800/50 border border-purple-500" : "bg-purple-800/90 border border-purple-300") : ""}`} isDark={isDark} >
                     {isBookMarked ? "Added To Library" : "Add To Library"}
                   </Button>
                   <Button
@@ -457,7 +454,7 @@ const Button = ({
   isDark = true,
   ...props
 }) => {
-  const baseClasses = 'font-medium rounded transition-colors duration-200 focus:outline-none  flex items-center justify-center';
+  const baseClasses = 'font-medium rounded transition-colors duration-0 focus:outline-none  flex items-center justify-center';
 
   const variants = {
     primary: isDark
@@ -486,7 +483,7 @@ const Button = ({
       className={buttonClasses}
       {...props}
     >
-      {Icon && <Icon alt="icon" className={`w-5 h-5 mr-2 ${(Icon == Bookmark && isBookMarked) ? (isDark ? "fill-white" : "fill-gray-800") : ""}`} />}
+      {Icon && <Icon alt="icon" className={`w-5 h-5 mr-2 ${(Icon == Bookmark && isBookMarked) ? (isDark ? "fill-white" : "fill-gray-100") : ""}`} />}
       {children}
     </button>
   );
@@ -501,7 +498,7 @@ const Tag = ({
   isDark = true,
   ...props
 }) => {
-  const baseClasses = `inline-flex items-center font-bold uppercase rounded transition-colors duration-200 ${isDark ? ' text-white' : ' text-black shadow-md'}`;
+  const baseClasses = `inline-flex items-center font-bold uppercase rounded transition-colors duration-0 ${isDark ? ' text-white' : ' text-black shadow-md'}`;
 
   const sizes = {
     small: 'px-2 py-1 text-xs',

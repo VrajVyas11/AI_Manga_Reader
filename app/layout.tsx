@@ -17,9 +17,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <Script
+        <script
           src="https://unpkg.com/react-scan/dist/auto.global.js"
-          strategy="afterInteractive"
         />
         </head>
       <body cz-shortcut-listen="true">

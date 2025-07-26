@@ -23,7 +23,6 @@ import {
 import { langFullNames } from '../../constants/Flags';
 import { useManga } from '../../providers/MangaContext';
 import ChapterListSkeleton from '../Skeletons/MangaChapters/ChapterListSkeleton';
-import { useTheme } from '@/app/providers/ThemeContext';
 
 const StableFlag = lazy(() => import('../StableFlag'));
 
@@ -38,9 +37,10 @@ const MemoizedStableFlag = React.memo(({ code, className }) => (
   </Suspense>
 ));
 
-const ChapterListWithFilters = ({ chapters, manga, handleChapterClick }) => {
+const ChapterListWithFilters = ({ chapters, manga, handleChapterClick,isDark=true }) => {
   const { getAllFromReadHistory } = useManga();
   // States
+  console.log(isDark)
   const [readingHistory, setReadingHistory] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortOrder, setSortOrder] = useState('descending');
@@ -49,9 +49,6 @@ const ChapterListWithFilters = ({ chapters, manga, handleChapterClick }) => {
   const [showFilters, setShowFilters] = useState(false);
   const [expandedVolumes, setExpandedVolumes] = useState({});
   const [expandedChapters, setExpandedChapters] = useState({});
-
-  const { theme } = useTheme();
-  const isDark = theme === "dark";
 
   // Theme classes
   const themeClasses = {

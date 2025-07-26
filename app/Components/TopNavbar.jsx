@@ -37,16 +37,7 @@ const TopNavbar = () => {
   }, [pathname])
   const isDark = isMounted ? theme === "dark" : true;
 
-  const headerClasses = `
-    fixed top-0 w-full z-[9999] 
-    bg-gradient-to-b 
-     ${isDark ? "from-purple-900/10 to-gray-950/30 bg-opacity-80 border-b-purple-400/20 border-b-[1px]" : "from-purple-200/10 to-gray-200/30 bg-opacity-80 border-b-purple-300/40 border-b-[1px]"}
-    backdrop-blur-sm 
-    flex items-center justify-between 
-    h-16 sm:h-20 
-    px-4 sm:px-20
-  `;
-  const navLinkBaseClasses = "hover:text-purple-500 transition-colors duration-200";
+  const navLinkBaseClasses = "hover:text-purple-500 transition-colors duration-0";
   const navLinkActiveClasses = isDark ? "font-bold text-white" : "font-bold text-purple-700";
 
   const mobileMenuBg = isDark ? "bg-gray-950/90" : "bg-gray-100/90";
@@ -61,7 +52,9 @@ const TopNavbar = () => {
   return (
     <>
       {pathname !== "/" && (
-        <header className={headerClasses}>
+        <header className={`fixed top-0 left-0 right-0 z-[9999] w-full bg-gradient-to-b  transition-colors duration-0 ${isDark ? "from-purple-900/10 to-gray-950/30 bg-opacity-80 border-b-purple-400/20 border-b-[1px]" : "from-purple-200/10 to-gray-200/30 bg-opacity-80 border-b-purple-300/40 border-b-[1px]"} backdrop-blur-sm 
+    flex items-center justify-between h-16 sm:h-20 px-4 sm:px-20
+  `}>
           {/* Left Section - Logo and Navigation */}
           <div className="flex items-center">
             <a href="/" className="flex items-center mr-4">
@@ -76,7 +69,7 @@ const TopNavbar = () => {
             </a>
 
             {/* Navigation Links - Desktop */}
-            <div className={`hidden lg:flex space-x-7 ${isDark ? "text-gray-400" : "text-gray-700"}`}>
+            <div className={`hidden lg:flex space-x-7  transition-colors duration-0 ${isDark ? "text-gray-400" : "text-gray-700"}`}>
               <a
                 href="/manga-list"
                 className={`${currentPath === "/manga-list" ? navLinkActiveClasses : ""} ${navLinkBaseClasses}`}
@@ -105,7 +98,7 @@ const TopNavbar = () => {
 
             {/* Hamburger Menu - Mobile */}
             <button
-              className={isDark ? "lg:hidden text-white" : "lg:hidden text-gray-900"}
+              className={`  transition-colors duration-0 ${isDark ? "lg:hidden text-white" : "lg:hidden text-gray-900"}`}
               onClick={toggleMenu}
               aria-label={isMenuOpen ? "Close menu" : "Open menu"}
             >
@@ -134,7 +127,7 @@ const TopNavbar = () => {
           <div className="hidden lg:flex flex-grow max-w-2xl mx-4">
             <div className="relative w-full">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search className={`w-4 h-4 ${isDark ? "brightness-200 opacity-60" : "text-gray-500"}`} />
+                <Search className={`w-4 h-4  transition-colors duration-0 ${isDark ? "brightness-200 opacity-60" : "text-gray-500"}`} />
               </div>
               <input
                 type="text"
@@ -149,7 +142,7 @@ const TopNavbar = () => {
 
           {/* Mobile Search Toggle */}
           <button
-            className={`${isDark ? "lg:hidden text-white" : "lg:hidden text-gray-900"} mr-2`}
+            className={`${isDark ? "lg:hidden text-white" : "lg:hidden text-gray-900"}  transition-colors duration-0 mr-2`}
             onClick={toggleSearch}
             aria-label={isSearchOpen ? "Close search" : "Open search"}
           >
@@ -163,7 +156,7 @@ const TopNavbar = () => {
             >
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Search className={`w-4 h-4 ${isDark ? "brightness-200 opacity-60" : "text-gray-500"}`} />
+                  <Search className={`w-4 h-4  transition-colors duration-0 ${isDark ? "brightness-200 opacity-60" : "text-gray-500"}`} />
                 </div>
                 <input
                   type="text"

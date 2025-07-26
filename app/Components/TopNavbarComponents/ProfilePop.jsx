@@ -59,15 +59,15 @@ function ProfilePop() {
   ];
 
   // Define color classes based on theme
-  const bgPopup = isDarkMode ? "bg-slate-950/95 border-slate-700/50" : "bg-white/95 border-gray-300";
-  const bgHeader = isDarkMode ? "bg-gradient-to-r from-slate-800/50 to-slate-900/50 border-slate-700/50" : "bg-gradient-to-r from-gray-100 to-gray-200 border-gray-300";
-  const textPrimary = isDarkMode ? "text-slate-200" : "text-gray-900";
-  const textSecondary = isDarkMode ? "text-slate-400" : "text-gray-600";
-  const textMenu = isDarkMode ? "text-slate-300" : "text-gray-800";
-  const textMenuHover = isDarkMode ? "group-hover:text-slate-200" : "group-hover:text-gray-900";
-  const iconMenu = isDarkMode ? "text-slate-400 group-hover:text-slate-300" : "text-gray-500 group-hover:text-gray-700";
-  const hoverBg = isDarkMode ? "hover:bg-slate-800/50" : "hover:bg-gray-200";
-  const borderTop = isDarkMode ? "border-t border-slate-700/50" : "border-t border-gray-300";
+  const bgPopup = ` transition-colors duration-0 ease-in-out ${isDarkMode ? "bg-slate-950/95 border-slate-700/50" : "bg-white/95 border-gray-300"}`;
+  const bgHeader = ` transition-colors duration-0 ease-in-out ${isDarkMode ? "bg-gradient-to-r from-slate-800/50 to-slate-900/50 border-slate-700/50" : "bg-gradient-to-r from-gray-100 to-gray-200 border-gray-300"}`;
+  const textPrimary = ` transition-colors duration-0 ease-in-out ${isDarkMode ? "text-slate-200" : "text-gray-900"}`;
+  const textSecondary = ` transition-colors duration-0 ease-in-out ${isDarkMode ? "text-slate-400" : "text-gray-600"}`;
+  const textMenu = ` transition-colors duration-0 ease-in-out ${isDarkMode ? "text-slate-300" : "text-gray-800"}`;
+  const textMenuHover = ` transition-colors duration-0 ease-in-out ${isDarkMode ? "group-hover:text-slate-200" : "group-hover:text-gray-900"}`;
+  const iconMenu = ` transition-colors duration-0 ease-in-out ${isDarkMode ? "text-slate-400 group-hover:text-slate-300" : "text-gray-500 group-hover:text-gray-700"}`;
+  const hoverBg = ` transition-colors duration-0 ease-in-out ${isDarkMode ? "hover:bg-slate-800/50" : "hover:bg-gray-200"}`;
+  const borderTop = ` transition-colors duration-0 ease-in-out ${isDarkMode ? "border-t border-slate-700/50" : "border-t border-gray-300"}`;
 
   return (
     <div className="relative inline-block">
@@ -75,12 +75,12 @@ function ProfilePop() {
       <button
         ref={buttonRef}
         onClick={togglePopup}
-        className={`flex items-center border justify-center p-2.5 rounded-full duration-200 shadow-lg hover:shadow-xl backdrop-blur-3xl ${isDarkMode ? "border-white/20 bg-gray-800/40" : "border-gray-300 bg-gray-100/40"
+        className={`flex items-center border justify-center p-2.5 rounded-full duration-0 shadow-lg hover:shadow-xl backdrop-blur-3xl  transition-colors  ${isDarkMode ? "border-white/20 bg-gray-800/40" : "border-gray-300 bg-gray-100/40"
           }`}
         aria-haspopup="true"
         aria-expanded={isOpen}
       >
-        <User size={28} className={isDarkMode ? "text-transparent fill-slate-300" : "text-gray-700"} />
+        <User size={28} className={` transition-colors duration-0 ease-in-out ${isDarkMode ? "text-transparent fill-slate-300" : "text-gray-700"}`} />
       </button>
 
       {/* Popup Menu */}
@@ -95,10 +95,10 @@ function ProfilePop() {
           <div className={`px-4 py-4 border-b rounded-t-xl ${borderTop} ${bgHeader}`}>
             <div className="flex items-center space-x-3">
               <div
-                className={`w-12 h-12 rounded-full flex items-center justify-center border ${isDarkMode ? "bg-white/5 border-white/20" : "bg-gray-200 border-gray-300"
+                className={`w-12 h-12 rounded-full flex items-center justify-center border   transition-colors duration-0 ease-in-out ${isDarkMode ? "bg-white/5 border-white/20" : "bg-gray-200 border-gray-300"
                   }`}
               >
-                <User size={24} className={isDarkMode ? "text-white" : "text-gray-900"} />
+                <User size={24} className={` transition-colors duration-0 ease-in-out ${isDarkMode ? "text-white" : "text-gray-900"}`} />
               </div>
               <div>
                 <h3 className={`font-semibold ${textPrimary}`}>Manga Reader</h3>
@@ -144,25 +144,25 @@ function ProfilePop() {
             <div className={`${borderTop} mt-2 pt-2`}>
               <button
                 onClick={handleToggleTheme}
-                className={`w-full px-4 py-3 flex items-center justify-between transition-colors duration-150 group ${hoverBg}`}
+                className={`w-full px-4 py-3 flex items-center justify-between transition-colors duration-150 group`}
                 role="menuitem"
               >
                 <div className="flex items-center space-x-3">
                   {isDarkMode ? (
-                    <Moon size={18} className={`${iconMenu} transition-colors`} />
+                    <Moon size={18} className={`${iconMenu} duration-0 transition-colors`} />
                   ) : (
-                    <Sun size={18} className={`${iconMenu} transition-colors`} />
+                    <Sun size={18} className={`${iconMenu} duration-0 transition-colors`} />
                   )}
                   <span className={`${textMenu} ${textMenuHover} transition-colors`}>
                     {isDarkMode ? "Dark Mode" : "Light Mode"}
                   </span>
                 </div>
                 <div
-                  className={`w-12 h-6 rounded-full transition-colors duration-200 ${isDarkMode ? "bg-blue-500" : "bg-gray-600"
+                  className={`w-12 h-6 rounded-full transition-colors duration-0 ${isDarkMode ? "bg-blue-500" : "bg-gray-600"
                     } relative`}
                 >
                   <div
-                    className={`w-5 h-5 bg-white rounded-full absolute top-0.5 transition-transform duration-200 ${isDarkMode ? "translate-x-6" : "translate-x-0.5"
+                    className={`w-5 h-5 bg-white rounded-full absolute top-0.5 transition- duration-0 ${isDarkMode ? "translate-x-6" : "translate-x-0.5"
                       }`}
                   />
                 </div>

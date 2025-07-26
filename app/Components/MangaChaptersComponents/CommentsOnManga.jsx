@@ -18,9 +18,8 @@ import {
   Star,
   CircleFadingArrowUp,
 } from "lucide-react";
-import { useTheme } from "@/app/providers/ThemeContext";
 
-const CommentsOnManga = ({ manga }) => {
+const CommentsOnManga = ({ manga,isDark=true }) => {
   const CACHE_KEY = `comments_on_manga_${manga?.id || "unknown"}`;
   const LAST_FETCH_TIMESTAMP_KEY = `comments_on_manga_${manga?.id || "unknown"}_last_fetch`;
   const CACHE_DURATION_MS = 15 * 60 * 1000; // 15 minutes
@@ -37,8 +36,6 @@ const CommentsOnManga = ({ manga }) => {
   const [loadingMore, setLoadingMore] = useState(false);
   const [expandedTexts, setExpandedTexts] = useState({});
   const [expandedSpoilers, setExpandedSpoilers] = useState({});
-  const { theme } = useTheme();
-  const isDark = theme === "dark";
 
   useEffect(() => {
     if (repliesCount > 0) {
