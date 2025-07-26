@@ -92,6 +92,14 @@ Feast your eyes on the stunning UI, two previews per row.
 | -------------- | -------------- |
 | ![Manga Chapter](./livedemoimages/l6.png) | ![Manga Chapter](./livedemoimages/l7.png) |
 
+| 📺 Read Chapter |📺 Read Chapter |
+| -------------- | -------------- |
+| ![Read Chapter](./livedemoimages/l8.png) | ![Read Chapter](./livedemoimages/l9.png) |
+
+|  📺 Read Chapter |📺 Read Chapter| 
+| ------------- | ------------- |
+| ![Read Chapter](./livedemoimages/l10.png) | ![Read Chapter](./livedemoimages/l11.png) |
+
 ---
 
 ## ✨ **Core Features**
