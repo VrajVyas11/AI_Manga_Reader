@@ -103,7 +103,7 @@ const cleanManga = (manga) => {
   }
 };
 
-const SearchMangaCardWith2ViewMode = ({ manga, viewMode }) => {
+const SearchMangaCardWith2ViewMode = ({ manga, viewMode,isDark=true }) => {
   if (!manga.id) return null
   const router = useRouter();
   const { setSelectedManga } = useManga();
@@ -132,12 +132,12 @@ const SearchMangaCardWith2ViewMode = ({ manga, viewMode }) => {
 
   return (
     viewMode === "grid" ? (
-      <Suspense fallback={<SearchMangaCardSkeleton />}>
-        <SearchMangaCard {...cardProps} key={mangaId} />
+      <Suspense fallback={<SearchMangaCardSkeleton isDark={isDark} />}>
+        <SearchMangaCard {...cardProps} key={mangaId} isDark={isDark} />
       </Suspense>
     ) : (
-      <Suspense fallback={<SearchMangaListSkeleton />}>
-      <SearchMangaList {...cardProps} key={mangaId} />
+      <Suspense fallback={<SearchMangaListSkeleton isDark={isDark} />}>
+      <SearchMangaList {...cardProps} key={mangaId} isDark={isDark} />
       </Suspense>
     )
   )

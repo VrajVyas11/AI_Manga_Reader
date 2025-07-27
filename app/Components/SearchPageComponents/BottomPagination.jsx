@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-const BottomPagination = ({ currentPage, totalPages, onPageChange }) => {
+const BottomPagination = ({ currentPage, totalPages, onPageChange,isDark=true, }) => {
   const getVisiblePages = useCallback(() => {
     const delta = 2;
     const range = [];
@@ -33,14 +33,19 @@ const BottomPagination = ({ currentPage, totalPages, onPageChange }) => {
   const visiblePages = getVisiblePages();
 
   return (
-    <nav className="flex items-center justify-center space-x-1 mt-8 md:gap-3" aria-label="Pagination">
+    <nav className="flex items-center justify-center space-x-1 mt-8 gap-3" aria-label="Pagination">
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
-        className={`flex items-center  justify-center w-10 h-10 md:w-14 md:h-14 rounded-md border transition-colors ${currentPage === 1
-            ? 'border-gray-800 text-gray-600 cursor-not-allowed'
-            : 'border-gray-700 text-gray-300 hover:border-gray-600 hover:text-white hover:bg-gray-800'
-          }`}
+        className={`flex items-center justify-center w-14 h-14 rounded-md border transition-colors ${
+          isDark
+            ? currentPage === 1
+              ? 'border-gray-800 text-gray-600 cursor-not-allowed'
+              : 'border-gray-700 text-gray-300 hover:border-purple-400/40 hover:text-white hover:bg-gray-800/50'
+            : currentPage === 1
+              ? 'border-gray-300/50 text-gray-500 cursor-not-allowed'
+              : 'border-gray-300/50 text-gray-600 hover:border-purple-600/40 hover:text-gray-900 hover:bg-gray-200/50'
+        }`}
         aria-label="Previous page"
       >
         <ChevronLeft size={16} />
@@ -51,7 +56,7 @@ const BottomPagination = ({ currentPage, totalPages, onPageChange }) => {
           return (
             <span
               key={page}
-              className="flex items-center justify-center w-10 h-10 md:w-14 md:h-14 text-gray-500"
+              className={`flex items-center justify-center w-14 h-14 ${isDark ? 'text-gray-500' : 'text-gray-600'}`}
             >
               ⋯
             </span>
@@ -62,10 +67,15 @@ const BottomPagination = ({ currentPage, totalPages, onPageChange }) => {
           <button
             key={page}
             onClick={() => onPageChange(page)}
-            className={`flex items-center justify-center w-10 h-10 md:w-14 md:h-14 rounded-md border text-sm font-medium transition-colors ${page === currentPage
-                ? 'border-white bg-white text-black'
-                : 'border-gray-700 text-gray-300 hover:border-gray-600 hover:text-white hover:bg-gray-800'
-              }`}
+            className={`flex items-center justify-center w-14 h-14 rounded-md border text-sm font-medium transition-colors ${
+              page === currentPage
+                ? isDark
+                  ? 'border-white bg-white text-black'
+                  : 'border-purple-600 bg-gray-900 text-white'
+                : isDark
+                  ? 'border-gray-700 text-gray-300 hover:border-purple-400/40 hover:text-white hover:bg-gray-800/50'
+                  : 'border-gray-300/50 text-gray-600 hover:border-purple-600/40 hover:text-gray-900 hover:bg-gray-200/50'
+            }`}
             aria-label={`Page ${page}`}
             aria-current={page === currentPage ? 'page' : undefined}
           >
@@ -77,10 +87,15 @@ const BottomPagination = ({ currentPage, totalPages, onPageChange }) => {
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
-        className={`flex items-center justify-center w-10 h-10 md:w-14 md:h-14 rounded-md border transition-colors ${currentPage === totalPages
-            ? 'border-gray-800 text-gray-600 cursor-not-allowed'
-            : 'border-gray-700 text-gray-300 hover:border-gray-600 hover:text-white hover:bg-gray-800'
-          }`}
+        className={`flex items-center justify-center w-14 h-14 rounded-md border transition-colors ${
+          isDark
+            ? currentPage === totalPages
+              ? 'border-gray-800 text-gray-600 cursor-not-allowed'
+              : 'border-gray-700 text-gray-300 hover:border-purple-400/40 hover:text-white hover:bg-gray-800/50'
+            : currentPage === totalPages
+              ? 'border-gray-300/50 text-gray-500 cursor-not-allowed'
+              : 'border-gray-300/50 text-gray-600 hover:border-purple-600/40 hover:text-gray-900 hover:bg-gray-200/50'
+        }`}
         aria-label="Next page"
       >
         <ChevronRight size={16} />

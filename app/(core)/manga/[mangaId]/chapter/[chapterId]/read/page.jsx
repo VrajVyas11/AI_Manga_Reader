@@ -232,7 +232,7 @@ export default function ReadChapter() {
         </div>
       </div>
     ) : (
-      <ReadChapterSkeleton />
+      <ReadChapterSkeleton isDark={isDark} />
     )
   );
 }

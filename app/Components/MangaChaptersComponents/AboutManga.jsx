@@ -26,7 +26,7 @@ const AboutManga = ({ manga, handleChapterClick, chapters, isDark = true }) => {
     setIsClient(true);
   }, []);
 
-  if (!manga && isClient) return <AboutMangaSkeleton />
+  if (!manga && isClient) return <AboutMangaSkeleton isDark={isDark}/>
   const [showFullDescription, setShowFullDescription] = useState(false);
   const { addToBookMarks, getAllBookMarks } = useManga()
 

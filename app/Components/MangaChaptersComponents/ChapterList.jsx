@@ -267,7 +267,7 @@ const ChapterListWithFilters = ({ chapters, manga, handleChapterClick,isDark=tru
     });
   }, [uniqueVolumes, chaptersByVolume]);
 
-  if (chapters.length <= 0 || !manga) return <ChapterListSkeleton />;
+  if (chapters.length <= 0 || !manga) return <ChapterListSkeleton isDark={isDark} />;
   
   return (
     <div className={`flex flex-col w-full gap-2 sm:gap-4 lg:flex-row ${themeClasses.primaryText} font-sans transition-colors duration-0`}>

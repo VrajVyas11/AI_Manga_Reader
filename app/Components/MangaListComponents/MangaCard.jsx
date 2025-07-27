@@ -17,7 +17,7 @@ const MangaCard = React.memo(() => {
     const isDark = theme === "dark";
     const { data, isLoading, isError, error } = useMangaFetch('latest', 1);
     const [currentPage, setCurrentPage] = useState(1);
-    const ITEMS_PER_PAGE = 12;
+    const ITEMS_PER_PAGE = 20;
     const processedLatestMangas = data?.data || [];
     const totalPages = Math.ceil(processedLatestMangas.length / ITEMS_PER_PAGE);
     const router = useRouter();
@@ -46,7 +46,7 @@ const MangaCard = React.memo(() => {
     }, [totalPages]);
 
     if (isLoading) {
-        return (<MangaCardSkeleton />);
+        return (<MangaCardSkeleton  isDark={isDark}/>);
     }
 
     if (isError) {
@@ -54,7 +54,7 @@ const MangaCard = React.memo(() => {
     }
 
     return (
-        <Suspense fallback={<MangaCardSkeleton />}>
+        <Suspense fallback={<MangaCardSkeleton  isDark={isDark}/>}>
             <div className="w-full flex flex-col">
                 <div className="flex mx-2 sm:mx-5 xl:mx-16 mb-7 sm:mb-8 items-center gap-3">
                     <div className={`${isDark ? "bg-white/10" : "bg-gray-200/50"} p-3 rounded-lg`}>
@@ -112,9 +112,9 @@ const Card = ({ manga, stableHandleMangaClicked, isDark }) => {
         <div
             ref={ref}
             onClick={() => stableHandleMangaClicked(manga)}
-            className={`manga-card transform transition-all duration-500 cursor-pointer w-full flex justify-center items-start ${inView
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-10"
+            className={`manga-card transform transition-opacity duration-500 cursor-pointer w-full flex justify-center items-start ${inView
+                ? "opacity-100 translate-y-0 transition-transform" 
+                : "opacity-0 translate-y-10 transition-transform"
                 }`}
         >
             <div className={`w-full sm:w-[250px] overflow-hidden min-h-[290px] sm:min-h-[400px] rounded-lg ${isDark ? "bg-[#0c0221]/50 shadow-slate-600" : "bg-gray-100/50 shadow-gray-400"} p-[5px] shadow-[0_0_4px_rgba(0,0,0,0.5)] transition-transform duration-300 ease-out hover:scale-[102%] will-change-transform`}>

@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import StableFlag from '../../Components/StableFlag';
 import ChaptersQuickSelect from './SideBarModules/ChaptersQuickSelect';
+import { useRouter } from 'next/navigation';
 
 const SideBar = ({
   isCollapsed,
@@ -52,8 +53,8 @@ const SideBar = ({
     chapterInfo.translatedLanguage
   );
   // console.log(allChapters);
-
-  const { addToFavorite, getAllFavorites } = useManga();
+const router = useRouter();
+  const { addToFavorite, getAllFavorites,setSelectedManga } = useManga();
   const dropdownRef = useRef(null);
   const languageDropdownRef = useRef(null);
   const settingsRef = useRef(null);
@@ -219,6 +220,11 @@ const SideBar = ({
     alt: mangaInfo.title,
     className: 'object-cover w-full h-full'
   }), [mangaInfo.coverImageUrl, mangaInfo.title]);
+
+  const handleMangaDetailsClicked =  useCallback(() => {
+        setSelectedManga(mangaInfo);
+        router.push(`/manga/${mangaInfo.id}/chapters`);
+    }, [router, setSelectedManga,mangaInfo]);
 
   if (isCollapsed) {
     return (
@@ -513,7 +519,9 @@ return (
         </button>
 
         {/* Manga Details */}
-        <button className={`
+        <button 
+        onClick={handleMangaDetailsClicked}
+        className={`
           w-full flex items-center gap-2 p-2 rounded-lg transition-all duration-0 md:p-3 md:text-sm
           ${isDark
             ? 'text-slate-300 hover:text-white hover:bg-slate-800/60'

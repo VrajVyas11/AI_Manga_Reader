@@ -42,7 +42,7 @@ function AsideComponent() {
   };
 
   if (ratingLoading || favouriteLoading || latestArrivalsLoading) {
-    return <AsideComponentSkeleton />;
+    return <AsideComponentSkeleton isDark={isDark} />;
   }
 
   if (ratingError || favouriteError || latestArrivalsError) {
@@ -99,7 +99,7 @@ function AsideComponent() {
   const TitleIcon = statConfig[selectedCategory].titleIcon;
 
   return (
-    <Suspense fallback={<AsideComponentSkeleton />}>
+    <Suspense fallback={<AsideComponentSkeleton isDark={isDark} />}>
       <section
         suppressHydrationWarning
         aria-label="Manga list"

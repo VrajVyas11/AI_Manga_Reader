@@ -202,7 +202,7 @@ const SliderComponent = React.memo(() => {
 
   // Early returns for loading and error states
   if (isLoading) {
-    return <SliderComponentSkeleton />;
+    return <SliderComponentSkeleton isDark={isDark} />;
   }
 
   if (isError) {
@@ -223,7 +223,7 @@ const SliderComponent = React.memo(() => {
   const btnBorderPurple = isDark ? 'border-purple-600/50' : 'border-purple-400/50';
 
   return (
-    <Suspense fallback={<SliderComponentSkeleton />}>
+    <Suspense fallback={<SliderComponentSkeleton isDark={isDark} />}>
       <div
         ref={showcaseRef}
         className={`relative w-full ${isDark?"shadow-[5px_5px_50px_rgba(0,0,0,1)] shadow-black":""}  min-h-[53vh] sm:h-[60vh] border-b-[16px] ${borderBottom} overflow-hidden ${bgMain}`}

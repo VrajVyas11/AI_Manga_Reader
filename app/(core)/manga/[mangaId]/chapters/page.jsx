@@ -66,8 +66,8 @@ export default function MangaChapters() {
   if (!isClient || !manga) {
     return (
       <div className="w-full min-h-screen -mt-7 md:-mt-20 overflow-hidden bg-transparent flex flex-col gap-12 text-white">
-        <AboutMangaSkeleton />
-        <TabsAndSectionsSkeleton />
+        <AboutMangaSkeleton isDark={isDark} />
+        <TabsAndSectionsSkeleton  isDark={isDark}/>
       </div>
     );
   }
@@ -76,7 +76,7 @@ export default function MangaChapters() {
     <div className="w-full relative z-20 min-h-screen -mt-7 md:-mt-20 overflow-hidden bg-transparent flex flex-col gap-12 text-white">
       <AboutManga isDark={isDark} chapters={chapters} manga={manga} handleChapterClick={handleChapterClick} />
       {chaptersLoading ? (
-        <TabsAndSectionsSkeleton />
+        <TabsAndSectionsSkeleton isDark={isDark} />
       ) : chapters.length === 0 ? (
         <div className="text-center flex justify-center items-center font-bold text-red-500 text-lg bg-[#070920] backdrop-blur-md w-full h-[88vh]">
           No chapters found for this manga.

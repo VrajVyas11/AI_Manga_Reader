@@ -32,6 +32,7 @@ function MangaReadHistory() {
 
     const handleChapterClicked = useCallback(
         (manga, chapter, allChaptersList) => {
+            setSelectedManga(manga)
             setChapterListForManga(manga.id, allChaptersList);
             addToReadHistory(manga, chapter, allChaptersList);
             router.push(`/manga/${manga.id}/chapter/${chapter.id}/read`);
@@ -62,7 +63,7 @@ function MangaReadHistory() {
     };
 
 
-    if(!mounted) return <MangaReadHistorySkeleton/>
+    if(!mounted) return <MangaReadHistorySkeleton isDark={isDark}/>
     return (
         <div className="w-[100% -12px] mx-2 md:ml-2 md:px-6 mb-6">
             <div className="flex mb-7 items-center justify-between">

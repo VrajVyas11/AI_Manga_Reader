@@ -4,31 +4,31 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 const useInView = (threshold = 0.1) => {
   const ref = useRef();
   const [inView, setInView] = useState(false);
-
-  // Reset inView state when ref changes (useful for pagination)
-  const resetInView = useCallback(() => {
-    setInView(false);
-  }, []);
-
+  
   useEffect(() => {
-    const currentRef = ref.current;
-    if (!currentRef) return;
+    const element = ref.current;
+    if (!element) return;
+
+    // console.log('Observer created for element:', element);
 
     const observer = new IntersectionObserver(
       ([entry]) => {
+        console.log('Intersection change:', {
+          isIntersecting: entry.isIntersecting,
+          intersectionRatio: entry.intersectionRatio,
+          time: Date.now()
+        });
+        
         setInView(entry.isIntersecting);
       },
-      { threshold }
+      { threshold, rootMargin: '50px 0px' }
     );
 
-    observer.observe(currentRef);
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
 
-    return () => {
-      observer.disconnect();
-    };
-  }, [threshold]); // Remove unstable dependencies
-
-  return [ref, inView, resetInView];
+  return [ref, inView];
 };
 
 export default useInView;

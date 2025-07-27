@@ -42,7 +42,7 @@ const getIconMap = (isDark) => ({
 const MemoStableFlag = React.memo(StableFlag);
 
 function TabsAndSections({ manga, chapters, handleChapterClick, isDark }) {
-  if (chapters.length == 0 || !manga) return <TabsAndSectionsSkeleton />
+  if (chapters.length == 0 || !manga) return <TabsAndSectionsSkeleton isDark={isDark} />
   const [sortOrder, setSortOrder] = useState('descending');
   const [activeTab, setActiveTab] = useState(0);
 

@@ -252,7 +252,7 @@ const LatestComments = () => {
     }
     if (loading && comments.length == 0) {
         return (
-           <LatestActivityCommentsSkeleton/>
+           <LatestActivityCommentsSkeleton isDark={isDark}/>
         );
     }
 
