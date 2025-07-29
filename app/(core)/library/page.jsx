@@ -9,7 +9,9 @@ import {
   Filter,
   BookOpenText,
   LibraryBig,
+  Star, Play, Plus, Clock, Eye
 } from 'lucide-react';
+import Image from 'next/image';
 
 // Original imports
 import { FavoriteChaptersCard as OriginalFavoriteChaptersCard, MobileFavoriteChaptersCard as OriginalMobileFavoriteChaptersCard } from '../../Components/LibraryComponents/FavoriteChaptersCard';
@@ -33,7 +35,7 @@ const SelectedMangaCard = React.memo(OriginalSelectedMangaCard);
 const MobileSelectedManga = React.memo(OriginalMobileSelectedManga);
 const SearchHistory = React.memo(OriginalSearchHistory);
 const LibraryLoading = React.memo(OriginalLibraryLoading);
-
+import Temp from "../../Components/LibraryComponents/Temp"
 
 const Library = () => {
   const router = useRouter();
@@ -127,12 +129,12 @@ const Library = () => {
 
   if (isLoading) {
     return (
-     <LibraryLoading/>
+      <LibraryLoading />
     );
   }
 
   return (
-    <div className="min-h-[89vh] pt-20 md:pt-0 md:mt-0">
+    <div className="min-h-[89vh] relative z-50 pt-20 md:pt-0 md:mt-0">
       {/* Mobile Filter Panel */}
       <MobileFilterPanel
         filters={filters}
@@ -236,7 +238,7 @@ const Library = () => {
             </button>
           </div>
 
-          {/* Mobile Filter Button */}
+          {/* Mobile Filter button */}
           <div className="lg:hidden">
             <button
               onClick={() => setIsMobileFilterOpen(true)}
@@ -270,14 +272,14 @@ const Library = () => {
               {activeTab === 'favorites' && (
                 <MobileFavoriteChaptersCard favorites={favorites} handleMangaClick={handleMangaClick} />
               )}
-              
+
               {activeTab === 'bookmarks' && (
-                  <MobileBookMarkedSection bookmarks={bookmarks} handleMangaClick={handleMangaClick} />
+                <MobileBookMarkedSection bookmarks={bookmarks} handleMangaClick={handleMangaClick} />
               )}
             </div>
 
             {/* Desktop Layout */}
-            <ReadingHistory readHistory={readHistory} filteredHistory={filteredHistory} handleMangaClick={handleMangaClick} />
+            <ReadingHistory readHistory={readHistory} filteredHistory={filteredHistory} onMangaClick={handleMangaClick} />
 
             {/* Desktop Bottom Section */}
             <div className="hidden lg:grid grid-cols-2 border gap-2 border-white/5 px-4 rounded-xl">
@@ -291,7 +293,7 @@ const Library = () => {
           </div>
 
           {/* Right Sidebar - Bookmarks (3 per row), Favorites, Search History */}
-          <div className="w-fit max-w-sm bg-black/30 backdrop-blur-xl flex flex-col gap-4 overflow-hidden rounded-xl p-4 border-[1px] border-white/10">
+          <div className="w-fit min-w-[400px] bg-black/30 backdrop-blur-xl flex flex-col gap-4 overflow-hidden rounded-xl p-4 border-[1px] border-white/10">
             <BookMarkedSection bookmarks={bookmarks} />
             <div className='hidden md:block'>
               <FavoriteChaptersCard

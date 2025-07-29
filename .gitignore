@@ -27,7 +27,7 @@ AIAudio/
 CoverArts.jsx
 BottomSettingsModules
 InfoSideBarModules
-
+app/Components/LibraryComponents/Temp.jsx
 # testing
 /coverage
 apiVersion.ts
