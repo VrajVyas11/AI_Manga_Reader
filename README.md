@@ -108,6 +108,10 @@ Feast your eyes on the stunning UI, two previews per row.
 | ------------- | 
 | ![Search Page](./livedemoimages/l14.png) |
 
+| 🌐 Not Found Page |
+| ------------- | 
+| ![Not Found Page ](./livedemoimages/l16.png) |
+
 ---
 
 ## ✨ **Core Features**
