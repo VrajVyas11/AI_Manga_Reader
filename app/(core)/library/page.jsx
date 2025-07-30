@@ -1,57 +1,164 @@
-'use client';
-
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
-import { useManga } from '../../providers/MangaContext';
+"use client";
 import {
   Bookmark,
+  Clock,
+  Flame,
   Heart,
+  History,
+  Search,
+  Star,
   Filter,
-  BookOpenText,
-  LibraryBig,
-  Star, Play, Plus, Clock, Eye
-} from 'lucide-react';
-import Image from 'next/image';
+  ChevronDown,
+  ChevronRight,
+  Play,
+  X,
+  Sliders,
+  ArrowRight,
+  Library
+} from "lucide-react";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { useRouter } from "next/navigation";
+import { useManga } from "../../providers/MangaContext";
+import Image from "next/image";
+import { FilterPanel, MobileFilterPanel as OriginalMobileFilterPanel } from '../../Components/LibraryComponents/FilterPanel';
+// ========== COMPONENTS ========== //
+const FloatingQuickAccess = () => {
+  return (
+    <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3">
+      <button className="p-3 bg-purple-600 hover:bg-purple-700 rounded-full shadow-lg transition-all hover:scale-110">
+        <Search size={20} />
+      </button>
+      <button className="p-3 bg-gray-800 border border-gray-700 hover:bg-gray-700 rounded-full shadow-lg transition-all hover:scale-110">
+        <Filter size={20} />
+      </button>
+      <button className="p-3 bg-gray-800 border border-gray-700 hover:bg-gray-700 rounded-full shadow-lg transition-all hover:scale-110">
+        <Bookmark size={20} />
+      </button>
+    </div>
+  );
+};
+const calculateProgress = (item) => {
+  if (!item.allChaptersList || !item.chapters || item.allChaptersList.length === 0) {
+    return { percentage: 0, current: 0, total: 0 };
+  }
 
-// Original imports
-import { FavoriteChaptersCard as OriginalFavoriteChaptersCard, MobileFavoriteChaptersCard as OriginalMobileFavoriteChaptersCard } from '../../Components/LibraryComponents/FavoriteChaptersCard';
-import { MobileReadingHistory as OriginalMobileReadingHistory, ReadingHistory as OriginalReadingHistory } from '../../Components/LibraryComponents/ReadingHistory';
-import { FilterPanel as OriginalFilterPanel, MobileFilterPanel as OriginalMobileFilterPanel } from '../../Components/LibraryComponents/FilterPanel';
-import { BookMarkedSection as OriginalBookMarkedSection, MobileBookMarkedSection as OriginalMobileBookMarkedSection } from '../../Components/LibraryComponents/BookMarkedSection';
-import { SelectedMangaCard as OriginalSelectedMangaCard, MobileSelectedManga as OriginalMobileSelectedManga } from '../../Components/LibraryComponents/SelectedMangaCard';
-import OriginalSearchHistory from '../../Components/LibraryComponents/SearchHistory';
-import OriginalLibraryLoading from '../../Components/LibraryComponents/LibraryLoading';
+  const totalChapters = item.allChaptersList.length;
+  const percentage = Math.min((item.chapters.length / totalChapters) * 100, 100);
 
-// Memoized imports in Library file
-const FavoriteChaptersCard = React.memo(OriginalFavoriteChaptersCard);
-const MobileFavoriteChaptersCard = React.memo(OriginalMobileFavoriteChaptersCard);
-const ReadingHistory = React.memo(OriginalReadingHistory);
-const MobileReadingHistory = React.memo(OriginalMobileReadingHistory);
-const FilterPanel = React.memo(OriginalFilterPanel);
-const MobileFilterPanel = React.memo(OriginalMobileFilterPanel);
-const BookMarkedSection = React.memo(OriginalBookMarkedSection);
-const MobileBookMarkedSection = React.memo(OriginalMobileBookMarkedSection);
-const SelectedMangaCard = React.memo(OriginalSelectedMangaCard);
-const MobileSelectedManga = React.memo(OriginalMobileSelectedManga);
-const SearchHistory = React.memo(OriginalSearchHistory);
-const LibraryLoading = React.memo(OriginalLibraryLoading);
-import Temp from "../../Components/LibraryComponents/Temp"
+  return {
+    percentage: Math.round(percentage),
+    current: item.chapters.length,
+    total: totalChapters,
+  };
+};
 
-const Library = () => {
-  const router = useRouter();
-  const { getSelectedManga, getAllFavorites, getAllBookMarks, getAllFromReadHistory } = useManga();
+const MangaCard = ({
+  manga,
+  isActive = false,
+  chapters,
+  lastChapterRead,
+  lastReadAt,
+  allChaptersList,
+}) => {
+  const progress = calculateProgress({ manga, allChaptersList, chapters });
+
+  return (
+    <div
+      className={`relative group overflow-hidden rounded-3xl shadow-lg transition-all duration-300 ${isActive ? "ring-2 ring-purple-500/50" : "hover:ring-1 hover:ring-gray-600"
+        } bg-transparent`}
+      aria-label={`Manga card for ${manga.title}`}
+    >
+      <div className="relative h-56 overflow-hidden rounded-t-3xl">
+        <img
+          src={manga.coverImageUrl || manga.cover}
+          alt={manga.title}
+          className="w-full h-full object-fill group-hover:scale-105 transition-transform duration-500"
+          loading="lazy"
+          decoding="async"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent rounded-t-3xl" />
+        <div className="absolute bottom-2 left-4 right-4">
+          <div className="flex items-center justify-between gap-3 mt-2 text-gray-300 text-sm select-none">
+            <span className="flex items-center gap-1">
+              <Star size={14} className="text-yellow-400" />
+              {manga?.rating?.rating?.average?.toFixed(2) ??
+                manga.rating?.follows?.toFixed(2) ??
+                "N/A"}
+            </span>
+            {lastReadAt && (
+              <time
+                dateTime={lastReadAt.toISOString()}
+                className="text-xs text-gray-200"
+                title={`Last read on ${lastReadAt.toLocaleDateString()}`}
+              >
+                {lastReadAt.toLocaleDateString()}
+              </time>
+            )}
+          </div>
+          <h3 className="font-semibold text-lg text-white line-clamp-1 drop-shadow-md">
+            {manga.title}
+          </h3>
+          <p className="text-xs text-gray-400 mt-1 line-clamp-1">
+            Ch.{" "}
+            {lastChapterRead
+              ? `${lastChapterRead.chapter} : ${lastChapterRead.title}`
+              : "N/A"}
+          </p>
+
+        </div>
+        <div className="absolute top-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          <button
+            aria-label="Add to favorites"
+            className="p-1.5 bg-gray-800 rounded-full hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500"
+          >
+            <Heart size={16} />
+          </button>
+          <button
+            aria-label="Add to bookmarks"
+            className="p-1.5 bg-gray-800 rounded-full hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <Bookmark size={16} />
+          </button>
+        </div>
+      </div>
+
+      {isActive && (
+        <div className="absolute top-3 left-3 bg-purple-600 text-white text-xs px-2 py-0.5 rounded-full flex items-center gap-1 shadow-md select-none">
+          <Play size={14} /> Reading
+        </div>
+      )}
+
+      <div className="p-4 pt-2">
+        <div className="flex items-center justify-between text-xs text-gray-400 mb-1 select-none">
+          <span>
+            Progress:{" "}
+            <span className="font-medium text-white">
+              {progress.current}/{progress.total}
+            </span>{" "}
+            chapters
+          </span>
+          <span className="font-semibold text-white">{progress.percentage}%</span>
+        </div>
+        <div className="w-full bg-gray-700 rounded-full h-2 overflow-hidden">
+          <div
+            className="h-full bg-gradient-to-r from-purple-100 to-purple-200 rounded-full transition-all duration-700 ease-out relative"
+            style={{ width: `${progress.percentage}%` }}
+          >
+            <div className="absolute inset-0 bg-white/20 animate-pulse rounded-full" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ========== MAIN COMPONENT ========== //
+const MangaLibrary = () => {
+  const [activeTab, setActiveTab] = useState("history");
+  const [isFilterOpen, setIsFilterOpen] = useState(true);
+  const { getSelectedManga, getAllFavorites, getAllBookMarks, getAllFromReadHistory } =
+    useManga();
   const [searchHistory, setSearchHistory] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [filters, setFilters] = useState({
-    genre: [],
-    status: 'all',
-    sort: 'recent',
-  });
-
-  // Mobile states
-  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState('history'); // 'history', 'bookmarks', 'favorites'
-
   // console.log(getSelectedManga());
   // console.log(getAllFavorites());
   // console.log(getAllBookMarks());
@@ -72,6 +179,23 @@ const Library = () => {
     }
   }, []);
 
+  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
+  const [filters, setFilters] = useState({
+    genre: [],
+    status: "all",
+    sort: "recent",
+  });
+
+  // Mobile states
+  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+
+  // Your provided data (replace these with your actual data source)
+  const selectedManga = getSelectedManga();
+  const allFavorites = Object.values(getAllFavorites());
+  const allBookmarks = getAllBookMarks();
+  const readingHistory = getAllFromReadHistory();
+
   const handleMangaClick = useCallback(
     (manga) => router.push(`/manga/${manga.id}/chapters`),
     [router]
@@ -80,15 +204,14 @@ const Library = () => {
     (query) => router.push(`/search?query=${encodeURIComponent(query)}`),
     [router]
   );
+  console.log(getSelectedManga());
+  console.log(getAllFavorites());
+  console.log(getAllBookMarks());
+  console.log(getAllFromReadHistory());
+  console.log(searchHistory);
 
-  const selectedManga = getSelectedManga();
-  const favorites = Object.values(getAllFavorites());
-  const bookmarks = getAllBookMarks();
-  const readHistory = getAllFromReadHistory();
-
-  // Filter and sort reading history
   const filteredHistory = useMemo(() => {
-    let filtered = [...readHistory];
+    let filtered = [...readingHistory];
 
     if (filters.genre.length > 0) {
       filtered = filtered.filter((item) =>
@@ -125,189 +248,290 @@ const Library = () => {
     });
 
     return filtered;
-  }, [readHistory, filters]);
-
-  if (isLoading) {
-    return (
-      <LibraryLoading />
-    );
-  }
+  }, [readingHistory, filters]);
 
   return (
-    <div className="min-h-[89vh] relative z-50 pt-20 md:pt-0 md:mt-0">
-      {/* Mobile Filter Panel */}
-      <MobileFilterPanel
-        filters={filters}
-        onFiltersChange={setFilters}
-        isOpen={isMobileFilterOpen}
-        onClose={() => setIsMobileFilterOpen(false)}
-      />
-
-      {/* Header */}
-      <div className="w-full -mt-5 md:mt-0 bg-black/30 border-b border-purple-500/20">
-        <div className="flex items-center justify-between px-4 sm:px-7 py-4 relative overflow-hidden">
-          {/* Left section - Icon and title */}
-          <div className="flex items-center gap-2 sm:gap-4 relative z-10">
-            <div className="relative group">
-              <div className="absolute inset-0 rounded-xl transition-all duration-300"></div>
-              <div className="relative bg-gradient-to-br from-slate-800 to-gray-900 p-2 sm:p-3 rounded-xl border border-purple-400/30 shadow-xl">
-                <LibraryBig className="w-6 h-6 sm:w-8 sm:h-8 text-purple-400 drop-shadow-lg" />
-              </div>
+    <div className="min-h-screen bg-gray-950 text-gray-100 overflow-hidden">
+      {/* Main Content */}
+      <div className="relative z-10 max-w-[95%] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header */}
+        <header className="flex flex-col sm:flex-row justify-between items-center sm:items-end gap-6 mb-10">
+          {/* Left: Logo + Title + Subtitle */}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 max-w-full sm:max-w-[60%] min-w-0">
+            <div className="p-2 bg-white/20  rounded-lg flex-shrink-0">
+              <Library size={46} className="text-yellow-400" />
             </div>
-
-            <div className="space-y-1">
-              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-white via-cyan-100 to-white bg-clip-text text-transparent tracking-tight">
-                Library
-              </h2>
-              <p className="text-xs text-gray-400 font-medium tracking-wide max-w-md hidden sm:block">
-                Reading History • Favourites • Bookmarks & More
+            <div className="min-w-0">
+              <h1 className="text-3xl font-bold bg-white bg-clip-text text-transparent truncate">
+                Manga Library
+              </h1>
+              <p className="text-gray-400 mt-1 truncate">
+                Your personalized manga universe
               </p>
             </div>
           </div>
 
-          {/* Right section - Action buttons */}
-          <div className="flex items-center gap-1 sm:gap-3 relative z-10">
-            {/* Desktop buttons - hidden on mobile */}
-            <div className="flex items-center gap-3">
-              <button className="group relative overflow-hidden flex items-center gap-2 px-2.5 md:px-4 py-2.5  rounded-full bg-gradient-to-r from-indigo-600/20 to-indigo-500/10 border border-indigo-400/30 text-indigo-300 text-sm font-medium hover:from-indigo-500/30 hover:to-indigo-400/20 hover:text-indigo-200 hover:border-indigo-300/50 transition-all duration-300 hover:shadow-lg hover:shadow-indigo-500/25">
-                <div className="absolute inset-0 bg-gradient-to-r from-indigo-400/0 via-indigo-400/10 to-indigo-400/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
-                <BookOpenText className="w-4 h-4 relative z-10" />
-                <span className="relative z-10 hidden md:block">History ({readHistory.length})</span>
-              </button>
-
-              <button className="group relative overflow-hidden flex items-center gap-2 px-2.5 md:px-4 py-2.5 rounded-full bg-gradient-to-r from-rose-600/20 to-rose-500/10 border border-rose-400/30 text-rose-300 text-sm font-medium hover:from-rose-500/30 hover:to-rose-400/20 hover:text-rose-200 hover:border-rose-300/50 transition-all duration-300 hover:shadow-lg hover:shadow-rose-500/25">
-                <div className="absolute inset-0 bg-gradient-to-r from-rose-400/0 via-rose-400/10 to-rose-400/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
-                <Heart className="w-4 h-4 relative z-10" />
-                <span className="relative z-10 hidden md:block">Favourite ({favorites.length})</span>
-              </button>
-
-              <button className="group relative overflow-hidden flex items-center gap-2 px-2.5 md:px-4 py-2.5 rounded-full bg-gradient-to-r from-emerald-600/20 to-emerald-500/10 border border-emerald-400/30 text-emerald-300 text-sm font-medium hover:from-emerald-500/30 hover:to-emerald-400/20 hover:text-emerald-200 hover:border-emerald-300/50 transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/25">
-                <div className="absolute inset-0 bg-gradient-to-r from-emerald-400/0 via-emerald-400/10 to-emerald-400/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
-                <Bookmark className="w-4 h-4 relative z-10" />
-                <span className="relative z-10 hidden md:block">Bookmarks ({bookmarks.length})</span>
-              </button>
-            </div>
-
-            {/* Mobile stats */}
-            <div className="lg:hidden flex items-center ml-2 gap-1 text-xs">
-              <div className="bg-gray-900/50 px-3  py-2.5  rounded-full border border-gray-800">
-                <span className="text-gray-300">{readHistory.length + favorites.length + bookmarks.length}</span>
+          {/* Right: Selected Manga Inline */}
+          {selectedManga && (
+            <button
+              onClick={() => router.push(`/manga/${selectedManga.id}/chapters`)}
+  
+              className="group flex items-center gap-4 bg-gray-900/30 backdrop-blur-sm border border-gray-800/40 rounded-full    p-2 pr-4  shadow-xl max-w-sm w-full sm:w-auto cursor-pointer transition  focus:outline-none focus:ring-2 focus:ring-purple-500"
+              aria-label={`Continue reading ${selectedManga.title}`}
+            >
+              {/* Cover Thumbnail */}
+              <div className="relative w-14 h-14 rounded-full overflow-hidden flex-shrink-0 shadow-md">
+                <img
+                  src={selectedManga.coverImageUrl}
+                  alt={selectedManga.title}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                  decoding="async"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
               </div>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      {/* Main Content */}
-      <div className="max-w-full px-1 sm:px-1 pt-1">
-        {/* Mobile Tabs */}
-        <div className="lg:hidden flex gap-1 mb-3 flex-row items-center w-full">
-          <div className="flex items-center w-full p-1 bg-black/30 rounded-lg border border-gray-800">
-            <button
-              onClick={() => setActiveTab('history')}
-              className={`flex-1 flex items-center justify-center gap-1 px-3 py-3 rounded-md text-[11px] font-medium transition-all ${activeTab === 'history'
-                ? 'bg-white/10 text-gray-100 shadow-md'
-                : 'text-gray-400 hover:text-gray-300'
-                }`}
-            >
-              <BookOpenText className="w-4 h-4" />
-              <span className="inline text-[11px]">History</span>
-              <span className="sm:hidden">({readHistory.length})</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('bookmarks')}
-              className={`flex-1 flex items-center justify-center gap-1 px-3 py-3 rounded-md text-[11px] font-medium transition-all ${activeTab === 'bookmarks'
-                ? 'bg-gray-800 text-gray-100 shadow-md'
-                : 'text-gray-400 hover:text-gray-300'
-                }`}
-            >
-              <Bookmark className="w-4 h-4" />
-              <span className="inline  text-[11px]">Bookmarks</span>
-              <span className="sm:hidden">({bookmarks.length})</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('favorites')}
-              className={`flex-1 flex  items-center justify-center gap-1 px-3 py-3 rounded-md text-[11px] font-medium transition-all ${activeTab === 'favorites'
-                ? 'bg-gray-800 text-gray-100 shadow-md'
-                : 'text-gray-400 hover:text-gray-300'
-                }`}
-            >
-              <Heart className="w-4 h-4" />
-              <span className="inline text-[11px]">Favorites</span>
-              <span className="sm:hidden ">({favorites.length})</span>
-            </button>
-          </div>
+              {/* Info */}
+              <div className="flex flex-col min-w-0">
+                <div className=" text-left text-xs text-gray-400">Currently Reading</div>
+                <h3 className="text-lg font-semibold text-white truncate">
+                  {selectedManga.title}
+                </h3>
+              </div>
 
-          {/* Mobile Filter button */}
-          <div className="lg:hidden">
-            <button
-              onClick={() => setIsMobileFilterOpen(true)}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-black/30 hover:bg-gray-800/50 border border-gray-800 rounded-lg text-gray-300 transition-all"
-            >
-              <Filter className="w-5 h-5" />
-              {(filters.genre.length > 0 || filters.status !== 'all' || filters.sort !== 'recent') && (
-                <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-              )}
+              {/* Reading Badge */}
+              <div className="hidden sm:flex items-center gap-1 bg-white/90 hover:bg-white backdrop-blur-md  text-xs p-3 rounded-full ml-auto select-none">
+                <Play size={20} className="text-black fill-black" />
+
+              </div>
             </button>
-          </div>
-        </div>
-
-
-        {selectedManga && (
-          <MobileSelectedManga selectedManga={selectedManga} />)}
-        {/* Content Layout */}
-        <div className="flex flex-col lg:flex-row w-full gap-1 h-auto md:h-[75vh]">
-          {/* Desktop Left Sidebar - Filters */}
-          <div className="hidden lg:block overflow-y-hidden bg-black/30 backdrop-blur-xl rounded-lg pb-4 max-w-80">
-            <FilterPanel filters={filters} onFiltersChange={setFilters} />
+          )}
+        </header>
+{/* <hr className="w-full mb-5 border border-white/10 border-dashed "/> */}
+        {/* Main Grid */}
+        <div className="grid grid-cols-12 gap-8">
+          {/* Left Sidebar - Currently Reading & Filters */}
+          <div className={`${isFilterOpen?"lg:col-span-3":""} space-y-6`}>
+            {/* Filters Panel (Collapsible) */}
+            {isFilterOpen &&<div className="sticky top-0 w-[320px] overflow-y-hidden rounded-lg pb-4 ">
+              <FilterPanel filters={filters} setIsFilterOpen={setIsFilterOpen} onFiltersChange={setFilters} />
+            </div>}
           </div>
 
           {/* Main Content Area */}
-          <div className="flex flex-col border border-gray-900 bg-black/30 rounded-xl p-3 sm:p-4 shadow-lg ">
-            {/* Mobile Content based on active tab */}
-            <div className="lg:hidden h-auto w-auto relative">
-              {activeTab === 'history' && (
-                <MobileReadingHistory readHistory={readHistory} filteredHistory={filteredHistory} handleMangaClick={handleMangaClick} />
-              )}
-              {activeTab === 'favorites' && (
-                <MobileFavoriteChaptersCard favorites={favorites} handleMangaClick={handleMangaClick} />
-              )}
-
-              {activeTab === 'bookmarks' && (
-                <MobileBookMarkedSection bookmarks={bookmarks} handleMangaClick={handleMangaClick} />
-              )}
+          <div className={`${isFilterOpen?"lg:col-span-9":"lg:col-span-12 -mt-8"} space-y-8`}>
+            {/* Tabs Navigation */}
+            <div className="flex overflow-x-auto justify-between w-full scrollbar-hide border-b border-gray-800">
+              <div className=" flex flex-row justify-start items-center">
+                <button
+                  onClick={() => setActiveTab("history")}
+                  className={`px-5 py-3 border-b-2 flex items-center gap-2 transition-all ${activeTab === "history"
+                    ? "border-purple-500 text-purple-400"
+                    : "border-transparent text-gray-400 hover:text-gray-200"
+                    }`}
+                >
+                  <History size={16} /> History{" "}
+                  <span className="bg-gray-800 text-gray-200 text-xs px-2 py-0.5 rounded-full">
+                    {readingHistory.length}
+                  </span>
+                </button>
+                <button
+                  onClick={() => setActiveTab("favorites")}
+                  className={`px-5 py-3 border-b-2 flex items-center gap-2 transition-all ${activeTab === "favorites"
+                    ? "border-purple-500 text-purple-400"
+                    : "border-transparent text-gray-400 hover:text-gray-200"
+                    }`}
+                >
+                  <Heart size={16} /> Favorites{" "}
+                  <span className="bg-gray-800 text-gray-200 text-xs px-2 py-0.5 rounded-full">
+                    {allFavorites.length}
+                  </span>
+                </button>
+                <button
+                  onClick={() => setActiveTab("bookmarks")}
+                  className={`px-5 py-3 border-b-2 flex items-center gap-2 transition-all ${activeTab === "bookmarks"
+                    ? "border-purple-500 text-purple-400"
+                    : "border-transparent text-gray-400 hover:text-gray-200"
+                    }`}
+                >
+                  <Bookmark size={16} /> Bookmarks{" "}
+                  <span className="bg-gray-800 text-gray-200 text-xs px-2 py-0.5 rounded-full">
+                    {allBookmarks.length}
+                  </span>
+                </button>
+              </div>
+              <div className="flex justify-self-end -mt-2 items-center gap-4">
+                <button
+                  onClick={() => setIsFilterOpen(!isFilterOpen)}
+                  className="flex items-center gap-2 px-4 py-2 bg-gray-900 border border-gray-800 hover:bg-gray-800 rounded-lg transition-all"
+                >
+                  <Sliders size={16} />
+                  <span>Filters</span>
+                </button>
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search library..."
+                    className="pl-10 pr-4 py-2 bg-gray-900 border border-gray-800 rounded-lg w-64 focus:outline-none focus:ring-1 focus:ring-purple-500"
+                  />
+                  <Search size={18} className="absolute left-3 top-2.5 text-gray-500" />
+                </div>
+              </div>
             </div>
 
-            {/* Desktop Layout */}
-            <ReadingHistory readHistory={readHistory} filteredHistory={filteredHistory} onMangaClick={handleMangaClick} />
+            {/* Active Tab Content */}
+            {activeTab === "history" && (
+              <div className="space-y-6 flex flex-col justify-start">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-2xl font-bold flex items-center gap-2">
+                    <History size={20} /> Continue Reading
+                  </h2>
+                </div>
 
-            {/* Desktop Bottom Section */}
-            <div className="hidden lg:grid grid-cols-2 border gap-2 border-white/5 px-4 rounded-xl">
-              {/* Search History Section */}
-              <SearchHistory handleSearchClick={handleSearchClick} searchHistory={searchHistory} />
+                <div className={`grid grid-cols-1 sm:grid-cols-2 ${isFilterOpen?"lg:grid-cols-5":"lg:grid-cols-6"}  gap-3`}>
+                  {filteredHistory.length > 0 ? (
+                    filteredHistory.map((manga) => (
+                      <MangaCard
+                        key={manga.manga.id}
+                        manga={manga.manga}
+                        chapters={manga.chapters}
+                        lastChapterRead={manga.lastChapterRead}
+                        lastReadAt={manga.lastReadAT}
+                        allChaptersList={manga.allChaptersList}
+                        onMangaClick={handleMangaClick}
+                        isActive={selectedManga?.id === manga.manga.id}
+                      />
+                    ))
+                  ) : (
+                    <p className="text-gray-500 col-span-full text-center py-10">
+                      No reading history available.
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
 
-              {/* Currently Reading/Selected */}
-              {selectedManga && (
-                <SelectedMangaCard selectedManga={selectedManga} />)}
-            </div>
-          </div>
+            {activeTab === "favorites" && (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-2xl font-bold flex items-center gap-2">
+                    <Heart size={20} className="text-red-400" /> Favorite Chapters
+                  </h2>
+                </div>
 
-          {/* Right Sidebar - Bookmarks (3 per row), Favorites, Search History */}
-          <div className="w-fit min-w-[400px] bg-black/30 backdrop-blur-xl flex flex-col gap-4 overflow-hidden rounded-xl p-4 border-[1px] border-white/10">
-            <BookMarkedSection bookmarks={bookmarks} />
-            <div className='hidden md:block'>
-              <FavoriteChaptersCard
-                favorites={favorites}
-                searchHistory={searchHistory}
-                onMangaClick={handleMangaClick}
-                onSearchClick={handleSearchClick}
-              /></div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {allFavorites.map(({ mangaInfo, chapterInfo }) => (
+                    <div
+                      key={mangaInfo.id}
+                      className="bg-gray-900/50 border border-gray-800 rounded-2xl overflow-hidden hover:border-gray-700 transition-all group"
+                    >
+                      <div className="relative h-48">
+                        <img
+                          src={mangaInfo.coverImageUrl}
+                          alt={mangaInfo.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+                        <div className="absolute bottom-0 left-0 right-0 p-4">
+                          <h3 className="font-bold text-white line-clamp-1">
+                            {mangaInfo.title}
+                          </h3>
+                          <p className="text-xs text-gray-300 mt-1">
+                            Ch. {chapterInfo[0]?.chapter ?? "N/A"}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {chapterInfo[0]?.title ?? ""}
+                          </p>
+                        </div>
+                        <div className="absolute top-3 right-3">
+                          <button className="p-1.5 bg-gray-900/80 rounded-full hover:bg-red-500 transition-colors">
+                            <Heart size={16} className="fill-red-500 text-red-500" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {activeTab === "bookmarks" && (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-2xl font-bold flex items-center gap-2">
+                    <Bookmark size={20} className="text-blue-400" /> Bookmarked Mangas
+                  </h2>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {allBookmarks.map(({ manga, bookmarkedAt }) => (
+                    <div
+                      key={manga.id}
+                      className="bg-gray-900/50 border border-gray-800 rounded-2xl overflow-hidden hover:border-gray-700 transition-all group"
+                    >
+                      <div className="relative h-48">
+                        <img
+                          src={manga.coverImageUrl}
+                          alt={manga.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+                        <div className="absolute bottom-0 left-0 right-0 p-4">
+                          <h3 className="font-bold text-white line-clamp-1">
+                            {manga.title}
+                          </h3>
+                          <p className="text-xs text-gray-400 flex items-center gap-1 mt-1">
+                            <Clock size={12} />{" "}
+                            {new Date(bookmarkedAt).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <div className="absolute top-3 right-3">
+                          <button className="p-1.5 bg-gray-900/80 rounded-full hover:bg-blue-500 transition-colors">
+                            <Bookmark size={16} className="fill-blue-500 text-blue-500" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
+
+      {/* Floating Quick Access */}
+      <FloatingQuickAccess />
+
+      {/* Global Styles */}
+      <style jsx global>{`
+        @keyframes float {
+          0% {
+            transform: translateY(0) translateX(0);
+          }
+          50% {
+            transform: translateY(-100px) translateX(10px);
+          }
+          100% {
+            transform: translateY(0) translateX(0);
+          }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.3s ease-out forwards;
+        }
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
     </div>
   );
 };
 
-
-export default Library;
+export default MangaLibrary;

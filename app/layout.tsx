@@ -1,4 +1,3 @@
-
 // RootLayout.tsx (server component)
 import React, { Suspense } from "react";
 import TanstackProvider from "@/app/providers/TanstackProvider";
