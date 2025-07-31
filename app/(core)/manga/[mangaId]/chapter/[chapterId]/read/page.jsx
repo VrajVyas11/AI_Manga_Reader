@@ -130,7 +130,7 @@ export default function ReadChapter() {
           className="tracking-wider flex flex-col flex-grow min-w-0 h-full w-full max-w-full  scrollbar-thin scrollbar-thumb-purple-600 scrollbar-track-gray-900"
         >
           {settingsOpen && <TopRightOptions
-          isDark={isDark}
+            isDark={isDark}
             allAtOnce={allAtOnce}
             quality={quality}
             isCollapsed={isCollapsed}
@@ -206,27 +206,24 @@ export default function ReadChapter() {
               pages={pages && (quality === "low" ? pages?.chapter?.dataSaver : pages?.chapter?.data)}
             />
             {layout === "vertical" && (
-<button
- className={`tracking-wider cursor-pointer fixed bottom-5 right-3 md:bottom-12 md:right-8 w-12 h-12 md:w-16 md:h-16 rounded-full border-4 flex items-center justify-center duration-300 hover:rounded-[50px] hover:w-24 group/button overflow-hidden active:scale-90 ${
-   isDark
-     ? "border-violet-200 bg-black"
-     : "border-purple-600 bg-white"
- }`}
- onClick={() => {
-   if (scrollContainerRef.current) {
-     scrollContainerRef.current.scrollTo({ top: 0, behavior: "smooth" });
-   }
- }}
->
- <ArrowUp className={`tracking-wider w-3 h-4 fill-current delay-50 duration-200 group-hover/button:-translate-y-12 ${
-   isDark ? "text-white" : "text-gray-800"
- }`} />
- <span className={`tracking-wider font-semibold absolute text-xs opacity-0 group-hover/button:opacity-100 transition-opacity duration-200 ${
-   isDark ? "text-white" : "text-gray-800"
- }`}>
-   Top
- </span>
-</button>
+              <button
+                className={`tracking-wider cursor-pointer fixed bottom-5 right-3 md:bottom-12 md:right-8 w-12 h-12 md:w-16 md:h-16 rounded-full border-4 flex items-center justify-center duration-300 hover:rounded-[50px] hover:w-24 group/button overflow-hidden active:scale-90 ${isDark
+                    ? "border-violet-200 bg-black"
+                    : "border-purple-600 bg-white"
+                  }`}
+                onClick={() => {
+                  if (scrollContainerRef.current) {
+                    scrollContainerRef.current.scrollTo({ top: 0, behavior: "smooth" });
+                  }
+                }}
+              >
+                <ArrowUp className={`tracking-wider w-3 h-4 fill-current delay-50 duration-200 group-hover/button:-translate-y-12 ${isDark ? "text-white" : "text-gray-800"
+                  }`} />
+                <span className={`tracking-wider font-semibold absolute text-xs opacity-0 group-hover/button:opacity-100 transition-opacity duration-200 ${isDark ? "text-white" : "text-gray-800"
+                  }`}>
+                  Top
+                </span>
+              </button>
             )}
           </div>
         </div>
