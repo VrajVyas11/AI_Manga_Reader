@@ -19,7 +19,7 @@ sortAndjoinOCR.js
 uploads
 OldStructure/
 scripts/ocr.py
-ai-manga-reader\app\api\manga\getAuthor
+ai-manga-reader/app/api/manga/getAuthor
 /app/Components/MangaChaptersComponents/Temp.jsx
 Audiotest.jsx
 TranslatorTest.jsx
@@ -31,8 +31,12 @@ app/Components/LibraryComponents/Temp.jsx
 # testing
 /coverage
 apiVersion.ts
-
-
+app/Components/LibraryComponents/BookMarkedSection.jsx
+app/Components/LibraryComponents/BookMarkedSection.jsx
+app/Components/LibraryComponents/FavoriteChaptersCard.jsx
+app/Components/LibraryComponents/ReadingHistory.jsx
+app/Components/LibraryComponents/SearchHistory.jsx
+app/Components/LibraryComponents/SelectedMangaCard.jsx
 # next.js
 /.next/
 /out/
