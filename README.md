@@ -38,7 +38,7 @@ Feast your eyes on the stunning UI, two previews per row.
 
 
 
-<img src="./livedemoimages/m1.png" width="150" style="margin-right: 10px;" />&nbsp;&nbsp; <img src="./livedemoimages/m2.png" width="150" style="margin-right: 100px;" />&nbsp;&nbsp;  <img src="./livedemoimages/m3.png" width="150" />&nbsp;&nbsp;  <img src="./livedemoimages/m4.png" width="150" />&nbsp;&nbsp;  <img src="./livedemoimages/m5.png" width="150" />&nbsp;&nbsp;  <img src="./livedemoimages/m6.png" width="150" />&nbsp;&nbsp;&nbsp;&nbsp;  <img src="./livedemoimages/m7.png" width="150" />&nbsp;&nbsp;  <img src="./livedemoimages/m8.png" width="150" />&nbsp;&nbsp;  <img src="./livedemoimages/m9.png" width="150" />&nbsp;&nbsp;  <img src="./livedemoimages/m10.png" width="150" />  <img src="./livedemoimages/m11.png" width="150" />&nbsp;&nbsp;  <img src="./livedemoimages/m12.png" width="150" />&nbsp;&nbsp;  <img src="./livedemoimages/m13.png" width="150" />&nbsp;&nbsp;  <img src="./livedemoimages/m14.png" width="150" />&nbsp;&nbsp;  <img src="./livedemoimages/m15.png" width="150" />&nbsp;&nbsp;  <img src="./livedemoimages/m16.png" width="150" />
+<img src="./livedemoimages/m1.png" width="150" style="margin-right: 10px;" />&nbsp;&nbsp; <img src="./livedemoimages/m2.png" width="150" style="margin-right: 100px;" />&nbsp;&nbsp;  <img src="./livedemoimages/m3.png" width="150" />&nbsp;&nbsp;  <img src="./livedemoimages/m4.png" width="150" />&nbsp;&nbsp;  <img src="./livedemoimages/m5.png" width="150" />&nbsp;&nbsp;  <img src="./livedemoimages/m6.png" width="150" />&nbsp;&nbsp;&nbsp;&nbsp;  <img src="./livedemoimages/m7.png" width="150" />&nbsp;&nbsp;  <img src="./livedemoimages/m8.png" width="150" />&nbsp;&nbsp;  <img src="./livedemoimages/m9.png" width="150" />&nbsp;&nbsp;  <img src="./livedemoimages/m10.png" width="150" />  <img src="./livedemoimages/m11.png" width="150" />&nbsp;&nbsp;  <img src="./livedemoimages/m12.png" width="150" />&nbsp;&nbsp;  <img src="./livedemoimages/m13.png" width="150" />&nbsp;&nbsp;  <img src="./livedemoimages/m14.png" width="150" />&nbsp;&nbsp;  <img src="./livedemoimages/m15.png" width="150" />&nbsp;&nbsp;  <img src="./livedemoimages/m16.png" width="150" />&nbsp;&nbsp;  <img src="./livedemoimages/m17.png" width="150" />&nbsp;&nbsp;  <img src="./livedemoimages/m18.png" width="150" />
 ---
 
 
@@ -108,13 +108,17 @@ Feast your eyes on the stunning UI, two previews per row.
 | ------------- | ------------- |
 | ![Search Page](./livedemoimages/l12.png) | ![Search Page](./livedemoimages/l13.png) |
 
-| 🔍 Search Page | 
-| ------------- | 
-| ![Search Page](./livedemoimages/l14.png) |
+| 🔍 Search Page | 📚 Library Page |
+| ------------- | ------------- |
+| ![Search Page](./livedemoimages/l14.png) |  ![Library Page](./livedemoimages/l15.png) | 
 
-| 🌐 Not Found Page |
-| ------------- | 
-| ![Not Found Page ](./livedemoimages/l16.png) |
+| 📚 Library Page | 📚 Library Page |
+| ------------- | ------------- |
+| ![Library Page](./livedemoimages/l16.png) |  ![Library Page](./livedemoimages/l17.png) | 
+
+| 🌐 Not Found Page | 
+| -------------- |
+| ![Not Found Page](./livedemoimages/l18.png) |=
 
 ---
 
