@@ -70,13 +70,17 @@ Feast your eyes on the stunning UI, two previews per row.
 | ------------- | ------------- |
 | ![Search Page](./livedemoimages/12.png) | ![Search Page](./livedemoimages/13.png) |
 
-| 🔍 Search Page | 🔍 Library Page |
+| 🔍 Search Page | 📚 Library Page |
 | ------------- | ------------- |
 | ![Search Page](./livedemoimages/14.png) |  ![Library Page](./livedemoimages/15.png) | 
 
+| 📚 Library Page | 📚 Library Page |
+| ------------- | ------------- |
+| ![Library Page](./livedemoimages/16.png) |  ![Library Page](./livedemoimages/17.png) | 
+
 | 🌐 Not Found Page | 🔍 Profile PopUp |
 | -------------- | ------------- |
-| ![Not Found Page](./livedemoimages/16.png) | ![Profile PopUp](./livedemoimages/17.png) |
+| ![Not Found Page](./livedemoimages/18.png) | ![Profile PopUp](./livedemoimages/19.png) |
 
 ## Light Theme
 
