@@ -1,15 +1,12 @@
-import {
-    Heart,
-    BookOpen,
-} from "lucide-react";
+import { Heart, BookOpen } from "lucide-react";
 import { useState } from "react";
 import Image from "next/image";
 import { langFullNames } from "../../constants/Flags";
 import ConfirmationDialog from "./ConfirmationDialog";
 
-function FavoriteCard({ mangaInfo, chapterInfo, onMangaClick, addToFavorite }) {
+function FavoriteCard({ mangaInfo, chapterInfo, onMangaClick, addToFavorite, isDark }) {
     const [showConfirm, setShowConfirm] = useState(false);
-
+    const [imageSrc, setImageSrc] = useState(chapterInfo[0]?.url || mangaInfo.coverImageUrl || "/placeholder.jpg");
     const handleRemoveClick = (e) => {
         e.stopPropagation();
         setShowConfirm(true);
@@ -25,58 +22,81 @@ function FavoriteCard({ mangaInfo, chapterInfo, onMangaClick, addToFavorite }) {
     return (
         <>
             <div
-                className="group  rounded-2xl overflow-hidden hover:border-gray-700/70 transition-all duration-300 hover:shadow-[0_0_7px_rgba(0,0,0,1)] hover:shadow-red-500/20 "
+                className={`group rounded-2xl overflow-hidden transition-all duration-300 cursor-pointer ${isDark
+                    ? "hover:border-gray-700/70 hover:shadow-[0_0_7px_rgba(0,0,0,1)] hover:shadow-red-500/20"
+                    : "hover:border-gray-300 hover:shadow-md"
+                    }`}
             >
                 <div
                     onClick={() => onMangaClick(mangaInfo)}
-                    className="relative cursor-pointer h-auto w-full overflow-hidden">
+                    className="relative h-auto w-full overflow-hidden"
+                >
                     <Image
                         width={300}
                         height={300}
-                        src={chapterInfo[0]?.url || mangaInfo.coverImageUrl}
+                        src={imageSrc}
                         alt={mangaInfo.title}
-                        className="w-full h-full  group-hover:scale-105 transition-transform duration-700"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 xs:w-full xs:h-[175px]"
                         loading="lazy"
+                        onError={(e) => {
+                            e.currentTarget.style.height = "175px";
+                            setImageSrc(mangaInfo.coverImageUrl);
+                        }}
                     />
-
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
                     {/* Favorite Button */}
                     <div className="absolute z-50 top-3 right-3">
                         <button
                             onClick={handleRemoveClick}
-                            className="p-2 bg-red-600 rounded-full shadow-lg hover:bg-red-700 transition-all transform hover:scale-110 focus:outline-none "
+                            className={`p-2 rounded-full shadow-lg transition-all transform hover:scale-110 focus:outline-none ${isDark ? "bg-red-600 hover:bg-red-700" : "bg-red-400 hover:bg-red-500"
+                                } text-white`}
                             title="Remove from favorites"
                             aria-label="Remove from favorites"
                         >
-                            <Heart size={18} className="fill-white text-white" />
+                            <Heart size={18} className="fill-white" />
                         </button>
                     </div>
 
                     {/* Content Info */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent rounded-t-3xl" />
+                    <div
+                        className={`absolute inset-0 rounded-t-3xl ${isDark
+                            ? "bg-gradient-to-t from-black/90 via-black/60 to-transparent"
+                            : "bg-gradient-to-t from-black/50 via-black/40 to-transparent"
+                            }`}
+                    />
                     <div className="absolute bottom-3 left-4 right-4">
-                        <h3 className="font-bold max-w-[74%] text-white text-lg line-clamp-1 mb-2 drop-shadow-lg">
+                        <h3
+                            className={`font-bold max-w-[74%] mb-2 text-lg line-clamp-1 drop-shadow-lg text-white`}
+                        >
                             {mangaInfo.title}
                         </h3>
-                        <div className="space-x-1 w-full flex flex-row justify-start items-center">
-                            <p className="text-sm absolute right-0 bottom-1 text-gray-200 flex items-center gap-2">
+                        <div className="flex items-center gap-2 w-full">
+                            {/* Language Badge */}
+                            {chapterInfo[0]?.translatedLanguage && (
+                                <div
+                                    className={`w-fit rounded-lg px-2 py-1 text-xs border ${isDark
+                                        ? "bg-black/60 border-white/20 text-white backdrop-blur-sm"
+                                        : "bg-gray-200 border-gray-300 text-gray-800"
+                                        }`}
+                                >
+                                    {langFullNames[chapterInfo[0].translatedLanguage] ||
+                                        chapterInfo[0].translatedLanguage}
+                                </div>
+                            )}
+                            {chapterInfo[0]?.title && (
+                                <p
+                                    className={`text-xs max-w-[54%] line-clamp-1 text-gray-300
+                  `}
+                                >
+                                    {chapterInfo[0].title}
+                                </p>
+                            )}
+                            <p
+                                className={`text-sm p-2 absolute right-0 -bottom-1 text-gray-200 flex items-center gap-2 ${isDark ? "" : "bg-black/80 rounded-xl"
+                                    }`}
+                            >
                                 <BookOpen size={14} />
                                 Ch. {chapterInfo[0]?.chapter ?? "N/A"}
                             </p>
-                            <div className=" w-full flex flex-row items-center gap-2">
-                                {/* Language Badge */}
-                                {chapterInfo[0]?.translatedLanguage && (
-                                    <div className="w-fit bg-black/60 backdrop-blur-sm px-2 py-1 rounded-lg text-xs text-white border border-white/20">
-                                        {langFullNames[chapterInfo[0].translatedLanguage] ||
-                                            chapterInfo[0].translatedLanguage}
-                                    </div>
-                                )}
-                                {chapterInfo[0]?.title && (
-                                    <p className="text-xs w-full max-w-[54%] text-gray-300 line-clamp-1">
-                                        {chapterInfo[0].title}
-                                    </p>
-                                )}
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -86,11 +106,11 @@ function FavoriteCard({ mangaInfo, chapterInfo, onMangaClick, addToFavorite }) {
                     message={`Remove "${mangaInfo.title}" from favorites?`}
                     onConfirm={confirmRemove}
                     onCancel={cancelRemove}
+                    isDark={isDark}
                 />
             )}
         </>
     );
-
 }
 
-export default FavoriteCard
+export default FavoriteCard;

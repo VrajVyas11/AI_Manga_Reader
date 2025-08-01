@@ -12,19 +12,20 @@ import {
   ClockAlert,
   CircleCheck,
   ListFilter,
-  ArrowBigLeftDashIcon,
   Trash,
 } from "lucide-react";
 
 import filterOptions from "../../constants/filterOptions";
 
-const FilterPanel = ({ filters, onFiltersChange, setIsFilterOpen, onClose }) => {
+const FilterPanel = ({ filters, onFiltersChange, setIsFilterOpen, onClose, isDark }) => {
   const baseButtonClasses =
     "flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-semibold transition-all duration-0";
-  const activeButtonClasses =
-    "bg-gradient-to-r from-purple-700 to-purple-900 text-white shadow-lg shadow-purple-900/50";
-  const inactiveButtonClasses =
-    "text-gray-400 bg-gray-950 border border-gray-800 hover:bg-gray-800 hover:text-white";
+  const activeButtonClasses = isDark
+    ? "bg-gradient-to-r from-purple-700 to-purple-900 text-white shadow-lg shadow-purple-900/50"
+    : "bg-gradient-to-r from-purple-400 to-purple-600 text-white shadow-md shadow-purple-600/40";
+  const inactiveButtonClasses = isDark
+    ? "text-gray-400 bg-gray-950 border border-gray-800 hover:bg-gray-800 hover:text-white"
+    : "text-gray-700 bg-gray-100 border border-gray-300 hover:bg-purple-400 hover:text-white";
 
   const statusIconMap = {
     ongoing: Clock,
@@ -50,21 +51,33 @@ const FilterPanel = ({ filters, onFiltersChange, setIsFilterOpen, onClose }) => 
 
   const FilterCategory = ({ title, icon: Icon, options, selected, onToggle }) => (
     <section className="space-y-3">
-      <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-        <Icon className="w-5 h-5 text-purple-400 drop-shadow-md" />
+      <h3
+        className={`text-sm font-semibold flex items-center gap-2 ${
+          isDark ? "text-white" : "text-gray-900"
+        }`}
+      >
+        <Icon
+          className={`w-5 h-5 ${
+            isDark ? "text-purple-400 drop-shadow-md" : "text-purple-600"
+          }`}
+        />
         {title}
       </h3>
-      <div className="flex flex-wrap gap-2 max-h-28 overflow-y-auto custom-scrollbar scrollbar-thin scrollbar-thumb-purple-700 scrollbar-track-gray-900 rounded-md px-1 py-1  shadow-inner">
+      <div
+        className={`flex flex-wrap gap-2 max-h-28 overflow-y-auto rounded-md px-1 py-1 ${
+          isDark
+            ? "bg-gray-900/70 text-gray-300 shadow-inner scrollbar-thumb-purple-700 scrollbar-track-gray-900"
+            : "bg-white text-gray-800 scrollbar-thumb-purple-400 scrollbar-track-gray-200"
+        } custom-scrollbar scrollbar-thin`}
+      >
         {options.map(({ label }) => {
           const isSelected = selected?.includes(label);
           return (
             <button
               key={label}
               onClick={() => onToggle(label)}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors duration-300 select-none ${
-                isSelected
-                  ? "bg-purple-700 text-white shadow-md shadow-purple-900/50"
-                  : "bg-gray-900/70 text-gray-300 hover:bg-purple-700 hover:text-white"
+              className={`${baseButtonClasses} ${
+                isSelected ? activeButtonClasses : inactiveButtonClasses
               }`}
               aria-pressed={isSelected}
               aria-label={`${isSelected ? "Deselect" : "Select"} ${label}`}
@@ -79,17 +92,39 @@ const FilterPanel = ({ filters, onFiltersChange, setIsFilterOpen, onClose }) => 
   );
 
   return (
-    <aside className="relative bg-black/95 backdrop-blur-md border border-gray-800 rounded-2xl p-6 pt-9 shadow-2xl max-w-sm w-full">
+    <aside
+      className={`relative rounded-2xl p-6 pt-9 max-w-sm w-full shadow-2xl ${
+        isDark
+          ? "bg-black/95 backdrop-blur-md border border-gray-800"
+          : "bg-white shadow-md border border-gray-300"
+      }`}
+    >
       <header className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <div className="bg-gradient-to-tr from-purple-900 to-purple-700 p-3 rounded-lg shadow-lg">
-            <Filter className="w-6 h-6 text-white drop-shadow-lg" />
+          <div
+            className={`p-3 rounded-lg shadow-lg ${
+              isDark ? "bg-gradient-to-tr from-purple-900 to-purple-700" : "bg-purple-400"
+            }`}
+          >
+            <Filter
+              className={`w-6 h-6 ${
+                isDark ? "text-white drop-shadow-lg" : "text-white"
+              }`}
+            />
           </div>
           <div>
-            <h2 className="text-lg mb-1 font-extrabold text-white tracking-wide leading-tight">
+            <h2
+              className={`text-lg mb-1 font-extrabold tracking-wide leading-tight ${
+                isDark ? "text-white" : "text-gray-900"
+              }`}
+            >
               Filters
             </h2>
-            <p className="text-xs min-w-fit text-gray-400 uppercase tracking-wider">
+            <p
+              className={`text-xs min-w-fit uppercase tracking-wider ${
+                isDark ? "text-gray-400" : "text-gray-600"
+              }`}
+            >
               Refine your collection
             </p>
           </div>
@@ -106,7 +141,11 @@ const FilterPanel = ({ filters, onFiltersChange, setIsFilterOpen, onClose }) => 
                 sort: "recent",
               })
             }
-            className="flex items-center gap-1 px-3 py-3 rounded-lg text-xs font-semibold bg-red-700/30 text-red-400 hover:bg-red-700/50 hover:text-white transition-shadow shadow-red-700/40 focus:outline-none "
+            className={`flex items-center gap-1 px-3 py-3 rounded-lg text-xs font-semibold transition-shadow focus:outline-none ${
+              isDark
+                ? "bg-red-700/30 text-red-400 hover:bg-red-700/50 hover:text-white shadow-red-700/40"
+                : "bg-red-200 text-red-700 hover:bg-red-400 hover:text-white shadow-red-400/40"
+            }`}
             title="Clear all filters"
             type="button"
           >
@@ -115,16 +154,24 @@ const FilterPanel = ({ filters, onFiltersChange, setIsFilterOpen, onClose }) => 
           </button>
           <button
             onClick={onClose}
-            className="p-2 absolute right-1 top-1 rounded-lg bg-white/50 text-black  transition-shadow shadow-md focus:outline-none "
+            className={`p-2 absolute right-1 top-1 rounded-lg transition-shadow focus:outline-none ${
+              isDark ? "bg-white/50 text-black shadow-md" : "bg-gray-200 text-black"
+            }`}
             title="Close filter panel"
             type="button"
           >
-            <X  strokeWidth={3} className="w-4 h-4" />
+            <X strokeWidth={3} className="w-4 h-4" />
           </button>
         </div>
       </header>
 
-      <div className="space-y-6 max-h-[360px] overflow-y-auto custom-scrollbar scrollbar-thin scrollbar-thumb-purple-700 scrollbar-track-gray-900 pr-2">
+      <div
+        className={`space-y-6 max-h-[360px] overflow-y-auto pr-2 custom-scrollbar scrollbar-thin ${
+          isDark
+            ? "scrollbar-thumb-purple-700 scrollbar-track-gray-900"
+            : "scrollbar-thumb-purple-400 scrollbar-track-gray-200"
+        }`}
+      >
         <FilterCategory
           title="Genres"
           icon={Tag}
@@ -178,8 +225,16 @@ const FilterPanel = ({ filters, onFiltersChange, setIsFilterOpen, onClose }) => 
         />
 
         <section className="space-y-3">
-          <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-purple-400 drop-shadow-md" />
+          <h3
+            className={`text-sm font-semibold flex items-center gap-2 ${
+              isDark ? "text-white" : "text-gray-900"
+            }`}
+          >
+            <TrendingUp
+              className={`w-5 h-5 ${
+                isDark ? "text-purple-400 drop-shadow-md" : "text-purple-600"
+              }`}
+            />
             Status
           </h3>
           <div className="grid grid-cols-2 gap-3">
@@ -205,8 +260,16 @@ const FilterPanel = ({ filters, onFiltersChange, setIsFilterOpen, onClose }) => 
         </section>
 
         <section className="space-y-3">
-          <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-            <ListFilter className="w-5 h-5 text-purple-400 drop-shadow-md" />
+          <h3
+            className={`text-sm font-semibold flex items-center gap-2 ${
+              isDark ? "text-white" : "text-gray-900"
+            }`}
+          >
+            <ListFilter
+              className={`w-5 h-5 ${
+                isDark ? "text-purple-400 drop-shadow-md" : "text-purple-600"
+              }`}
+            />
             Sort By
           </h3>
           <div className="grid grid-cols-2 gap-3">
