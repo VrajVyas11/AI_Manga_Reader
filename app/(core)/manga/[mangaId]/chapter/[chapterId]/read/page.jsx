@@ -164,7 +164,7 @@ export default function ReadChapter() {
               scrollbarWidth: "none",
               scrollbarColor: "rgba(155, 89, 182, 0.6) rgba(0, 0, 0, 0.1)",
             }}
-            className={`flex-grow scroll overflow-y-auto min-w-0 max-w-full scrollbar-thin scrollbar-thumb-purple-600 scrollbar-track-gray-900`}>
+            className={`flex-grow mt-1 scroll overflow-y-auto min-w-0 max-w-full scrollbar-thin scrollbar-thumb-purple-600 scrollbar-track-gray-900`}>
             <MiddleImageAndOptions
               isDark={isDark}
               layout={layout}
