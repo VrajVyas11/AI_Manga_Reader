@@ -300,8 +300,8 @@ const TopNavbar = () => {
             <input
               ref={searchInputRef}
               type="text"
-              className={`w-full pl-11 pr-12 py-3 rounded-xl text-sm transition-all duration-300 outline-none shadow-lg ${isDark
-                  ? "bg-gray-900/70 border border-gray-700/50 text-white placeholder-gray-400 focus:bg-gray-900/90 focus:border-purple-500/70 focus:ring-2 focus:ring-purple-500/30 focus:shadow-purple-500/20"
+              className={`w-full pl-11 pr-12 py-3 rounded-xl text-sm transition-all duration-0 outline-none shadow-lg ${isDark
+                  ? "bg-gray-900/70 border border-gray-700/50 text-white placeholder-gray-400 focus:bg-gray-900/90 focus:border-purple-500/70 focus:ring-2 focus:ring-purple-500/30 focus:shadow-purple-500/5"
                   : "bg-white/70 border border-gray-300/50 text-gray-900 placeholder-gray-500 focus:bg-white focus:border-purple-500/70 focus:ring-2 focus:ring-purple-500/30 focus:shadow-purple-500/20"
                 } focus:shadow-xl`}
               placeholder="Search for manga..."
