@@ -11,6 +11,7 @@ import _MiddleImageAndOptions from "../../../../../../Components/ReadChapterComp
 import _BottomPagesNavigation from "../../../../../../Components/ReadChapterComponents/BottomPagesNavigation"
 import _SideBar from "../../../../../../Components/ReadChapterComponents/SideBar"
 import { useTheme } from '@/app/providers/ThemeContext';
+import GOTONextChapterPopUpAtLastPage from '../../../../../../Components/ReadChapterComponents/GOTONextChapterPopUpAtLastPage';
 const SideBar = memo(_SideBar);
 const MiddleImageAndOptions = memo(_MiddleImageAndOptions);
 const BottomPagesNavigation = memo(_BottomPagesNavigation);
@@ -165,6 +166,12 @@ export default function ReadChapter() {
               scrollbarColor: "rgba(155, 89, 182, 0.6) rgba(0, 0, 0, 0.1)",
             }}
             className={`flex-grow mt-1 scroll overflow-y-auto min-w-0 max-w-full scrollbar-thin scrollbar-thumb-purple-600 scrollbar-track-gray-900`}>
+            {currentIndex== (quality === "low" ? pages?.chapter?.dataSaver?.length-1 : pages?.chapter?.data?.length-1) &&<GOTONextChapterPopUpAtLastPage
+              isDark={isDark}
+              onNext={goToNextChapter}
+              autoAdvanceTime={10}
+            />
+}
             <MiddleImageAndOptions
               isDark={isDark}
               layout={layout}
@@ -208,8 +215,8 @@ export default function ReadChapter() {
             {layout === "vertical" && (
               <button
                 className={`tracking-wider cursor-pointer fixed bottom-5 right-3 md:bottom-12 md:right-8 w-12 h-12 md:w-16 md:h-16 rounded-full border-4 flex items-center justify-center duration-300 hover:rounded-[50px] hover:w-24 group/button overflow-hidden active:scale-90 ${isDark
-                    ? "border-violet-200 bg-black"
-                    : "border-purple-600 bg-white"
+                  ? "border-violet-200 bg-black"
+                  : "border-purple-600 bg-white"
                   }`}
                 onClick={() => {
                   if (scrollContainerRef.current) {

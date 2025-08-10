@@ -102,6 +102,7 @@ function TabsAndSections({ manga, chapters, handleChapterClick, isDark }) {
     ],
     [chapters.length, memoManga, uniqueVolumes, handleChapterClick,isDark]
   );
+console.log(memoManga);
 
   return (
     <div className="px-4 sm:px-[70px] transition-colors duration-0">
@@ -120,7 +121,7 @@ function TabsAndSections({ manga, chapters, handleChapterClick, isDark }) {
                   ? 'bg-white/10 text-white'
                   : 'bg-gray-100 shadow-md font-semibold text-gray-800 border border-gray-200'
                 }`}>
-                {memoManga.authorName[0].attributes.name}
+                {memoManga?.authorName?.length>0?memoManga?.authorName[0]?.attributes?.name:memoManga?.authorName?.attributes?.name || "Unknown"}
               </div>
             </div>
             <div>
@@ -132,7 +133,7 @@ function TabsAndSections({ manga, chapters, handleChapterClick, isDark }) {
                   ? 'bg-white/10 text-white'
                   : 'bg-gray-100 shadow-md font-semibold text-gray-800 border border-gray-200'
                 }`}>
-                {memoManga.artistName[0].attributes.name}
+                {memoManga?.artistName?.length>0?memoManga?.artistName[0]?.attributes?.name:memoManga?.artistName?.attributes?.name || "Unknown"}
               </div>
             </div>
           </div>
