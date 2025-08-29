@@ -48,7 +48,7 @@ export default function MangaChapters() {
     return (
       <div className="flex justify-center items-center w-full h-screen bg-[#070920] backdrop-blur-md text-white">
         <div className="text-center">
-          <p className="text-lg text-red-500">{chaptersError.message || 'Failed to load chapters.'}</p>
+          <p className="text-lg text-red-500">{chaptersError.message ??'Failed to load chapters.'}</p>
           <p className="text-sm text-gray-400">
             Please{' '}
             <button

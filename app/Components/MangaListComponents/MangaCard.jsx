@@ -1,16 +1,16 @@
 'use client';
 import Image from 'next/image';
-import React, { useCallback, useState, useMemo, Suspense, useEffect } from 'react';
+import React, { useCallback, useState, useMemo, Suspense } from 'react';
 import { getRatingColor } from '../../constants/Flags';
 import { Star, MessageSquareText, Heart as HeartIcon, Dot, Flame } from 'lucide-react';
 import MangaCardSkeleton from '../Skeletons/MangaList/MangaCardSkeleton';
 import { useMangaFetch } from '../../hooks/useMangaFetch';
 import MangaCardPagination from '../../Components/MangaListComponents/MangaCardPagination';
 import StableFlag from '../StableFlag';
-import { useRouter } from 'next/navigation';
 import { useManga } from '../../providers/MangaContext';
 import { useTheme } from '../../providers/ThemeContext';
 import useInView from "../../hooks/useInView";
+import Link from 'next/link';
 
 const MangaCard = React.memo(() => {
     const { theme } = useTheme();
@@ -18,17 +18,13 @@ const MangaCard = React.memo(() => {
     const { data, isLoading, isError, error } = useMangaFetch('latest', 1);
     const [currentPage, setCurrentPage] = useState(1);
     const ITEMS_PER_PAGE = 20;
-    const processedLatestMangas = data?.data || [];
+    const processedLatestMangas = useMemo(() => data?.data ?? [], [data?.data]);
     const totalPages = Math.ceil(processedLatestMangas.length / ITEMS_PER_PAGE);
-    const router = useRouter();
     const { setSelectedManga } = useManga();
 
     const handleMangaClicked = useCallback((manga) => {
         setSelectedManga(manga);
-        router.push(`/manga/${manga.id}/chapters`);
-    }, [router, setSelectedManga]);
-
-    const stableHandleMangaClicked = useCallback(handleMangaClicked, []);
+    }, [setSelectedManga]);
 
     const loadMoreMangas = useCallback(() => {
         setCurrentPage(1); // Reset to first page when loading more data
@@ -46,7 +42,7 @@ const MangaCard = React.memo(() => {
     }, [totalPages]);
 
     if (isLoading) {
-        return (<MangaCardSkeleton  isDark={isDark}/>);
+        return (<MangaCardSkeleton isDark={isDark} />);
     }
 
     if (isError) {
@@ -54,7 +50,7 @@ const MangaCard = React.memo(() => {
     }
 
     return (
-        <Suspense fallback={<MangaCardSkeleton  isDark={isDark}/>}>
+        <Suspense fallback={<MangaCardSkeleton isDark={isDark} />}>
             <div className="w-full flex flex-col">
                 <div className="flex mx-2 sm:mx-5 xl:mx-16 mb-7 sm:mb-8 items-center gap-3">
                     <div className={`${isDark ? "bg-white/10" : "bg-gray-200/50"} p-3 rounded-lg`}>
@@ -71,10 +67,10 @@ const MangaCard = React.memo(() => {
                 </div>
                 <div className="grid w-[95%] sm:gap-y-4 mx-auto md:mx-5 xl:ml-16 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
                     {currentMangas.map((manga, index) => (
-                        <Card 
-                            isDark={isDark} 
-                            manga={manga} 
-                            stableHandleMangaClicked={stableHandleMangaClicked} 
+                        <Card
+                            isDark={isDark}
+                            manga={manga}
+                            handleMangaClicked={handleMangaClicked}
                             key={`${manga.id}-${currentPage}-${index}`} // Add currentPage to key for proper remounting
                         />
                     ))}
@@ -105,22 +101,25 @@ MangaCard.displayName = 'MangaCard';
 
 export default MangaCard;
 
-const Card = ({ manga, stableHandleMangaClicked, isDark }) => {
+const Card = ({ manga, handleMangaClicked, isDark }) => {
     const [ref, inView] = useInView(0.1);
 
     return (
-        <div
+        <Link
             ref={ref}
-            onClick={() => stableHandleMangaClicked(manga)}
-            className={`manga-card transform transition-opacity duration-500 cursor-pointer w-full flex justify-center items-start ${inView
-                ? "opacity-100 translate-y-0 transition-transform" 
-                : "opacity-0 translate-y-10 transition-transform"
+            href={`/manga/${manga.id}/chapters`}
+            prefetch={true}
+            onClick={() => handleMangaClicked(manga)}
+            className={`manga-card transform transition-all duration-500 ease-out cursor-pointer w-full flex justify-center items-start ${inView
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-10"
                 }`}
+
         >
             <div className={`w-full sm:w-[250px] overflow-hidden min-h-[290px] sm:min-h-[400px] rounded-lg ${isDark ? "bg-[#0c0221]/50 shadow-slate-600" : "bg-gray-100/50 shadow-gray-400"} p-[5px] shadow-[0_0_4px_rgba(0,0,0,0.5)] transition-transform duration-300 ease-out hover:scale-[102%] will-change-transform`}>
                 <div className="relative flex h-[155px] sm:h-[250px] flex-col rounded-[5px]">
                     <Image
-                        src={manga.coverImageUrl || '/placeholder.jpg'}
+                        src={manga.coverImageUrl ?? '/placeholder.jpg'}
                         alt={manga.title}
                         fill
                         className={`object-cover md:object-fill relative -mt-[1px] flex h-[155px] sm:h-[250px] flex-col rounded-[5px] rounded-tl-[20px] ${isDark ? "bg-gradient-to-tr from-[#1f2020] to-[#000d0e]" : "bg-gradient-to-tr from-gray-200 to-gray-300"}`}
@@ -129,7 +128,7 @@ const Card = ({ manga, stableHandleMangaClicked, isDark }) => {
                     />
                     <div className={`absolute inset-x-0 bottom-0 ${isDark ? "bg-gradient-to-t from-black via-gray-900 to-transparent" : "bg-gradient-to-t from-gray-900/80 via-gray-800/50 to-transparent"} p-2 sm:p-4`}>
                         <h1 className={`flex flex-row w-full font-bold items-center gap-3 sm:items-start justify-center text-[8px] sm:text-xs tracking-[2px] text-white`}>
-                            <StableFlag className={`w-4 sm:w-7`} code={manga.originalLanguage || 'UN'} />
+                            <StableFlag className={`w-4 sm:w-7`} code={manga.originalLanguage ?? 'UN'} />
                             {manga.title.length > 40 ? `${manga.title.slice(0, 40)}...` : manga.title}
                         </h1>
                     </div>
@@ -155,7 +154,7 @@ const Card = ({ manga, stableHandleMangaClicked, isDark }) => {
                                     : manga.contentRating.toUpperCase() === 'EROTICA'
                                         ? 'pr-2 xl:pr-5'
                                         : 'pr-1'
-                                    } z-10 tracking-widest mt-[1px] sm:mt-[2px] mr-2 top-0 right-0  flex items-center justify-end text-center border-2 absolute py-[3px] sm:py-[7px] min-w-36 text-[6px] sm:text-[10px] font-semibold rounded-lg md:rounded-xl ${isDark ? "text-white" : "text-gray-100"} bg-opacity-70 ${getRatingColor(manga.contentRating.toString() + 'Border') || getRatingColor('default')} backdrop-blur-lg ${getRatingColor(manga.contentRating) || getRatingColor('default')}`}
+                                    } z-10 tracking-widest mt-[1px] sm:mt-[2px] mr-2 top-0 right-0  flex items-center justify-end text-center border-2 absolute py-[3px] sm:py-[7px] min-w-36 text-[6px] sm:text-[10px] font-semibold rounded-lg md:rounded-xl ${isDark ? "text-white" : "text-gray-100"} bg-opacity-70 ${getRatingColor(manga.contentRating.toString() + 'Border') ?? getRatingColor('default')} backdrop-blur-lg ${getRatingColor(manga.contentRating) ?? getRatingColor('default')}`}
                             >
                                 {manga.contentRating.toUpperCase()}
                             </span>
@@ -169,14 +168,14 @@ const Card = ({ manga, stableHandleMangaClicked, isDark }) => {
                             let value;
                             if (icon === 'star') {
                                 IconComponent = Star;
-                                value = manga?.rating?.rating?.bayesian?.toFixed(2) || 'N/A';
+                                value = manga?.rating?.rating?.bayesian?.toFixed(2) ?? 'N/A';
                             } else if (icon === 'comment') {
                                 IconComponent = MessageSquareText;
-                                const count = manga?.rating?.comments?.repliesCount || 0;
+                                const count = manga?.rating?.comments?.repliesCount ?? 0;
                                 value = count > 1000 ? count.toString()[0] + 'K' : count;
                             } else if (icon === 'heart') {
                                 IconComponent = HeartIcon;
-                                const follows = manga?.rating?.follows || 0;
+                                const follows = manga?.rating?.follows ?? 0;
                                 value = follows > 1000 ? follows.toString()[0] + 'K' : follows;
                             }
                             return (
@@ -209,6 +208,6 @@ const Card = ({ manga, stableHandleMangaClicked, isDark }) => {
                     </div>
                 </div>
             </div>
-        </div>
+        </Link>
     );
 };

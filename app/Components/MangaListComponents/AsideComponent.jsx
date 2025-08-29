@@ -12,9 +12,9 @@ import {
 import Image from "next/image"
 import AsideComponentSkeleton from "../Skeletons/MangaList/AsideComponentSkeleton";
 import { useMangaFetch } from "../../hooks/useMangaFetch";
-import { useRouter } from "next/navigation";
 import { useManga } from "../../providers/MangaContext";
 import { useTheme } from "../../providers/ThemeContext";
+import Link from "next/link";
 
 function AsideComponent() {
   const { data: ratingData, isLoading: ratingLoading, isError: ratingError, error: ratingErrorMsg } = useMangaFetch('rating', 1);
@@ -22,17 +22,16 @@ function AsideComponent() {
   const { data: latestArrivalsData, isLoading: latestArrivalsLoading, isError: latestArrivalsError, error: latestArrivalsErrorMsg } = useMangaFetch('latestArrivals', 1);
   const { theme } = useTheme();
   const isDark = theme === "dark";
-  const processedMangas = useMemo(() => ratingData?.data || [], [ratingData]);
-  const processedFavouriteMangas = useMemo(() => favouriteData?.data || [], [favouriteData]);
-  const processedLatestArrivalsMangas = useMemo(() => latestArrivalsData?.data || [], [latestArrivalsData]);
+  const processedMangas = useMemo(() => ratingData?.data ?? [], [ratingData]);
+  const processedFavouriteMangas = useMemo(() => favouriteData?.data ?? [], [favouriteData]);
+  const processedLatestArrivalsMangas = useMemo(() => latestArrivalsData?.data ?? [], [latestArrivalsData]);
 
   const [selectedCategory, setSelectedCategory] = useState("Top");
-  const router = useRouter();
+
   const { setSelectedManga } = useManga();
   const handleMangaClicked = useCallback((manga) => {
     setSelectedManga(manga);
-    router.push(`/manga/${manga.id}/chapters`);
-  }, [router, setSelectedManga]);
+  }, [setSelectedManga]);
 
   const formatNumber = (num) => {
     if (num >= 1000) {
@@ -46,7 +45,7 @@ function AsideComponent() {
   }
 
   if (ratingError || favouriteError || latestArrivalsError) {
-    return <div className="text-red-500">Error: {ratingErrorMsg?.message || favouriteErrorMsg?.message || latestArrivalsErrorMsg?.message}</div>;
+    return <div className="text-red-500">Error: {ratingErrorMsg?.message ?? favouriteErrorMsg?.message ?? latestArrivalsErrorMsg?.message}</div>;
   }
 
   const mangaToDisplay =
@@ -147,13 +146,14 @@ function AsideComponent() {
         </nav>
         <ul className="grid grid-cols-3 md:block md:space-y-3 mx-1 md:mx-3">
           {mangaToDisplay.slice(0, 9).map((manga, idx) => (
-            <li
+            <Link
               key={manga.id}
+              prefetch={true}
+              href={`/manga/${manga.id}/chapters`}
               onClick={() => handleMangaClicked(manga)}
-              tabIndex={0}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
+                  // e.preventDefault();
                   handleMangaClicked(manga);
                 }
               }}
@@ -173,7 +173,7 @@ function AsideComponent() {
                 <Image
                   width={300}
                   height={300}
-                  src={manga.coverImageUrl || "./placeholder.jpg"}
+                  src={manga.coverImageUrl ?? "./placeholder.jpg"}
                   alt={manga.title ?? "Manga cover"}
                   className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[102%]"
                   loading="lazy"
@@ -200,7 +200,7 @@ function AsideComponent() {
                   </span>
                 </div>
               </div>
-            </li>
+            </Link>
           ))}
         </ul>
       </section>

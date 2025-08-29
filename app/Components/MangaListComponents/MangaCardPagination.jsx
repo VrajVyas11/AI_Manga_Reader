@@ -3,7 +3,7 @@ import { useCallback } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTheme } from '../../providers/ThemeContext';
 
-const BottomPagination = ({ currentPage, totalPages, onPageChange, onLoadMore, loadMoreMangas }) => {
+const BottomPagination = ({ currentPage, totalPages, onPageChange }) => {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
@@ -42,21 +42,20 @@ const BottomPagination = ({ currentPage, totalPages, onPageChange, onLoadMore, l
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
-        className={`flex items-center justify-center w-14 h-14 rounded-md border transition-colors ${
-          isDark
+        className={`flex items-center justify-center w-14 h-14 rounded-md border transition-colors ${isDark
             ? currentPage === 1
               ? 'border-gray-800 text-gray-600 cursor-not-allowed'
               : 'border-gray-700 text-gray-300 hover:border-purple-400/40 hover:text-white hover:bg-gray-800/50'
             : currentPage === 1
               ? 'border-gray-300/50 text-gray-500 cursor-not-allowed'
               : 'border-gray-300/50 text-gray-600 hover:border-purple-600/40 hover:text-gray-900 hover:bg-gray-200/50'
-        }`}
+          }`}
         aria-label="Previous page"
       >
         <ChevronLeft size={16} />
       </button>
 
-      {visiblePages.map((page, index) => {
+      {visiblePages.map((page) => {
         if (typeof page === 'string') {
           return (
             <span
@@ -72,15 +71,14 @@ const BottomPagination = ({ currentPage, totalPages, onPageChange, onLoadMore, l
           <button
             key={page}
             onClick={() => onPageChange(page)}
-            className={`flex items-center justify-center w-14 h-14 rounded-md border text-sm font-medium transition-colors ${
-              page === currentPage
+            className={`flex items-center justify-center w-14 h-14 rounded-md border text-sm font-medium transition-colors ${page === currentPage
                 ? isDark
                   ? 'border-white bg-white text-black'
                   : 'border-purple-600 bg-gray-600 text-white'
                 : isDark
                   ? 'border-gray-700 text-gray-300 hover:border-purple-400/40 hover:text-white hover:bg-gray-800/50'
                   : 'border-gray-300/50 text-gray-600 hover:border-purple-600/40 hover:text-gray-900 hover:bg-gray-200/50'
-            }`}
+              }`}
             aria-label={`Page ${page}`}
             aria-current={page === currentPage ? 'page' : undefined}
           >
@@ -92,15 +90,14 @@ const BottomPagination = ({ currentPage, totalPages, onPageChange, onLoadMore, l
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
-        className={`flex items-center justify-center w-14 h-14 rounded-md border transition-colors ${
-          isDark
+        className={`flex items-center justify-center w-14 h-14 rounded-md border transition-colors ${isDark
             ? currentPage === totalPages
               ? 'border-gray-800 text-gray-600 cursor-not-allowed'
               : 'border-gray-700 text-gray-300 hover:border-purple-400/40 hover:text-white hover:bg-gray-800/50'
             : currentPage === totalPages
               ? 'border-gray-300/50 text-gray-500 cursor-not-allowed'
               : 'border-gray-300/50 text-gray-600 hover:border-purple-600/40 hover:text-gray-900 hover:bg-gray-200/50'
-        }`}
+          }`}
         aria-label="Next page"
       >
         <ChevronRight size={16} />

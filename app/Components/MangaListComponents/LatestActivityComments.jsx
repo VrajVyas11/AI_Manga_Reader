@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 import React, { useState, useEffect, useCallback } from "react";
 import {
@@ -46,11 +47,11 @@ const LatestComments = () => {
             setError(null);
 
             const now = Date.now();
-            const cachedTimestamp = lastFetchTimestamp || 0;
+            const cachedTimestamp = lastFetchTimestamp ?? 0;
 
             if (!force && now - cachedTimestamp < CACHE_DURATION_MS) {
                 try {
-                    const cachedData = JSON.parse(localStorage.getItem(CACHE_KEY) || "{}");
+                    const cachedData = JSON.parse(localStorage.getItem(CACHE_KEY) ?? "{}");
                     if (cachedData.data) {
                         setComments(cachedData.data);
                         setLastUpdatedDisplay(new Date(cachedTimestamp).toLocaleTimeString());
@@ -67,10 +68,10 @@ const LatestComments = () => {
                 const data = await response.json();
 
                 if (!response.ok) {
-                    throw new Error(data.error || "Failed to fetch comments");
+                    throw new Error(data.error ?? "Failed to fetch comments");
                 }
 
-                const fetchedComments = data.data || [];
+                const fetchedComments = data.data ?? [];
                 setComments(fetchedComments);
 
                 const newTimestamp = Date.now();
@@ -87,11 +88,11 @@ const LatestComments = () => {
                 console.error("Error fetching comments:", err);
 
                 try {
-                    const cachedData = JSON.parse(localStorage.getItem(CACHE_KEY) || "{}");
+                    const cachedData = JSON.parse(localStorage.getItem(CACHE_KEY) ?? "{}");
                     if (cachedData.data) {
                         setComments(cachedData.data);
                         setLastUpdatedDisplay(
-                            new Date(parseInt(localStorage.getItem(LAST_FETCH_TIMESTAMP_KEY) || "0")).toLocaleTimeString()
+                            new Date(parseInt(localStorage.getItem(LAST_FETCH_TIMESTAMP_KEY) ?? "0")).toLocaleTimeString()
                         );
                     }
                 } catch (e) {
@@ -112,11 +113,11 @@ const LatestComments = () => {
         if (cachedData && cachedTimestamp && Date.now() - cachedTimestamp < CACHE_DURATION_MS) {
             try {
                 const parsedData = JSON.parse(cachedData);
-                setComments(parsedData.data || []);
+                setComments(parsedData.data ?? []);
                 setLastUpdatedDisplay(new Date(cachedTimestamp).toLocaleTimeString());
                 setLastFetchTimestamp(cachedTimestamp);
                 setLoading(false);
-            } catch (e) {
+            } catch {
                 fetchComments();
             }
         } else {
@@ -252,7 +253,7 @@ const LatestComments = () => {
     }
     if (loading && comments.length == 0) {
         return (
-           <LatestActivityCommentsSkeleton isDark={isDark}/>
+            <LatestActivityCommentsSkeleton isDark={isDark} />
         );
     }
 
@@ -274,7 +275,7 @@ const LatestComments = () => {
                                 </h2>
                                 <p className={`text-xs ${isDark ? "text-gray-400" : "text-gray-600"} uppercase tracking-wide flex flex-row w-full`}>
                                     <Activity className={`w-4 h-4 mr-2 ${isDark ? "text-yellow-300" : "text-yellow-600"}`} />
-                                    Real-time community interactions 
+                                    Real-time community interactions
                                     {lastUpdatedDisplay && (
                                         <span>
                                             (Last Updated At : {lastUpdatedDisplay})
@@ -341,7 +342,7 @@ const LatestComments = () => {
                             >
                                 {comments.map((comment, index) => (
                                     <div
-                                        key={comment.id || index}
+                                        key={comment.id ?? index}
                                         className="flex-shrink-0 w-80 relative group"
                                     >
                                         <div className={`relative ${showMore[comment.id] ? "h-auto" : "h-[290px]"} ${isDark ? "bg-gray-800/10 border-purple-500/20 hover:border-purple-500/40" : "bg-gray-100/50 border-purple-400/20 hover:border-purple-400/40"} mt-1 backdrop-blur-2xl border rounded-2xl p-5 pb-0 transition-all duration-0 shadow-xl`}>
@@ -402,7 +403,7 @@ const LatestComments = () => {
                                                         <div className={`absolute inset-0 ${isDark ? "" : "bg-gray-200/20"} rounded-xl blur-sm`}></div>
                                                         <div className={`relative rounded-xl p-5 py-4 border ${isDark ? "border-yellow-500/10" : "border-yellow-400/10"} shadow-inner`}>
                                                             <p className={`text-[14px] leading-relaxed line-clamp-4 ${isDark ? "text-white/90" : "text-gray-900/90"}`}>
-                                                                " {comment.commentContent}"
+                                                                {`" ${comment.commentContent}"`}
                                                             </p>
                                                         </div>
                                                     </div>
@@ -458,16 +459,16 @@ const LatestComments = () => {
                                                             {(comment.chapterTitle || comment.chapterNo) && (
                                                                 <p
                                                                     className={`text-xs flex flex-row gap-1 max-w-[60%] select-text ${isDark ? "text-purple-300/90" : "text-purple-600/90"}`}
-                                                                    title={comment.chapterTitle || `Chapter ${comment.chapterNo}`}
+                                                                    title={comment.chapterTitle ?? `Chapter ${comment.chapterNo}`}
                                                                 >
                                                                     <span className={`uppercase font-semibold ${isDark ? "text-purple-400" : "text-purple-500"} select-none mr-2 text-[10px]`}>
                                                                         Title:
                                                                     </span>
-                                                                    "
+                                                                    {`"`}
                                                                     <span className="w-full flex justify-start items-center whitespace-nowrap italic">
-                                                                        {truncateTitle(comment.chapterTitle || `Chapter ${comment.chapterNo}`, 20)}
+                                                                        {truncateTitle(comment.chapterTitle ?? `Chapter ${comment.chapterNo}`, 20)}
                                                                     </span>
-                                                                    "
+                                                                    {`"`}
                                                                 </p>
                                                             )}
                                                         </div>
@@ -522,7 +523,7 @@ const LatestComments = () => {
                                             <button
                                                 onClick={() => fetchComments(true)}
                                                 className={`mt-4 px-6 py-2 ${isDark ? "bg-purple-600/30 hover:bg-purple-600/50 border-purple-500/30 hover:border-purple-400/60 text-purple-300 hover:text-purple-200" : "bg-purple-400/30 hover:bg-purple-400/50 border-purple-400/30 hover:border-purple-600/60 text-purple-600 hover:text-purple-500"} rounded-xl transition-all duration-0 text-sm font-medium`}
-                                           >
+                                            >
                                                 Refresh Activity
                                             </button>
                                         </div>
