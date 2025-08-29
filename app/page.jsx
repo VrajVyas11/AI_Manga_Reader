@@ -5,6 +5,7 @@ import React, { useState, useEffect, useCallback, useMemo, lazy } from "react";
 import { useRouter } from "next/navigation";
 import TopFavouriteMangas from "./constants/TopFavouriteMangas";
 import { MoveRight } from "lucide-react";
+import { useManga } from './providers/MangaContext';
 const LandingContent = React.memo(
   lazy(() => import('./Components/HomeComponents/LandingContent'))
 );
@@ -40,7 +41,7 @@ const Home = () => {
   const [topSearches, setTopSearches] = useState(TopFavouriteMangas);
   const [error, setError] = useState(null);
   const router = useRouter();
-
+  const { setSelectedManga } = useManga();
   // Debounce function memoized
   const debounce = useCallback((func, wait) => {
     let timeout;
@@ -139,28 +140,22 @@ const Home = () => {
     [searchQuery, router]
   );
 
-  const handleMangaClicked = useCallback(
-    async (manga) => {
-      try {
-        router.push(`/manga/${manga.id}/chapters`);
-      } catch (err) {
-        setError(`Failed to load ${manga.title}. Please try another title.`);
-        console.error(err);
-      }
-    },
-    [router]
-  );
+  const handleMangaClicked = useCallback((manga) => {
+    setSelectedManga(manga);
+  }, [setSelectedManga]);
 
   // Memoize rendered manga list to avoid re-renders
   const renderedTopSearches = useMemo(() => {
     return topSearches.map((manga, index) => (
-      <button
-        key={manga.id || index}
+      <Link
+        key={manga.id ?? index}
+        href={`/manga/${manga?.id}/chapters`}
+        prefetch={true}
         onClick={() => handleMangaClicked(manga)}
         className="bg-gray-800 text-[10px] sm:text-sm rounded-md px-3 py-2 m-1 hover:bg-opacity-45 hover:bg-purple-800 transition duration-200"
       >
         {manga.title.length > 35 ? manga.title.slice(0, 35) + "..." : manga.title}
-      </button>
+      </Link>
     ));
   }, [topSearches, handleMangaClicked]);
 
@@ -186,7 +181,7 @@ const Home = () => {
       >
         <div className="container mt-16 md:mt-0 mx-auto px-4 py-6">
           {/* Logo */}
-          <LOGO/>
+          <LOGO />
 
           {/* Search Bar */}
           <div className="mb-8 max-w-2xl mx-auto">
@@ -220,7 +215,7 @@ const Home = () => {
           </div>
 
           {/* Go To Homepage Button */}
-          <GOTOHomeButton/>
+          <GOTOHomeButton />
         </div>
       </div>
 
@@ -243,10 +238,10 @@ const GOTOHomeButton = React.memo(() => (
         className="absolute bottom-0 left-0 w-full h-1 transition-all duration-150 ease-in-out brightness-150 group-hover:h-full"
       ></span>
       <span className="absolute right-0 pr-4 duration-200 ease-out group-hover:translate-x-12">
-        <MoveRight className=" w-5 h-5 -mt-0.5"/>
+        <MoveRight className=" w-5 h-5 -mt-0.5" />
       </span>
       <span className="absolute left-0 pl-2.5 -translate-x-12 group-hover:translate-x-0 ease-out duration-200">
-        <MoveRight className=" w-5 h-5 -mt-0.5 group-hover:-mt-0"/>
+        <MoveRight className=" w-5 h-5 -mt-0.5 group-hover:-mt-0" />
       </span>
       <span className="relative w-full transform -translate-y-1 group-hover:-translate-y-0  text-left transition-colors duration-200 ease-in-out group-hover:text-white">
         Go To Homepage
@@ -254,7 +249,7 @@ const GOTOHomeButton = React.memo(() => (
     </Link>
   </div>
 ));
-
+GOTOHomeButton.displayName = "GOTOHomeButton"
 const LOGO = React.memo(() => (
   <div className="flex justify-center mb-10">
     <Link href="/" className="inline-block">
@@ -269,3 +264,4 @@ const LOGO = React.memo(() => (
     </Link>
   </div>
 ));
+LOGO.displayName = "LOGO"
