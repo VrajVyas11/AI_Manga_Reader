@@ -42,8 +42,7 @@ const getIconMap = (isDark) => ({
 const MemoStableFlag = React.memo(StableFlag);
 
 function TabsAndSections({ manga, chapters, handleChapterClick, isDark }) {
-  if (chapters.length == 0 || !manga) return <TabsAndSectionsSkeleton isDark={isDark} />
-  const [sortOrder, setSortOrder] = useState('descending');
+  const [sortOrder] = useState('descending');
   const [activeTab, setActiveTab] = useState(0);
 
 
@@ -68,7 +67,7 @@ function TabsAndSections({ manga, chapters, handleChapterClick, isDark }) {
       nu: `https://www.novelupdates.com/${link}`,
       kt: `https://mangadex.org/title/${memoManga.id}/${link}`,
       al: `https://anilist.co/manga/${link}`,
-    }[key] || link),
+    }[key] ?? link),
     [memoManga]
   );
 
@@ -96,14 +95,14 @@ function TabsAndSections({ manga, chapters, handleChapterClick, isDark }) {
         ),
       },
       {
-        label: `Comments (${memoManga?.rating?.comments?.repliesCount || 0})`,
+        label: `Comments (${memoManga?.rating?.comments?.repliesCount ?? 0})`,
         content: <CommentsOnManga manga={memoManga} isDark={isDark} />,
       },
     ],
-    [chapters.length, memoManga, uniqueVolumes, handleChapterClick,isDark]
+    [chapters, isDark, memoManga, uniqueVolumes, handleChapterClick]
   );
-console.log(memoManga);
-
+  // console.log(memoManga);
+  if (chapters.length == 0 || !manga) return <TabsAndSectionsSkeleton isDark={isDark} />
   return (
     <div className="px-4 sm:px-[70px] transition-colors duration-0">
       <div className="mb-6 sm:mb-8 w-fit">
@@ -118,10 +117,10 @@ console.log(memoManga);
                 Author
               </h3>
               <div className={`backdrop-blur-md min-w-fit px-3 py-2 text-sm inline-flex items-center Capitalize rounded transition-all duration-0 ${isDark
-                  ? 'bg-white/10 text-white'
-                  : 'bg-gray-100 shadow-md font-semibold text-gray-800 border border-gray-200'
+                ? 'bg-white/10 text-white'
+                : 'bg-gray-100 shadow-md font-semibold text-gray-800 border border-gray-200'
                 }`}>
-                {memoManga?.authorName?.length>0?memoManga?.authorName[0]?.attributes?.name:memoManga?.authorName?.attributes?.name || "Unknown"}
+                {memoManga?.authorName?.length > 0 ? memoManga?.authorName[0]?.attributes?.name : memoManga?.authorName?.attributes?.name ?? "Unknown"}
               </div>
             </div>
             <div>
@@ -130,10 +129,10 @@ console.log(memoManga);
                 Artist
               </h3>
               <div className={`backdrop-blur-md min-w-fit px-3 py-2 text-sm inline-flex items-center Capitalize rounded transition-all duration-0 ${isDark
-                  ? 'bg-white/10 text-white'
-                  : 'bg-gray-100 shadow-md font-semibold text-gray-800 border border-gray-200'
+                ? 'bg-white/10 text-white'
+                : 'bg-gray-100 shadow-md font-semibold text-gray-800 border border-gray-200'
                 }`}>
-                {memoManga?.artistName?.length>0?memoManga?.artistName[0]?.attributes?.name:memoManga?.artistName?.attributes?.name || "Unknown"}
+                {memoManga?.artistName?.length > 0 ? memoManga?.artistName[0]?.attributes?.name : memoManga?.artistName?.attributes?.name ?? "Unknown"}
               </div>
             </div>
           </div>
@@ -150,8 +149,8 @@ console.log(memoManga);
                   <div
                     key={index}
                     className={`backdrop-blur-md min-w-fit px-3 py-2 text-xs inline-flex items-center Capitalize rounded transition-all duration-0 ${isDark
-                        ? 'bg-white/10 text-white hover:bg-white/20'
-                        : 'bg-gray-100 shadow-md font-semibold text-gray-800 border border-gray-200 hover:bg-gray-900/20'
+                      ? 'bg-white/10 text-white hover:bg-white/20'
+                      : 'bg-gray-100 shadow-md font-semibold text-gray-800 border border-gray-200 hover:bg-gray-900/20'
                       }`}
                   >
                     {genre}
@@ -172,8 +171,8 @@ console.log(memoManga);
                   <div
                     key={index}
                     className={`backdrop-blur-md min-w-fit px-3 py-2 text-xs inline-flex items-center Capitalize rounded transition-all duration-0 ${isDark
-                        ? 'bg-white/10 text-white hover:bg-white/20'
-                        : 'bg-gray-100 shadow-md font-semibold text-gray-800 border border-gray-200 hover:bg-gray-900/20'
+                      ? 'bg-white/10 text-white hover:bg-white/20'
+                      : 'bg-gray-100 shadow-md font-semibold text-gray-800 border border-gray-200 hover:bg-gray-900/20'
                       }`}
                   >
                     {theme}
@@ -196,8 +195,8 @@ console.log(memoManga);
                   <div
                     key={index}
                     className={`backdrop-blur-md min-w-fit px-3 py-2 text-xs inline-flex items-center Capitalize rounded transition-all duration-0 ${isDark
-                        ? 'bg-white/10 text-white hover:bg-white/20'
-                        : 'bg-gray-100 shadow-md font-semibold text-gray-800 border border-gray-200 hover:bg-gray-900/20'
+                      ? 'bg-white/10 text-white hover:bg-white/20'
+                      : 'bg-gray-100 shadow-md font-semibold text-gray-800 border border-gray-200 hover:bg-gray-900/20'
                       }`}
                   >
                     {format}
@@ -212,10 +211,10 @@ console.log(memoManga);
               Demographic
             </h3>
             <div className={`backdrop-blur-md min-w-fit px-3 py-2 text-xs inline-flex items-center Capitalize rounded transition-all duration-0 ${isDark
-                ? 'bg-white/10 text-white'
-                : 'bg-gray-100 shadow-md font-semibold text-gray-800 border border-gray-200'
+              ? 'bg-white/10 text-white'
+              : 'bg-gray-100 shadow-md font-semibold text-gray-800 border border-gray-200'
               }`}>
-              {memoManga.MangaStoryType || "None"}
+              {memoManga.MangaStoryType ?? "None"}
             </div>
           </div>
 
@@ -233,14 +232,14 @@ console.log(memoManga);
                     target="_blank"
                     rel="noopener noreferrer"
                     className={`backdrop-blur-md rounded px-3 py-2 flex items-center transition-all duration-0 ${isDark
-                        ? 'bg-white/10 hover:bg-white/20'
-                        : 'bg-gray-100 shadow-md font-semibold border border-gray-200 hover:bg-gray-900/20 hover:border-gray-300'
+                      ? 'bg-white/10 hover:bg-white/20'
+                      : 'bg-gray-100 shadow-md font-semibold border border-gray-200 hover:bg-gray-900/20 hover:border-gray-300'
                       }`}
                   >
-                    {iconMap[key] || <Book className={`w-4 h-4 mr-2 ${isDark ? 'text-white' : 'text-gray-700'}`} />}
+                    {iconMap[key] ?? <Book className={`w-4 h-4 mr-2 ${isDark ? 'text-white' : 'text-gray-700'}`} />}
                     <span className={`text-xs transition-colors duration-0 ${isDark ? 'text-white' : 'text-gray-800'
                       }`}>
-                      {websiteNames[key] || "Unknown"}
+                      {websiteNames[key] ?? "Unknown"}
                     </span>
                   </a>
                 )
@@ -262,11 +261,11 @@ console.log(memoManga);
                     target="_blank"
                     rel="noopener noreferrer"
                     className={`backdrop-blur-md rounded px-3 py-2 flex items-center transition-all duration-0 ${isDark
-                        ? 'bg-white/10 hover:bg-white/20'
-                        : 'bg-gray-100 shadow-md font-semibold border border-gray-200 hover:bg-gray-900/20 hover:border-gray-300'
+                      ? 'bg-white/10 hover:bg-white/20'
+                      : 'bg-gray-100 shadow-md font-semibold border border-gray-200 hover:bg-gray-900/20 hover:border-gray-300'
                       }`}
                   >
-                    {iconMap[key] || <Book className={`w-4 h-4 mr-2 ${isDark ? 'text-white' : 'text-gray-700'}`} />}
+                    {iconMap[key] ?? <Book className={`w-4 h-4 mr-2 ${isDark ? 'text-white' : 'text-gray-700'}`} />}
                     <span className={`text-xs transition-colors duration-0 ${isDark ? 'text-white' : 'text-gray-800'
                       }`}>
                       {websiteNames[key]}
@@ -287,12 +286,12 @@ console.log(memoManga);
                 <div
                   key={index}
                   className={`flex items-center gap-2 py-1 px-2 rounded-md transition-all duration-0 ${isDark
-                      ? 'hover:bg-gray-800'
-                      : 'hover:bg-gray-100'
+                    ? 'hover:bg-gray-800'
+                    : 'hover:bg-gray-100'
                     }`}
                 >
                   <MemoStableFlag
-                    code={Object.keys(title)[0] || "en"}
+                    code={Object.keys(title)[0] ?? "en"}
                     className="w-6 sm:w-8 h-6 sm:h-8 rounded-md shadow-sm"
                     alt="flag"
                   />
@@ -319,8 +318,8 @@ export default TabsAndSections;
 const Tabs = React.memo(({ tabs, activeTab, onTabChange, isDark }) => {
   return (
     <div className={`backdrop-blur-md rounded overflow-x-auto flex-nowrap transition-all duration-0 ${isDark
-        ? 'bg-gray-600/30'
-        : 'bg-white/70 border border-gray-200 shadow-sm'
+      ? 'bg-gray-600/30'
+      : 'bg-white/70 border border-gray-200 shadow-sm'
       }`}>
       <div className="flex">
         {tabs.map((tab, index) => (
@@ -328,12 +327,12 @@ const Tabs = React.memo(({ tabs, activeTab, onTabChange, isDark }) => {
             key={index}
             onClick={() => onTabChange(index)}
             className={`px-4 py-2 text-sm md:text-base font-bold transition-all duration-0 whitespace-nowrap ${activeTab === index
-                ? isDark
-                  ? 'bg-gray-600/30 text-white shadow-md rounded'
-                  : 'bg-white/90 text-gray-900 shadow-md rounded border border-gray-300'
-                : isDark
-                  ? 'text-[#808080] hover:text-white'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
+              ? isDark
+                ? 'bg-gray-600/30 text-white shadow-md rounded'
+                : 'bg-white/90 text-gray-900 shadow-md rounded border border-gray-300'
+              : isDark
+                ? 'text-[#808080] hover:text-white'
+                : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
               }`}
           >
             {tab.label}
@@ -343,3 +342,4 @@ const Tabs = React.memo(({ tabs, activeTab, onTabChange, isDark }) => {
     </div>
   );
 });
+Tabs.displayName = "TabsSectionOfTabsAndSection.jsx"

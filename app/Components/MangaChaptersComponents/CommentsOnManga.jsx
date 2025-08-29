@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import {
   MessageCircle,
@@ -19,14 +20,14 @@ import {
   CircleFadingArrowUp,
 } from "lucide-react";
 
-const CommentsOnManga = ({ manga,isDark=true }) => {
-  const CACHE_KEY = `comments_on_manga_${manga?.id || "unknown"}`;
-  const LAST_FETCH_TIMESTAMP_KEY = `comments_on_manga_${manga?.id || "unknown"}_last_fetch`;
+const CommentsOnManga = ({ manga, isDark = true }) => {
+  const CACHE_KEY = `comments_on_manga_${manga?.id ?? "unknown"}`;
+  const LAST_FETCH_TIMESTAMP_KEY = `comments_on_manga_${manga?.id ?? "unknown"}_last_fetch`;
   const CACHE_DURATION_MS = 15 * 60 * 1000; // 15 minutes
   const COMMENTS_PER_PAGE = 20;
 
-  const thread = useMemo(() => manga?.rating?.comments?.threadId || null);
-  const repliesCount = useMemo(() => manga?.rating?.comments?.repliesCount || 0);
+  const thread = useMemo(() => manga?.rating?.comments?.threadId ?? null, [manga?.rating?.comments?.threadId]);
+  const repliesCount = useMemo(() => manga?.rating?.comments?.repliesCount ?? 0, [manga?.rating?.comments?.repliesCount]);
   const [comments, setComments] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -61,7 +62,7 @@ const CommentsOnManga = ({ manga,isDark=true }) => {
       const now = Date.now();
       const cacheKey = `${CACHE_KEY}_page_${page}`;
       const timestampKey = `${LAST_FETCH_TIMESTAMP_KEY}_page_${page}`;
-      const cachedTimestamp = Number(localStorage.getItem(timestampKey)) || 0;
+      const cachedTimestamp = Number(localStorage.getItem(timestampKey)) ?? 0;
 
       if (now - cachedTimestamp < CACHE_DURATION_MS) {
         try {
@@ -104,11 +105,11 @@ const CommentsOnManga = ({ manga,isDark=true }) => {
           setError(apiError);
         } else {
           if (isFirstPage) {
-            setComments(data || []);
+            setComments(data ?? []);
           } else {
-            setComments((prev) => [...prev, ...(data || [])]);
+            setComments((prev) => [...prev, ...(data ?? [])]);
           }
-          setTotal(total || 0);
+          setTotal(total ?? 0);
           const newTimestamp = Date.now();
 
           try {
@@ -130,7 +131,7 @@ const CommentsOnManga = ({ manga,isDark=true }) => {
         setLoadingMore(false);
       }
     },
-    [thread, repliesCount, CACHE_KEY, LAST_FETCH_TIMESTAMP_KEY]
+    [thread, repliesCount, CACHE_KEY, LAST_FETCH_TIMESTAMP_KEY, CACHE_DURATION_MS]
   );
 
   useEffect(() => {
@@ -167,7 +168,7 @@ const CommentsOnManga = ({ manga,isDark=true }) => {
           content: [lines[i - 1]].join("\n").trim(),
         });
       } else if (line.startsWith("Spoiler:")) {
-        const spoilerTitle = line.replace("Spoiler:", "").trim() || "Spoiler";
+        const spoilerTitle = line.replace("Spoiler:", "").trim() ?? "Spoiler";
         const spoilerContent = lines.slice(i + 1).join("\n").trim();
         parts.push({
           type: "spoiler",
@@ -206,9 +207,8 @@ const CommentsOnManga = ({ manga,isDark=true }) => {
   if (loading) {
     return (
       <div
-        className={`${transitionClass} max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 pb-8 ${
-          isDark ? "" : "bg-white text-black"
-        }`}
+        className={`${transitionClass} max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 pb-8 ${isDark ? "" : "bg-white text-black"
+          }`}
       >
         {/* Animated Header Skeleton */}
         <div className="mb-8">
@@ -278,7 +278,7 @@ const CommentsOnManga = ({ manga,isDark=true }) => {
         aria-label="Comments container"
       >
         {/* Header */}
-        <div className="flex items-center justify-between mb-4 sm:mb-6 px-4 sm:px-6 sm:pl-1">
+        <div className="flex items-center justify-between mb-4 sm:mb-6 px-0 sm:px-6 sm:pl-1">
           <div className="flex items-center gap-x-3 sm:gap-x-4">
             <div className="relative">
               <div
@@ -355,7 +355,7 @@ const CommentsOnManga = ({ manga,isDark=true }) => {
                   )}
                 />
                 <span className="font-semibold">{total.toLocaleString()}</span>
-                <span className={`${isDark?"text-white":"text-black"} hidden md:block text-[11px] sm:text-xs`}>
+                <span className={`${isDark ? "text-white" : "text-black"} hidden md:block text-[11px] sm:text-xs`}>
                   voices
                 </span>
               </div>
@@ -477,7 +477,7 @@ const CommentsOnManga = ({ manga,isDark=true }) => {
               )}
             >
               {comments.map((comment, index) => {
-                const commentId = comment.id || index;
+                const commentId = comment.id ?? index;
                 const { parts } = parseCommentContent(comment.commentContent);
 
                 return (
@@ -563,7 +563,7 @@ const CommentsOnManga = ({ manga,isDark=true }) => {
                           {comment.avatarUrl ? (
                             <img
                               src={comment.avatarUrl}
-                              alt={`${comment.username || "Anonymous"} avatar`}
+                              alt={`${comment.username ?? "Anonymous"} avatar`}
                               className={lightThemeOverride(
                                 "w-10 h-10 sm:w-12 sm:h-12 rounded-xl object-cover border-2 border-gray-700 transition-all duration-0 shadow-md",
                                 "w-10 h-10 sm:w-12 sm:h-12 rounded-xl object-cover border-2 border-gray-300 transition-all duration-0 shadow-md"
@@ -577,11 +577,9 @@ const CommentsOnManga = ({ manga,isDark=true }) => {
                           ) : null}
                           <div
                             className={lightThemeOverride(
-                              `w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gray-800 flex items-center justify-center border-2 border-gray-700 transition-all duration-0 shadow-md ${
-                                comment.avatarUrl ? "hidden" : "flex"
+                              `w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gray-800 flex items-center justify-center border-2 border-gray-700 transition-all duration-0 shadow-md ${comment.avatarUrl ? "hidden" : "flex"
                               }`,
-                              `w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gray-200 flex items-center justify-center border-2 border-gray-300 transition-all duration-0 shadow-md ${
-                                comment.avatarUrl ? "hidden" : "flex"
+                              `w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gray-200 flex items-center justify-center border-2 border-gray-300 transition-all duration-0 shadow-md ${comment.avatarUrl ? "hidden" : "flex"
                               }`
                             )}
                           >
@@ -609,7 +607,7 @@ const CommentsOnManga = ({ manga,isDark=true }) => {
                                 "text-base sm:text-lg font-bold text-gray-900 transition-colors truncate"
                               )}
                             >
-                              {comment.username || "Anonymous"}
+                              {comment.username ?? "Anonymous"}
                             </h3>
                             {comment.userTitle && (
                               <span
@@ -637,7 +635,7 @@ const CommentsOnManga = ({ manga,isDark=true }) => {
                                     "w-3 h-3 text-gray-700"
                                   )}
                                 />
-                                <time dateTime={comment.postDateTime || undefined}>
+                                <time dateTime={comment.postDateTime ?? undefined}>
                                   {comment.timeAgo}
                                 </time>
                               </div>
@@ -929,7 +927,7 @@ const CommentsOnManga = ({ manga,isDark=true }) => {
                       "text-lg sm:text-xl font-bold text-gray-900 mb-2"
                     )}
                   >
-                    You've reached the end!
+                    {`You've reached the end!`}
                   </h3>
 
                   <p
@@ -938,7 +936,7 @@ const CommentsOnManga = ({ manga,isDark=true }) => {
                       "text-green-700 mb-4 text-xs sm:text-sm"
                     )}
                   >
-                    You've seen all {total.toLocaleString()} comments in this discussion.
+                    {`You've seen all ${total.toLocaleString()} comments in this discussion.`}
                   </p>
                 </div>
               </div>

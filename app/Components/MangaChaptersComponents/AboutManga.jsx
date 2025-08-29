@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
-import Image from "next/image"
+import React, { useState, useEffect, useMemo } from 'react';
+import Image from "next/image";
 import {
   Book,
   Users,
@@ -15,30 +15,34 @@ import {
   BookMarked,
   Bookmark,
 } from 'lucide-react';
-import { getRatingColor } from "../../constants/Flags"
+import { getRatingColor } from "../../constants/Flags";
 import StableFlag from "../StableFlag";
 import { useManga } from '../../providers/MangaContext';
 import AboutMangaSkeleton from '../Skeletons/MangaChapters/AboutMangaSkeleton';
+import Link from 'next/link';
+
 const MemoStableFlag = React.memo(StableFlag);
+
 const AboutManga = ({ manga, handleChapterClick, chapters, isDark = true }) => {
   const [isClient, setIsClient] = useState(false);
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  if (!manga && isClient) return <AboutMangaSkeleton isDark={isDark}/>
   const [showFullDescription, setShowFullDescription] = useState(false);
-  const { addToBookMarks, getAllBookMarks } = useManga()
+  const { addToBookMarks, getAllBookMarks } = useManga();
 
   const handleAddToLibrary = () => {
-    addToBookMarks(manga)
+    addToBookMarks(manga);
   };
+
   const isBookMarked = useMemo(() => {
     if (!isClient) return false; // Consistent server-side value
     return getAllBookMarks().some((m) => m.manga.id === manga.id);
-  }, [isClient, manga, handleAddToLibrary]);
-  const LastChapter = useMemo(() => chapters.sort((a, b) => a.chapter - b.chapter)[chapters.length - 1], [chapters])
+  }, [isClient, getAllBookMarks, manga.id]);
 
+  const LastChapter = useMemo(() => chapters.sort((a, b) => a.chapter - b.chapter)[chapters.length - 1], [chapters]);
+  const MangaId = useMemo(() => manga?.id, [manga?.id])
   const websiteNames = {
     al: "AniList",
     amz: "Amazon",
@@ -63,7 +67,7 @@ const AboutManga = ({ manga, handleChapterClick, chapters, isDark = true }) => {
     nu: `https://www.novelupdates.com/${link}`,
     kt: `https://mangadex.org/title/${manga.id}/${link}`,
     al: `https://anilist.co/manga/${link}`,
-  }[key] || link);
+  }[key] ?? link);
 
   const iconMap = {
     raw: <Book className={`w-4 h-4 mr-2 ${isDark ? 'text-white' : 'text-gray-800'}`} />,
@@ -76,26 +80,58 @@ const AboutManga = ({ manga, handleChapterClick, chapters, isDark = true }) => {
     al: <Book className={`w-4 h-4 mr-2 ${isDark ? 'text-white' : 'text-gray-800'}`} />,
     mal: <Library className={`w-4 h-4 mr-2 ${isDark ? 'text-white' : 'text-gray-800'}`} />,
   };
+
+  // Helper to compute the exact button classes as the old Button component would
+  const getButtonClasses = ({ variant = 'primary', size = 'medium', className = '', isDark = true, disabled = false }) => {
+    const baseClasses = 'font-medium rounded transition-colors duration-0 focus:outline-none flex items-center justify-center';
+    const variants = {
+      primary: isDark
+        ? 'bg-purple-900/70 text-white hover:bg-purple-950 disabled:bg-gray-400'
+        : 'bg-purple-600 text-white hover:bg-purple-700 disabled:bg-gray-400',
+      secondary: isDark
+        ? 'bg-gray-600/30 text-white hover:bg-[#666666] disabled:bg-gray-400'
+        : 'bg-gray-300/70 text-gray-900 hover:bg-gray-400/70 disabled:bg-gray-400',
+      outline: isDark
+        ? 'border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:border-gray-200 disabled:text-gray-400'
+        : 'border border-gray-400 text-gray-800 hover:bg-gray-100 disabled:border-gray-200 disabled:text-gray-400',
+    };
+    const sizes = {
+      small: 'px-3 py-1 text-sm h-8',
+      medium: 'px-4 py-2 text-base h-10',
+      large: 'px-6 py-3 text-base h-12',
+    };
+    return `${baseClasses} ${variants[variant]} ${sizes[size]} ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'} ${className}`.trim();
+  };
+
+  // Helper to compute tag classes as the old Tag component would
+  const getTagClasses = ({ variant, size = 'small', onClick, className = '', isDark = true }) => {
+    const baseClasses = `inline-flex items-center font-bold uppercase rounded transition-colors duration-0 ${isDark ? ' text-white' : ' text-black shadow-md'}`;
+    const sizes = {
+      small: 'px-2 py-1 text-xs',
+      medium: 'px-3 py-1 text-sm',
+      large: 'px-4 py-2 text-base',
+    };
+    const clickClasses = onClick ? 'cursor-pointer hover:opacity-80' : '';
+    const ratingColorClass = getRatingColor(variant ?? (isDark ? "dark" : "light"));
+    const whiteText = variant ? 'text-white' : '';
+    return `${baseClasses} ${sizes[size]} ${clickClasses} ${className} ${ratingColorClass} ${whiteText}`.trim();
+  };
+
+  if (!manga && isClient) return <AboutMangaSkeleton isDark={isDark} />;
+
   return (
     <div suppressHydrationWarning className={`min-h-full w-full ${!isDark ? 'bg-gray-50' : ''}`}>
       <div className="relative ">
         {/* Background Image */}
         <div
-          className="absolute  inset-x-0 top-0 h-[180px] sm:h-[220px] md:h-[350px] bg-cover bg-center"
+          className="absolute  inset-x-0 top-0 h-[220px] md:h-[350px] bg-cover bg-center"
           style={{ backgroundImage: `url('${manga.coverImageUrl}')` }}
         >
-          {/* <div
-            className={`${isDark?"hidden":""} absolute inset-0 opacity-70`}
-            style={{
-              backgroundImage:
-                "url('data:image/svg+xml,%3Csvg%20viewBox%3D%270%200%20200%20200%27%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%3E%3Cfilter%20id%3D%27noiseFilter%27%3E%3CfeTurbulence%20type%3D%27fractalNoise%27%20baseFrequency%3D%270.65%27%20numOctaves%3D%273%27%20stitchTiles%3D%27stitch%27%2F%3E%3C%2Ffilter%3E%3Crect%20width%3D%27100%25%27%20height%3D%27100%25%27%20filter%3D%27url%28%23noiseFilter%29%27%2F%3E%3C%2Fsvg%3E')",
-            }}
-          /> */}
-          <div className={`absolute inset-0 h-[180px] backdrop-blur-sm sm:h-[220px] md:h-[350px] ${isDark ? "bg-black/50" : "bg-white/10"} drop-blur-sm z-10`}></div>
+          <div className={`absolute inset-0 backdrop-blur-sm h-[220px] md:h-[350px] ${isDark ? "bg-black/50" : "bg-white/10"} drop-blur-sm z-10`}></div>
         </div>
 
         <main className="relative px-4 sm:px-6 md:px-10">
-          <div className="relative z-10 pt-6 sm:pt-8 md:p-8 pb-0">
+          <div className="relative z-10 pt-24 sm:pt-8 md:p-8 pb-0">
 
             {/* Mobile Layout (< 768px) */}
             <div className="block md:hidden">
@@ -103,7 +139,7 @@ const AboutManga = ({ manga, handleChapterClick, chapters, isDark = true }) => {
               <div className="flex justify-center mb-6">
                 <div className="relative w-36 h-52 sm:w-40 sm:h-56 group select-none shadow-2xl">
                   <a href={manga.coverImageUrl} className="block relative w-full h-full">
-                    <div className={`absolute inset-0 z-50 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-0 rounded-lg`}>
+                    <div className={`absolute inset-0 bg-contain group-hover:scale-105 z-50 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-0 rounded-lg`}>
                       <List className={`${isDark ? 'text-white' : 'text-gray-800'}`} size={18} />
                     </div>
                     <Image
@@ -120,42 +156,53 @@ const AboutManga = ({ manga, handleChapterClick, chapters, isDark = true }) => {
 
               {/* Mobile Title Section */}
               <div className="text-center mb-6 px-2">
-                <h1 className={`text-white text-2xl sm:text-3xl font-bold drop-shadow-lg mb-2 leading-tight`}>
+                <h1 className={`${isDark ? "text-white" : "text-black md:text-white"} text-2xl sm:text-3xl font-bold drop-shadow-lg mb-2 leading-tight`}>
                   {manga.title}
                 </h1>
-                <p className={`text-white/80 text-sm sm:text-base mb-3 font-medium`}>
-                  {manga.altTitles.find(alt => alt.en)?.en || manga.altTitle}
+                <p className={`${isDark ? "text-white/80" : "text-black/80 md:text-white/80"} text-sm sm:text-base mb-3 font-medium`}>
+                  {manga.altTitles.find(alt => alt.en)?.en ?? manga.altTitle}
                 </p>
                 <p className={`text-white/70 text-sm mb-4`}>
                   Author: <span className={`text-white font-medium`}>{manga.authorName.map(author => author.attributes.name).join(', ')}</span>
                 </p>
               </div>
 
-              <div className='grid grid-cols-2 w-full gap-4'>
-                {/* Mobile Secondary Button */}
+              <div className='grid grid-cols-2 w-full gap-2'>
+                {/* Mobile Secondary Button (exact classes passed previously) */}
                 <div className="mb-2 w-full">
-                  <Button
+                  <button
                     onClick={handleAddToLibrary}
-                    variant="secondary"
-                    Icon={Bookmark}
-                    className={`w-full ${isDark ? 'bg-gray-700/50 hover:bg-gray-600/50 text-white border border-gray-600/30' : 'bg-gray-200/70 hover:bg-gray-300/70 text-gray-900 border border-gray-300/50'} font-medium py-6 rounded-lg`}
-                    isDark={isDark}
+                    className={getButtonClasses({
+                      variant: 'secondary',
+                      size: 'medium',
+                      className: `w-full ${isDark ? 'bg-gray-700/50 hover:bg-gray-600/50 text-white border border-gray-600/30' : 'bg-gray-200/70 hover:bg-gray-300/70 text-gray-900 border border-gray-300/50'}  font-semibold py-6 rounded-lg shadow-lg`,
+                      isDark,
+                    })}
+                    aria-pressed={isBookMarked}
+                    type="button"
                   >
-                    {isBookMarked ? "Added To Library" : "Add To Library"}
-                  </Button>
+                    <Bookmark className={`w-5 h-5 mr-2 ${(isBookMarked) ? "fill-white" : ""}`} />
+                    {isBookMarked ? "✓ Library" : "+ Library"}
+                  </button>
                 </div>
+
                 {/* Mobile Action Button */}
-                <div className="mb-6  w-full">
-                  <Button
-                    onClick={() => { handleChapterClick(LastChapter) }}
-                    variant="primary"
-                    Icon={BookOpen}
-                    className={`w-full ${isDark ? 'bg-purple-600 hover:bg-purple-700 text-white' : 'bg-purple-600 hover:bg-purple-700 text-white'} font-semibold py-6 rounded-lg shadow-lg`}
-                    isDark={isDark}
-                  >
-                    Read Latest
-                  </Button>
-                </div>
+                <Link
+                  href={`/manga/${MangaId}/chapter/${LastChapter?.id}/read`}
+                  prefetch={true}
+                  onClick={() => { handleChapterClick(LastChapter); }}
+                  className={getButtonClasses({
+                    variant: 'primary',
+                    size: 'medium',
+                    className: `w-full mb-6 ${isDark ? 'bg-purple-600 hover:bg-purple-700 text-white' : 'bg-purple-600 hover:bg-purple-700 text-white'} font-semibold py-6 rounded-lg shadow-lg`,
+                    isDark,
+                  })}
+                  type="button"
+                >
+                  <BookOpen className="w-5 h-5 mr-2" />
+                  Read Latest
+                </Link>
+
               </div>
 
               {/* Mobile Stats Row */}
@@ -184,13 +231,13 @@ const AboutManga = ({ manga, handleChapterClick, chapters, isDark = true }) => {
                 </div>
               </div>
 
-
               {/* Expandable Section */}
               <div className="px-4 mb-0">
 
                 <button
                   onClick={() => setShowFullDescription(!showFullDescription)}
                   className={`flex items-center justify-center gap-2 ${isDark ? 'bg-white/10 text-white hover:bg-white/20' : 'bg-gray-900/10 text-gray-900 hover:bg-gray-900/20'} backdrop-blur-md rounded px-4 py-2 transition-colors duration-0 w-fit mx-auto lg:mx-0`}
+                  type="button"
                 >
                   <span className="text-sm font-medium">
                     {showFullDescription ? 'Show Less' : 'Show More Details'}
@@ -208,13 +255,20 @@ const AboutManga = ({ manga, handleChapterClick, chapters, isDark = true }) => {
                     <div>
                       <h3 className={`${isDark ? 'text-white' : 'text-gray-900'} font-semibold text-sm mb-2 uppercase tracking-wide`}>Genres</h3>
                       <div className="flex flex-wrap gap-2">
-                        <Tag variant={manga.contentRating.trim()} size="small" className={`${isDark ? 'text-white' : 'text-gray-900'}`} isDark={isDark}>
+                        <span className={getTagClasses({ variant: manga.contentRating.trim(), size: 'small', className: `${isDark ? 'text-white' : 'text-gray-900'}`, isDark })}>
                           {manga.contentRating}
-                        </Tag>
+                        </span>
                         {manga.flatTags.slice(0, 8).map((tag, index) => (
-                          <Tag key={index} size="small" className={`${isDark ? 'bg-gray-700/60 text-white/90 hover:bg-gray-600/60' : 'bg-gray-200/80 text-gray-900 hover:bg-gray-300/80'}`} isDark={isDark}>
+                          <span
+                            key={index}
+                            className={getTagClasses({
+                              size: 'small',
+                              className: `${isDark ? 'bg-gray-700/60 text-white/90 hover:bg-gray-600/60' : 'bg-gray-200/80 text-gray-900 hover:bg-gray-300/80'}`,
+                              isDark,
+                            })}
+                          >
                             {tag}
-                          </Tag>
+                          </span>
                         ))}
                       </div>
                     </div>
@@ -291,7 +345,7 @@ const AboutManga = ({ manga, handleChapterClick, chapters, isDark = true }) => {
                                 rel="noopener noreferrer"
                                 className={`${isDark ? 'bg-white/10' : 'bg-gray-900/10'} backdrop-blur-md rounded px-3 py-2 flex items-center`}
                               >
-                                {iconMap[key] || <Book className={`w-4 h-4 mr-2 ${isDark ? 'text-white' : 'text-gray-800'}`} />}
+                                {iconMap[key] ?? <Book className={`w-4 h-4 mr-2 ${isDark ? 'text-white' : 'text-gray-800'}`} />}
                                 <span className={`${isDark ? 'text-white' : 'text-gray-900'} text-xs`}>{websiteNames[key]}</span>
                               </a>
                             )
@@ -310,7 +364,7 @@ const AboutManga = ({ manga, handleChapterClick, chapters, isDark = true }) => {
                                 rel="noopener noreferrer"
                                 className={`${isDark ? 'bg-white/10' : 'bg-gray-900/10'} backdrop-blur-md rounded px-3 py-2 flex items-center`}
                               >
-                                {iconMap[key] || <Book className={`w-4 h-4 mr-2 ${isDark ? 'text-white' : 'text-gray-800'}`} />}
+                                {iconMap[key] ?? <Book className={`w-4 h-4 mr-2 ${isDark ? 'text-white' : 'text-gray-800'}`} />}
                                 <span className={`${isDark ? 'text-white' : 'text-gray-900'} text-xs`}>{websiteNames[key]}</span>
                               </a>
                             )
@@ -326,7 +380,7 @@ const AboutManga = ({ manga, handleChapterClick, chapters, isDark = true }) => {
                               className={`flex items-center gap-2 py-1 px-2 rounded-md ${isDark ? 'hover:bg-gray-800' : 'hover:bg-gray-200'} transition-all duration-150`}
                             >
                               <MemoStableFlag
-                                code={Object.keys(title)[0] || "en"}
+                                code={Object.keys(title)[0] ?? "en"}
                                 className="w-6 sm:w-8 h-6 sm:h-8 rounded-md shadow-sm"
                                 alt="flag"
                               />
@@ -370,7 +424,7 @@ const AboutManga = ({ manga, handleChapterClick, chapters, isDark = true }) => {
                       {manga.title}
                     </h1>
                     <p className={`text-white text-lg mb-6 line-clamp-1 max-w-[50%]`}>
-                      {manga.altTitles.find(alt => alt.en)?.en || manga.altTitle}
+                      {manga.altTitles.find(alt => alt.en)?.en ?? manga.altTitle}
                     </p>
                   </div>
                   <p className={`text-white text-base mb-8`}>
@@ -379,18 +433,39 @@ const AboutManga = ({ manga, handleChapterClick, chapters, isDark = true }) => {
                 </div>
 
                 <div className="flex gap-4 mb-5">
-                  <Button isBookMarked={isBookMarked} Icon={Bookmark} onClick={handleAddToLibrary} variant={`${isBookMarked ? "none" : "primary"}`} size="large" className={`${isBookMarked ? (isDark ? "bg-purple-800/50 border border-purple-500" : "bg-purple-800/90 border border-purple-300") : ""}`} isDark={isDark} >
-                    {isBookMarked ? "Added To Library" : "Add To Library"}
-                  </Button>
-                  <Button
-                    onClick={() => { handleChapterClick(LastChapter) }}
-                    variant="secondary"
-                    size="large"
-                    Icon={BookOpen}
-                    isDark={isDark}
+                  {/* Desktop primary (Add to Library) */}
+                  <button
+                    onClick={handleAddToLibrary}
+                    className={getButtonClasses({
+                      variant: isBookMarked ? 'primary' : 'primary',
+                      size: 'large',
+                      className: `${isBookMarked ? (isDark ? "bg-purple-800/50 border border-purple-500" : "bg-purple-800/90 border border-purple-300") : ""}`,
+                      isDark,
+                    })}
+                    aria-pressed={isBookMarked}
+                    type="button"
                   >
+                    <Bookmark className={`w-5 h-5 mr-2 ${(isBookMarked) ? "fill-white" : ""}`} />
+                    {isBookMarked ? "Added To Library" : "Add To Library"}
+                  </button>
+
+                  {/* Desktop secondary (Start Reading) */}
+                  <Link
+                    href={`/manga/${MangaId}/chapter/${LastChapter?.id}/read`}
+                    prefetch={true}
+                    onClick={() => { handleChapterClick(LastChapter); }}
+                    className={getButtonClasses({
+                      variant: 'secondary',
+                      size: 'large',
+                      className: '',
+                      isDark,
+                    })}
+                    type="button"
+                  >
+                    <BookOpen className="w-5 h-5 mr-2" />
                     Start Reading
-                  </Button>
+                  </Link>
+
                   <div className="flex items-center gap-6">
                     <div className="flex items-center">
                       <Star className="w-4 h-4 mr-1 text-yellow-400" />
@@ -398,11 +473,11 @@ const AboutManga = ({ manga, handleChapterClick, chapters, isDark = true }) => {
                     </div>
                     <div className="flex items-center">
                       <UserPlus className={`w-4 h-4 mr-1 ${isDark ? 'text-white' : 'text-gray-800'}`} />
-                      <span className={`${isDark ? 'text-white' : 'text-gray-800'} text-base`}>{manga?.rating?.follows || 0}</span>
+                      <span className={`${isDark ? 'text-white' : 'text-gray-800'} text-base`}>{manga?.rating?.follows ?? 0}</span>
                     </div>
                     <div className="flex items-center">
                       <Library className={`w-4 h-4 mr-1 ${isDark ? 'text-white' : 'text-gray-800'}`} />
-                      <span className={`${isDark ? 'text-white' : 'text-gray-800'} text-base`}>{manga?.rating?.comments?.repliesCount || 0}</span>
+                      <span className={`${isDark ? 'text-white' : 'text-gray-800'} text-base`}>{manga?.rating?.comments?.repliesCount ?? 0}</span>
                     </div>
                     <div className="flex items-center ml-2">
                       <Book className={`w-4 h-4 mr-2 ${isDark ? 'text-white' : 'text-gray-800'}`} />
@@ -414,11 +489,13 @@ const AboutManga = ({ manga, handleChapterClick, chapters, isDark = true }) => {
                 </div>
 
                 <div className="flex flex-wrap gap-2 mb-6">
-                  <Tag variant={manga.contentRating.trim()} isDark={isDark}>{manga.contentRating}</Tag>
+                  <span className={getTagClasses({ variant: manga.contentRating.trim(), isDark })}>
+                    {manga.contentRating}
+                  </span>
                   {manga.flatTags.map((tag, index) => (
-                    <Tag key={index} isDark={isDark}>
+                    <span key={index} className={getTagClasses({ isDark })}>
                       {tag}
-                    </Tag>
+                    </span>
                   ))}
                 </div>
               </div>
@@ -441,80 +518,3 @@ const AboutManga = ({ manga, handleChapterClick, chapters, isDark = true }) => {
 };
 
 export default AboutManga;
-
-const Button = ({
-  children,
-  onClick,
-  variant = 'primary',
-  size = 'medium',
-  disabled = false,
-  Icon = null,
-  className = '',
-  isBookMarked = false,
-  isDark = true,
-  ...props
-}) => {
-  const baseClasses = 'font-medium rounded transition-colors duration-0 focus:outline-none  flex items-center justify-center';
-
-  const variants = {
-    primary: isDark
-      ? 'bg-purple-900/70 text-white hover:bg-purple-950 disabled:bg-gray-400'
-      : 'bg-purple-600 text-white hover:bg-purple-700 disabled:bg-gray-400',
-    secondary: isDark
-      ? 'bg-gray-600/30 text-white hover:bg-[#666666] disabled:bg-gray-400'
-      : 'bg-gray-300/70 text-gray-900 hover:bg-gray-400/70 disabled:bg-gray-400',
-    outline: isDark
-      ? 'border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:border-gray-200 disabled:text-gray-400'
-      : 'border border-gray-400 text-gray-800 hover:bg-gray-100 disabled:border-gray-200 disabled:text-gray-400',
-  };
-
-  const sizes = {
-    small: 'px-3 py-1 text-sm h-8',
-    medium: 'px-4 py-2 text-base h-10',
-    large: 'px-6 py-3 text-base h-12',
-  };
-
-  const buttonClasses = `${baseClasses} ${variants[variant]} ${sizes[size]} ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'} ${className}`;
-
-  return (
-    <button
-      onClick={onClick}
-      disabled={disabled}
-      className={buttonClasses}
-      {...props}
-    >
-      {Icon && <Icon alt="icon" className={`w-5 h-5 mr-2 ${(Icon == Bookmark && isBookMarked) ? (isDark ? "fill-white" : "fill-gray-100") : ""}`} />}
-      {children}
-    </button>
-  );
-};
-
-const Tag = ({
-  children,
-  variant,
-  size = 'small',
-  onClick,
-  className = '',
-  isDark = true,
-  ...props
-}) => {
-  const baseClasses = `inline-flex items-center font-bold uppercase rounded transition-colors duration-0 ${isDark ? ' text-white' : ' text-black shadow-md'}`;
-
-  const sizes = {
-    small: 'px-2 py-1 text-xs',
-    medium: 'px-3 py-1 text-sm',
-    large: 'px-4 py-2 text-base',
-  };
-
-  const tagClasses = `${baseClasses} ${sizes[size]} ${onClick ? 'cursor-pointer hover:opacity-80' : ''} ${className}  ${getRatingColor(variant || (isDark ? "dark" : "light"))} ${variant && "text-white"} `;
-
-  return (
-    <span
-      onClick={onClick}
-      className={tagClasses}
-      {...props}
-    >
-      {children}
-    </span>
-  );
-}; 

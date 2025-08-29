@@ -1,6 +1,6 @@
 'use client';
 
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { useCallback, useMemo, useState, useEffect } from 'react';
 import { useManga } from '../../../../providers/MangaContext';
 import AboutManga from '../../../../Components/MangaChaptersComponents/AboutManga';
@@ -9,13 +9,13 @@ import AboutMangaSkeleton from '../../../../Components/Skeletons/MangaChapters/A
 import TabsAndSectionsSkeleton from '../../../../Components/Skeletons/MangaChapters/TabsAndSectionsSkeleton';
 import { useChaptersFetch } from '../../../../hooks/useChaptersFetch';
 import { useTheme } from '@/app/providers/ThemeContext';
+import Link from 'next/link';
 
 export default function MangaChapters() {
   const { mangaId } = useParams();
-  const router = useRouter();
   const { selectedManga, setChapterListForManga, addToReadHistory } = useManga();
   const [isClient, setIsClient] = useState(false);
-   const { theme } = useTheme();
+  const { theme } = useTheme();
   const isDark = theme === "dark";
   useEffect(() => {
     setIsClient(true);
@@ -39,24 +39,24 @@ export default function MangaChapters() {
       }
       setChapterListForManga(mangaId, chapters);
       addToReadHistory(manga, chapter, chapters);
-      router.push(`/manga/${mangaId}/chapter/${chapter.id}/read`);
+      // router.push(`/manga/${mangaId}/chapter/${chapter.id}/read`);
     },
-    [mangaId, router, chapters, manga, setChapterListForManga, addToReadHistory]
+    [mangaId, chapters, manga, setChapterListForManga, addToReadHistory]
   );
 
   if (chaptersError) {
     return (
-      <div className="flex justify-center items-center w-full h-screen bg-[#070920] backdrop-blur-md text-white">
+      <div className="flex justify-center items-center w-full h-[79vh] bg-black/10 backdrop-blur-md text-white">
         <div className="text-center">
-          <p className="text-lg text-red-500">{chaptersError.message ??'Failed to load chapters.'}</p>
+          <p className="text-lg text-red-500">{chaptersError?.message ?? 'Failed to load chapters.'}</p>
           <p className="text-sm text-gray-400">
             Please{' '}
-            <button
-              onClick={() => router.push('/')}
+            <Link
+              href={"/"}
               className="text-blue-400 underline hover:text-blue-600"
             >
               go back
-            </button>{' '}
+            </Link>{' '}
             or try again later.
           </p>
         </div>
@@ -67,13 +67,13 @@ export default function MangaChapters() {
     return (
       <div className="w-full min-h-screen -mt-7 md:-mt-20 overflow-hidden bg-transparent flex flex-col gap-12 text-white">
         <AboutMangaSkeleton isDark={isDark} />
-        <TabsAndSectionsSkeleton  isDark={isDark}/>
+        <TabsAndSectionsSkeleton isDark={isDark} />
       </div>
     );
   }
 
   return (
-    <div className="w-full relative z-20 min-h-screen -mt-7 md:-mt-20 overflow-hidden bg-transparent flex flex-col gap-12 text-white">
+    <div className="w-full relative z-20 min-h-screen -mt-20 overflow-hidden bg-transparent flex flex-col gap-12 text-white">
       <AboutManga isDark={isDark} chapters={chapters} manga={manga} handleChapterClick={handleChapterClick} />
       {chaptersLoading ? (
         <TabsAndSectionsSkeleton isDark={isDark} />
