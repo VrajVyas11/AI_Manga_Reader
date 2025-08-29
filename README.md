@@ -17,6 +17,7 @@
 > **Introducing the Library**: Your personal manga hub to manage reading history, search history, bookmarked mangas, and favorite chapters — all with powerful filters and sorting to keep your collection organized and accessible.  
 >  
 > With trending searches, smart filters, personalized settings, and these new community and library features, AI Manga Reader delivers a fast, smooth, and immersive experience on desktop, tablet, and mobile. Whether you’re new to manga or a longtime fan, this app makes reading more accessible and enjoyable than ever. 🚀
+> **Addes New Navigation** the manga chapters and read chapter pages now have special navigation bar which are bread crumbs for better back and forth 
 ---
 
 ## 🌍 **Project Overview**
