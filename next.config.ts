@@ -11,6 +11,10 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'mangadex.org',
       },
+      {
+        protocol: 'https',
+        hostname: 'og.mangadex.org'
+      }
     ],
   },
 };

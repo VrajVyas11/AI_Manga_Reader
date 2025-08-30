@@ -3,8 +3,6 @@ import React, { memo, useCallback, lazy, useState, useEffect, Suspense, useRef }
 import {
     Languages,
     ScrollText,
-    ArrowBigLeftDash,
-    ArrowBigRightDash,
 } from 'lucide-react';
 import Image from 'next/image';
 const TextToSpeech = memo(lazy(() => import('./TextToSpeech')));
@@ -32,15 +30,10 @@ function MiddleImageAndOptions({
     setShowMessage,
     showMessage,
     allAtOnce,
-    goToPrevChapter,
-    hasPrevChapter,
-    goToNextChapter,
-    hasNextChapter,
     isCollapsed,
     showTranslationTextOverlay,
     isDark = true, // Added isDark prop with default true
 }) {
-    if (!(chapterInfo && pages)) return null;
     const [cursorClass, setCursorClass] = useState('');
     const [imageCache, setImageCache] = useState([]);
     const [imageKey, setImageKey] = useState(0);
@@ -159,7 +152,7 @@ function MiddleImageAndOptions({
                 setIsLoadingOCR(false);
             }
         },
-        [memoizedHandleTranslate, translateAll]
+        [memoizedHandleTranslate, setFullOCRResult, setIsItTextToSpeech, setPageTTS, setPageTranslations, setShowMessage, translateAll]
     );
 
     useEffect(() => {
@@ -201,7 +194,7 @@ function MiddleImageAndOptions({
             document.removeEventListener('mousemove', handleMouseMove);
         };
     }, [layout]);
-
+    if (!(chapterInfo && pages)) return null;
     return (
         <Suspense
             fallback={
@@ -439,8 +432,8 @@ function MiddleImageAndOptions({
                                                             onClick={() => handleUpload(page, 'translate')}
                                                             className={`font-sans  ${(panels === 2 || pageTranslations[page]) ? "hidden" : ""} tracking-wider min-h-fit text-[11px] font-sans before:bg-opacity-60 min-w-[125px] sm:min-w-[189px] transition-colors flex gap-2 justify-start items-center mx-auto shadow-xl sm:text-lg backdrop-blur-md lg:font-semibold isolation-auto before:absolute before:w-full before:transition-all before:duration-700 before:hover:w-full before:-right-full before:hover:right-0 before:rounded-full before:-z-10 before:aspect-square before:hover:scale-200 before:hover:duration-300 relative z-10 px-2 py-1 sm:px-3 sm:py-2 ease-in-out overflow-hidden border-2 rounded-full group 
                                                              ${isDark
-                                                                ? 'text-white bg-[#1a063e] backdrop-blur-md border-gray-50/50'
-                                                                : 'text-gray-900 bg-yellow-200 border-yellow-300'
+                                                                    ? 'text-white bg-[#1a063e] backdrop-blur-md border-gray-50/50'
+                                                                    : 'text-gray-900 bg-yellow-200 border-yellow-300'
                                                                 } `}
                                                             type="submit"
                                                         >

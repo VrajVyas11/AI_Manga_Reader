@@ -1,6 +1,6 @@
+/* eslint-disable @next/next/no-img-element */
 import { Heart, BookOpen } from "lucide-react";
 import { useState } from "react";
-import Image from "next/image";
 import { langFullNames } from "../../constants/Flags";
 import ConfirmationDialog from "./ConfirmationDialog";
 
@@ -31,13 +31,10 @@ function FavoriteCard({ mangaInfo, chapterInfo, onMangaClick, addToFavorite, isD
                     onClick={() => onMangaClick(mangaInfo)}
                     className="relative h-auto w-full overflow-hidden"
                 >
-                    <Image
-                        width={300}
-                        height={300}
+                    <img
                         src={imageSrc}
                         alt={mangaInfo.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 xs:w-full xs:h-[175px]"
-                        loading="lazy"
                         onError={(e) => {
                             e.currentTarget.style.height = "175px";
                             setImageSrc(mangaInfo.coverImageUrl);

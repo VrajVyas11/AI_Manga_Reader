@@ -1,6 +1,6 @@
 // TopRightOptions.jsx
-import React, { useState, useCallback, useMemo, memo } from 'react'
-import { Settings, BookOpen, Maximize2, Heart, X, ChevronDown, File, Languages, GalleryHorizontalEnd, Layers2, RectangleGoggles, Sparkles, LayoutDashboard } from 'lucide-react'
+import React, { useState, useCallback, useMemo } from 'react'
+import { Settings, BookOpen, Maximize2, Heart } from 'lucide-react'
 import { useManga } from '../../providers/MangaContext'
 import ShowSettingsPopUP from "./TopRightOptionsModules/ShowSettingsPopUp"
 import ChapterQuickSelect from "./TopRightOptionsModules/ChapterQuickSelect"
@@ -17,7 +17,8 @@ function TopRightOptions({
     mangaInfo,
     chapterInfo,
     allChapters = [],
-    goToChapter,
+    handleChapterClick,
+    addToReadHistory,
     isDark = true,
     showTranslationAndSpeakingOptions,
     setShowTranslationAndSpeakingOptions,
@@ -32,12 +33,12 @@ function TopRightOptions({
     const isFavorite = useMemo(() => getAllFavorites()[mangaInfo?.id], [getAllFavorites, mangaInfo?.id])
 
     const goToFirstChapter = useCallback(() =>
-        goToChapter(allChapters[allChapters.length - 1]),
-        [allChapters, goToChapter]
+        handleChapterClick(allChapters[allChapters.length - 1]),
+        [allChapters, handleChapterClick]
     );
     const goToLastChapter = useCallback(() =>
-        goToChapter(allChapters[0]),
-        [allChapters, goToChapter]
+        handleChapterClick(allChapters[0]),
+        [allChapters, handleChapterClick]
     );
 
     const toggleSettings = () => {
@@ -160,9 +161,10 @@ function TopRightOptions({
                 <ChapterQuickSelect 
                     chapterInfo={chapterInfo} 
                     toggleChapters={toggleChapters} 
-                    goToChapter={goToChapter} 
+                    addToReadHistory={addToReadHistory}
                     sortOrder={sortOrder} 
                     searchQuery={searchQuery} 
+                    mangaInfo={mangaInfo}
                     goToFirstChapter={goToFirstChapter} 
                     goToLastChapter={goToLastChapter} 
                     filteredChapters={filteredChapters} 

@@ -13,7 +13,7 @@ function CollapsedSideBarStrip({
   hasNextChapter,
   sortOrder,
   goToPrevChapter,
-  goToChapter,
+  handleChapterClick,
   filteredChapters,
   goToLastChapter,
   goToFirstChapter,
@@ -24,6 +24,7 @@ function CollapsedSideBarStrip({
   dropdownRef,
   setChapterDropdownOpen,
   chapterDropdownOpen,
+  addToReadHistory,
   isDark = true
 }) {
   return (
@@ -103,6 +104,8 @@ function CollapsedSideBarStrip({
                 <div className="absolute -top-[150%] left-14 z-50">
                   <ChaptersQuickSelect
                     isDark={isDark}
+                    mangaInfo={mangaInfo}
+                    addToReadHistory={addToReadHistory}
                     searchQuery={searchQuery}
                     chapterInfo={chapterInfo}
                     setSearchQuery={setSearchQuery}
@@ -111,7 +114,7 @@ function CollapsedSideBarStrip({
                     goToFirstChapter={goToFirstChapter}
                     goToLastChapter={goToLastChapter}
                     filteredChapters={filteredChapters}
-                    goToChapter={goToChapter}
+                    handleChapterClick={handleChapterClick}
                     setChapterDropdownOpen={setChapterDropdownOpen}
                   />
                 </div>

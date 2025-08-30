@@ -41,7 +41,7 @@ function SearchMangaList({
       : "opacity-0 translate-y-10 transition-transform"
     }
     ${isDark
-      ? "bg-gray-900 hover:bg-gray-850 border-gray-800 hover:border-gray-700"
+      ? "bg-gray-950 hover:bg-gray-850 border-gray-800 hover:border-gray-700"
       : "bg-white hover:bg-gray-50 border-gray-200 hover:border-gray-300 shadow-[0px_0px_6px_rgba(0,0,0,0.4)] shadow-gray-300"
     }
   `}

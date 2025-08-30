@@ -4,7 +4,6 @@ const OCROverlay = ({
   fullOCRResult,
   translatedTexts,
   loading,
-  ready,
   layout = "vertical"
 }) => {
 
@@ -14,14 +13,14 @@ const OCROverlay = ({
       return "Translating...";
     }
     return translatedTexts[originalText] || originalText;
-  }, [loading, translatedTexts, layout]);
+  }, [loading, translatedTexts]);
   //  console.log(imageElement.naturalWidth);
   // console.log(imageElement.naturalHeight);
   return (
     <div className="absolute top-0 left-0 w-full h-full overflow-hidden">
       {fullOCRResult &&
         fullOCRResult.map((item, i) => {
-          const [[x1, y1], [x2], , [, y4]] = item.bbox;
+          const [[x1, y1], [], , [,]] = item.bbox;
           //  const originalImageWidth = 1680;
           //  const originalImageHeight = 1680;
           //  const imageAspectRatio = originalImageWidth / originalImageHeight;
@@ -45,8 +44,8 @@ const OCROverlay = ({
           //  const scaledX = x1 * scaleX + offsetX;
           //  const scaledY = y1 * scaleY + offsetY - 60;
 
-          const scaledX = x1 * imageElement.naturalWidth / (imageElement.naturalHeight / imageElement.naturalWidth > 2 ? imageElement.naturalWidth * 3 : imageElement.naturalWidth * (layout=="vertical"?2:2.5))
-          const scaledY = y1 * imageElement.naturalHeight / (imageElement.naturalHeight > 900 ? imageElement.naturalHeight * 4 : imageElement.naturalHeight * (layout=="vertical"?2:2.5));
+          const scaledX = x1 * imageElement.naturalWidth / (imageElement.naturalHeight / imageElement.naturalWidth > 2 ? imageElement.naturalWidth * 3 : imageElement.naturalWidth * (layout == "vertical" ? 2 : 2.5))
+          const scaledY = y1 * imageElement.naturalHeight / (imageElement.naturalHeight > 900 ? imageElement.naturalHeight * 4 : imageElement.naturalHeight * (layout == "vertical" ? 2 : 2.5));
           return (
             <div
               key={i}

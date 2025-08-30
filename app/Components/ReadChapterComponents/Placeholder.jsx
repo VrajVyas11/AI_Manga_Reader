@@ -1,5 +1,5 @@
 import React from 'react';
-import { Image } from 'lucide-react';
+import { Image as ImageIcon } from 'lucide-react';
 
 const Placeholder = ({ isDark = true }) => {
   return (
@@ -24,7 +24,7 @@ const Placeholder = ({ isDark = true }) => {
           animation: 'colorShift 1.5s ease-in-out infinite alternate',
         }}
       >
-        <Image
+        <ImageIcon
           className={`${isDark ? 'stroke-gray-400' : 'stroke-gray-600'}`}
           aria-hidden="true"
         />
