@@ -1,7 +1,8 @@
 import React, { memo, lazy } from "react";
 import Image from "next/image";
-import { Heart, MessageSquareText, Bookmark, Star } from "lucide-react";
+import { Heart, MessageSquareText, Star } from "lucide-react";
 import useInView from "@/app/hooks/useInView";
+import Link from "next/link";
 
 const StableFlag = memo(lazy(() => import("../../StableFlag")));
 
@@ -19,7 +20,7 @@ function SearchMangaList({
       hiatus: "bg-yellow-500",
       cancelled: "bg-red-500",
     };
-    return colors[status] || "bg-gray-500";
+    return colors[status] ?? "bg-gray-500";
   };
 
   const getContentRatingColor = (rating) => {
@@ -29,31 +30,33 @@ function SearchMangaList({
       erotica: "bg-orange-600",
       pornographic: "bg-red-600",
     };
-    return colors[rating] || "bg-gray-600";
+    return colors[rating] ?? "bg-gray-600";
   };
   const [ref, inView] = useInView(0.1)
   return (
-<article
-  ref={ref}
-  className={`overflow-x-hidden border transition-opacity duration-500 rounded-lg p-2 cursor-pointer hover:shadow-lg transform
+    <Link
+      href={`/manga/${manga?.id}/chapters`}
+      prefetch={true}
+      ref={ref}
+      className={`overflow-x-hidden border transition-opacity duration-500 rounded-lg p-2 cursor-pointer hover:shadow-lg transform
     ${inView
-      ? "opacity-100 translate-y-0 transition-transform"
-      : "opacity-0 translate-y-10 transition-transform"
-    }
+          ? "opacity-100 translate-y-0 transition-transform"
+          : "opacity-0 translate-y-10 transition-transform"
+        }
     ${isDark
-      ? "bg-gray-950 hover:bg-gray-850 border-gray-800 hover:border-gray-700"
-      : "bg-white hover:bg-gray-50 border-gray-200 hover:border-gray-300 shadow-[0px_0px_6px_rgba(0,0,0,0.4)] shadow-gray-300"
-    }
+          ? "bg-gray-950 hover:bg-gray-850 border-gray-800 hover:border-gray-700"
+          : "bg-white hover:bg-gray-50 border-gray-200 hover:border-gray-300 shadow-[0px_0px_6px_rgba(0,0,0,0.4)] shadow-gray-300"
+        }
   `}
-  onClick={handleMangaClicked}
-  role="button"
-  aria-label={`Open manga ${manga.title}`}
->
+      onClick={handleMangaClicked}
+      role="button"
+      aria-label={`Open manga ${manga.title}`}
+    >
       <div className="flex gap-2 md:gap-4 ">
         {/* Cover Image */}
         <div className="relative flex-shrink-0">
           <Image
-            src={manga.coverImageUrl || "/placeholder.jpg"}
+            src={manga.coverImageUrl ?? "/placeholder.jpg"}
             width={64}
             height={80}
             alt={`${manga.title} cover`}
@@ -73,14 +76,14 @@ function SearchMangaList({
                   {/* Language Flag */}
 
                   <StableFlag
-                    code={manga.originalLanguage || "UN"}
+                    code={manga.originalLanguage ?? "UN"}
                     className="w-6 mt-0.5  md:-mt-0.5 h-auto  shadow-[0px_0px_2px_rgba(0,0,0,0.4)]"
                   />
 
                   {manga.title.length > 30 ? manga.title.slice(0, 30) + "..." : manga.title}
                 </h3>
                 <p className={`block text-xs md:text-sm mt-0.5 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                  {manga.artistName?.[0]?.attributes?.name || "Unknown Author"}
+                  {manga.artistName?.[0]?.attributes?.name ?? "Unknown Author"}
                   {manga.year && (
                     <span className={`ml-2 ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>• {manga.year}</span>
                   )}
@@ -154,7 +157,7 @@ function SearchMangaList({
               <span
                 className={`${getContentRatingColor(
                   manga.contentRating
-                )}  text-white ${isDark?"bg-opacity-55":""} text-[10px] md:text-xs px-1.5  md:px-2 py-1 capitalize rounded-md truncate`}
+                )}  text-white ${isDark ? "bg-opacity-55" : ""} text-[10px] md:text-xs px-1.5  md:px-2 py-1 capitalize rounded-md truncate`}
               >
                 {manga.contentRating === "pornographic" ? "18+" : manga.contentRating}
               </span>
@@ -191,16 +194,16 @@ function SearchMangaList({
           </div>
           {/* Description */}
           <p className={`text-sm  mb-2 hidden md:block leading-normal ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-            <span className="line-clamp-3">{manga.description || "No description available"}</span>
+            <span className="line-clamp-3">{manga.description ?? "No description available"}</span>
           </p>
         </div>
 
       </div>
       {/* Mobile Description */}
       <p className={`mt-2 px-1 md:hidden text-sm line-clamp-3  leading-normal ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-        {manga.description || "No description available"}
+        {manga.description ?? "No description available"}
       </p>
-    </article>
+    </Link>
   );
 }
 

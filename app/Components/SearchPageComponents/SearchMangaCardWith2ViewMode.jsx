@@ -1,5 +1,4 @@
 import React, { useCallback, useMemo, memo, lazy, Suspense } from "react";
-import { useRouter } from 'next/navigation';
 import { Star } from "lucide-react";
 import { useManga } from "../../providers/MangaContext";
 import SearchMangaCardSkeleton from "../Skeletons/SearchPage/SearchMangaCardSkeleton";
@@ -60,7 +59,7 @@ const StarRating = memo(({ rating }) => {
     </div>
   );
 });
-
+StarRating.displayName="StarRating"
 const formatCount = (num) => {
   if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
   if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
@@ -90,7 +89,7 @@ const cleanManga = (manga) => {
           try {
             JSON.stringify(value);
             return value;
-          } catch (e) {
+          } catch {
             return null; // Replace circular objects with null
           }
         }
@@ -99,13 +98,11 @@ const cleanManga = (manga) => {
     );
   } catch (error) {
     console.error('Failed to clean manga:', error);
-    return { id: manga.id, title: manga.title || 'Unknown' }; // Fallback
+    return { id: manga.id, title: manga.title ?? 'Unknown' }; // Fallback
   }
 };
 
 const SearchMangaCardWith2ViewMode = ({ manga, viewMode,isDark=true }) => {
-  if (!manga.id) return null
-  const router = useRouter();
   const { setSelectedManga } = useManga();
   const mangadata = useMemo(() => manga, [manga]);
   const mangaId = useMemo(() => manga.id, [manga.id]);
@@ -115,9 +112,8 @@ const SearchMangaCardWith2ViewMode = ({ manga, viewMode,isDark=true }) => {
     if (manga) {
       const cleanedManga = cleanManga(mangadata); // Clean before setting
       setSelectedManga(cleanedManga);
-      router.push(`/manga/${mangaId}/chapters`);
     }
-  }, [router, setSelectedManga]);
+  }, [mangadata, setSelectedManga]);
 
   const cardProps = useMemo(
     () => ({
@@ -129,7 +125,7 @@ const SearchMangaCardWith2ViewMode = ({ manga, viewMode,isDark=true }) => {
     }),
     [handleMangaClicked, manga]
   );
-
+  if (!manga.id) return null
   return (
     viewMode === "grid" ? (
       <Suspense fallback={<SearchMangaCardSkeleton isDark={isDark} />}>

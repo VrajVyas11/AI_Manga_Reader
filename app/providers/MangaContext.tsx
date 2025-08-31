@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
@@ -95,7 +96,7 @@ interface Chapter {
   title: string;
   mangaId: string;
   pageCount: string;
-  [key: string]: any;
+  [key: string]: string;
 }
 
 // Define ReadHistoryEntry type
@@ -120,7 +121,7 @@ interface BookMark {
 }
 
 // Update MangaContextType to include BookMarkedMangas
-interface MangaContextType {
+type MangaContextType = {
   selectedManga: Manga | null;
   setSelectedManga: (manga: Manga | null) => void;
   getSelectedManga: () => Manga | null;
@@ -135,7 +136,7 @@ interface MangaContextType {
   addToBookMarks: (manga: Manga) => void;
   removeFromBookMarks: (mangaId: string) => void;
   getAllBookMarks: () => BookMark[];
-}
+};
 
 const MangaContext = createContext<MangaContextType | undefined>(undefined);
 
@@ -172,7 +173,7 @@ export function MangaProvider({ children }: { children: ReactNode }) {
         const parsedHistory = JSON.parse(storedReadHistory);
         // Parse lastReadAT as Date
         setReadHistory(
-          parsedHistory.map((entry: any) => ({
+          parsedHistory.map((entry: {lastReadAT:string}) => ({
             ...entry,
             lastReadAT: new Date(entry.lastReadAT),
           }))
@@ -203,7 +204,7 @@ export function MangaProvider({ children }: { children: ReactNode }) {
         const parsedBookMarks = JSON.parse(storedBookMarks);
         // Parse bookmarkedAt as Date
         setBookMarks(
-          parsedBookMarks.map((bookmark: any) => ({
+          parsedBookMarks.map((bookmark: {bookmarkedAt:string}) => ({
             ...bookmark,
             bookmarkedAt: new Date(bookmark.bookmarkedAt),
           }))

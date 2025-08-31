@@ -8,8 +8,8 @@ function ConfirmationDialog({ message, onConfirm, onCancel, isDark }) {
     >
       <div
         className={`max-w-sm w-full rounded-lg p-6 text-center shadow-lg transition-colors ${isDark
-            ? "bg-gray-900 text-white"
-            : "bg-white text-gray-900 border border-gray-300"
+          ? "bg-gray-900 text-white"
+          : "bg-white text-gray-900 border border-gray-300"
           }`}
         role="dialog"
         aria-modal="true"
@@ -23,8 +23,8 @@ function ConfirmationDialog({ message, onConfirm, onCancel, isDark }) {
           <button
             onClick={onConfirm}
             className={`px-5 py-2 rounded-md font-semibold transition focus:outline-none focus:ring-2 focus:ring-offset-2 ${isDark
-                ? "bg-red-600 hover:bg-red-700 focus:ring-red-500 text-white"
-                : "bg-red-500 hover:bg-red-600 focus:ring-red-400 text-white"
+              ? "bg-red-600 hover:bg-red-700 focus:ring-red-500 text-white"
+              : "bg-red-500 hover:bg-red-600 focus:ring-red-400 text-white"
               }`}
             aria-label="Confirm action"
           >
@@ -33,8 +33,8 @@ function ConfirmationDialog({ message, onConfirm, onCancel, isDark }) {
           <button
             onClick={onCancel}
             className={`px-5 py-2 rounded-md font-semibold transition focus:outline-none focus:ring-2 focus:ring-offset-2 ${isDark
-                ? "bg-gray-700 hover:bg-gray-600 focus:ring-gray-500 text-white"
-                : "bg-gray-300 hover:bg-gray-400 focus:ring-gray-300 text-gray-900"
+              ? "bg-gray-700 hover:bg-gray-600 focus:ring-gray-500 text-white"
+              : "bg-gray-300 hover:bg-gray-400 focus:ring-gray-300 text-gray-900"
               }`}
             aria-label="Cancel action"
           >

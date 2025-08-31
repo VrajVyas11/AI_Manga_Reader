@@ -1,100 +1,154 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as cheerio from 'cheerio';
 import { NextResponse } from 'next/server';
-import puppeteer, { Browser } from 'puppeteer';
+import puppeteer, { Browser, Page } from 'puppeteer';
 
-let browserPromise: Promise<Browser> | null = null;
-
-// Initialize browser singleton
-async function getBrowser() {
-    if (!browserPromise) {
-        browserPromise = puppeteer.launch({
-            headless: true,
-            args: [
-                '--no-sandbox',
-                '--disable-setuid-sandbox',
-                '--disable-dev-shm-usage',
-                '--disable-gpu',
-            ],
-            timeout: 60000,
-        });
-    }
-    return browserPromise;
+// Remove singleton pattern - create fresh browser for each request
+async function createBrowser(): Promise<Browser> {
+    return puppeteer.launch({
+        headless: true, // Use new headless mode
+        args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-gpu',
+            '--disable-web-security',
+            '--disable-features=VizDisplayCompositor',
+            '--disable-extensions',
+            '--disable-plugins',
+            '--disable-background-timer-throttling',
+            '--disable-backgrounding-occluded-windows',
+            '--disable-renderer-backgrounding',
+            '--no-first-run',
+            '--no-default-browser-check',
+            '--memory-pressure-off',
+            '--max_old_space_size=4096'
+        ],
+        timeout: 30000, // Reduced timeout
+        defaultViewport: {
+            width: 1280,
+            height: 720,
+            deviceScaleFactor: 1,
+        },
+    });
 }
 
-// Cleanup browser on process exit
-process.on('SIGINT', async () => {
-    if (browserPromise) {
-        const browser = await browserPromise;
-        await browser.close();
-        browserPromise = null;
-    }
-    process.exit();
-});
+async function setupPage(browser: Browser): Promise<Page> {
+    const page = await browser.newPage();
+    
+    // Set reasonable timeouts
+    page.setDefaultTimeout(10000);
+    page.setDefaultNavigationTimeout(15000);
+
+    await page.setUserAgent(
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+    );
+
+    await page.setExtraHTTPHeaders({
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache',
+        'Sec-Fetch-Dest': 'document',
+        'Sec-Fetch-Mode': 'navigate',
+        'Sec-Fetch-Site': 'none',
+        'Upgrade-Insecure-Requests': '1',
+    });
+
+    // Block unnecessary resources more aggressively
+    await page.setRequestInterception(true);
+    page.on('request', (request) => {
+        const resourceType = request.resourceType();
+        const url = request.url();
+        
+        // Block more resource types and specific patterns
+        if (['image', 'stylesheet', 'font', 'media', 'script', 'xhr', 'fetch', 'websocket', 'eventsource'].includes(resourceType) ||
+            url.includes('analytics') || 
+            url.includes('tracking')||
+            url.includes('ads') ||
+            url.includes('beacon')) {
+            request.abort();
+        } else {
+            request.continue();
+        }
+    });
+
+    return page;
+}
 
 export async function GET() {
     const forumUrl = 'https://forums.mangadex.org/whats-new/latest-activity';
     const maxComments = 10;
-    const maxRetries = 2;
+    const maxRetries = 3; // Increased retries
+    const baseDelay = 500; // Base delay for exponential backoff
 
-    let browser;
-    let page;
-    let attempt = 0;
+    let browser: Browser | null = null;
+    let page: Page | null = null;
 
-    while (attempt < maxRetries) {
+    // Cleanup function
+    const cleanup = async () => {
         try {
-            browser = await getBrowser();
-            page = await browser.newPage();
+            if (page && !page.isClosed()) {
+                await page.close();
+            }
+        } catch (e:any) {
+            console.warn('Error closing page:', e.message);
+        }
+        
+        try {
+            if (browser && browser.connected) {
+                await browser.close();
+            }
+        } catch (e:any) {
+            console.warn('Error closing browser:', e.message);
+        }
+    };
 
-            await page.setUserAgent(
-                'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36'
-            );
-            await page.setExtraHTTPHeaders({
-                accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-                'accept-encoding': 'gzip, deflate, br, zstd',
-                'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
-                'cache-control': 'max-age=0',
-                dnt: '1',
-                'if-modified-since': 'Sun, 01 Jun 2025 10:23:30 GMT',
-                priority: 'u=0, i',
-                referer: 'https://forums.mangadex.org/',
-                'sec-ch-ua': '"Chromium";v="136", "Google Chrome";v="136", "Not.A/Brand";v="99"',
-                'sec-ch-ua-mobile': '?1',
-                'sec-ch-ua-platform': '"Android"',
-                'sec-fetch-dest': 'document',
-                'sec-fetch-mode': 'navigate',
-                'sec-fetch-site': 'same-origin',
-                'upgrade-insecure-requests': '1',
-            });
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            console.log(`Attempt ${attempt}/${maxRetries} - Creating fresh browser instance`);
+            
+            // Create fresh browser for each attempt
+            browser = await createBrowser();
+            page = await setupPage(browser);
 
-            await page.setRequestInterception(true);
-            page.on('request', (request: { resourceType: () => any; abort: () => void; continue: () => void; }) => {
-                const resourceType = request.resourceType();
-                if (['image', 'stylesheet', 'font', 'media', 'script', 'xhr', 'fetch'].includes(resourceType)) {
-                    request.abort();
-                } else {
-                    request.continue();
-                }
-            });
-
+            console.log(`Navigating to: ${forumUrl}`);
             const response = await page.goto(forumUrl, {
                 waitUntil: 'domcontentloaded',
-                timeout: 15000,
+                timeout: 12000,
             });
 
             if (!response || response.status() !== 200) {
-                throw new Error(`Failed to load page: ${response ? response.status() : 'No response'}`);
+                throw new Error(`HTTP ${response?.status() ?? 'No response'}: Failed to load page`);
             }
 
-            await page.waitForSelector('.block-row.block-row--separated', { timeout: 5000 }).catch(() => {
-                console.warn('Selector not found, proceeding with available content');
-            });
+            console.log('Page loaded successfully, waiting for content...');
+            
+            // Wait for content with shorter timeout
+            try {
+                await page.waitForSelector('.block-row.block-row--separated', { 
+                    timeout: 3000,
+                    visible: true 
+                });
+            } catch (e) {
+                console.warn('Selector timeout, checking if content exists...',e);
+                // Check if any content exists
+                const hasContent = await page.$('.block-row');
+                if (!hasContent) {
+                    throw new Error('No forum content found on page');
+                }
+            }
 
             const htmlContent = await page.content();
+            console.log(`Retrieved HTML content (${htmlContent.length} characters)`);
+            
             const $ = cheerio.load(htmlContent);
             const comments = [];
 
             const elements = $('.block-row.block-row--separated').toArray();
+            console.log(`Found ${elements.length} potential comment elements`);
+            
             for (const element of elements) {
                 if (comments.length >= maxComments) break;
 
@@ -111,14 +165,14 @@ export async function GET() {
                 const titleElement = $element.find('.contentRow-title a[href*="/threads/"]').text().trim();
                 const { mangaTitle, volumeNo, chapterNo, chapterTitle } = cleanMangaTitle(titleElement);
 
-                const reactionType = $element.find('.reaction-text').text().trim() || 'Like';
+                const reactionType = $element.find('.reaction-text').text().trim() ?? 'Like';
                 const commentContent = $element.find('.contentRow-snippet').text().trim();
                 if (!commentContent && !titleElement) continue;
 
-                const timeAgo = $element.find('time.u-dt').text().trim() || 'A moment ago';
-                const threadUrl = $element.find('a[href*="/threads/"]').attr('href') || '#';
+                const timeAgo = $element.find('time.u-dt').text().trim() ?? 'A moment ago';
+                const threadUrl = $element.find('a[href*="/threads/"]').attr('href') ?? '#';
                 const repliedTO = $element.find('a[href*="/posts/"]').text();
-                const postUrl = $element.find('a[href*="/posts/"]').attr('href') || '#';
+                const postUrl = $element.find('a[href*="/posts/"]').attr('href') ?? '#';
 
                 const fullThreadUrl = threadUrl.startsWith('/') ? `https://forums.mangadex.org${threadUrl}` : threadUrl;
                 if (mangaTitle === "Unknown Manga Title") continue;
@@ -126,7 +180,7 @@ export async function GET() {
                 comments.push({
                     id: `comment_${comments.length + 1}`,
                     username,
-                    avatarUrl: avatarUrl || `https://forums.mangadex.org/community/avatars/s/0/${Math.floor(Math.random() * 100)}.jpg?1673176662`,
+                    avatarUrl: avatarUrl ?? `https://forums.mangadex.org/community/avatars/s/0/${Math.floor(Math.random() * 100)}.jpg?1673176662`,
                     mangaTitle,
                     volumeNo,
                     chapterNo,
@@ -140,10 +194,13 @@ export async function GET() {
                 });
             }
 
-            await page.close();
+            console.log(`Successfully parsed ${comments.length} comments`);
+            
+            // Cleanup before returning success
+            await cleanup();
 
             if (comments.length === 0) {
-                throw new Error('No comments found in the HTML');
+                throw new Error('No valid comments found after parsing');
             }
 
             return NextResponse.json({
@@ -152,12 +209,15 @@ export async function GET() {
                 timestamp: new Date().toISOString(),
                 source: 'MangaDex Forums Latest Activity',
             });
+
         } catch (error: any) {
-            attempt++;
-            if (page) await page.close();
-            console.error(`Attempt ${attempt} failed: ${error.message}`);
-            if (attempt >= maxRetries) {
-                console.error('Error scraping forum comments:', error.message);
+            console.error(`Attempt ${attempt}/${maxRetries} failed:`, error.message);
+            
+            // Cleanup on error
+            await cleanup();
+
+            if (attempt === maxRetries) {
+                console.error('All attempts exhausted:', error.message);
                 return NextResponse.json(
                     {
                         data: [],
@@ -166,10 +226,14 @@ export async function GET() {
                         source: 'MangaDex Forums Latest Activity',
                         error: `Failed to scrape data after ${maxRetries} attempts: ${error.message}`,
                     },
-                    { status: error.response?.status || 500 }
+                    { status: 500 }
                 );
             }
-            await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+
+            // Exponential backoff with jitter
+            const delay = baseDelay * Math.pow(2, attempt - 1) + Math.random() * 1000;
+            console.log(`Waiting ${Math.round(delay)}ms before retry...`);
+            await new Promise(resolve => setTimeout(resolve, delay));
         }
     }
 
@@ -178,8 +242,8 @@ export async function GET() {
             data: [],
             total: 0,
             timestamp: new Date().toISOString(),
-            source: 'MangaDex Forums Latest Activity',
-            error: 'Unexpected error: retries exhausted',
+            source: 'MangaDx Forums Latest Activity',
+            error: 'Unexpected error: all retries exhausted',
         },
         { status: 500 }
     );
@@ -197,24 +261,22 @@ function cleanMangaTitle(title: string) {
     }
 
     // Handle titles with or without "Vol."
-    // Pattern 1: "Manga Title - Vol. X Ch. Y - Chapter Title"
-    // Pattern 2: "Manga Title - Ch. Y - Chapter Title"
     const regexWithVol = /^(.*?)\s*-\s*Vol\.?\s*(\d+)?\s*Ch\.?\s*([\d.]+)\s*(?:-\s*(.*))?$/i;
     const regexWithoutVol = /^(.*?)\s*-\s*Ch\.?\s*([\d.]+)\s*(?:-\s*(.*))?$/i;
 
     let match = title.trim().match(regexWithVol);
     if (match) {
-        mangaTitle = match[1]?.trim() || "Unknown Manga Title";
-        volumeNo = match[2] || "";
-        chapterNo = match[3] || "";
-        chapterTitle = match[4]?.trim() || "";
+        mangaTitle = match[1]?.trim() ?? "Unknown Manga Title";
+        volumeNo = match[2] ?? "";
+        chapterNo = match[3] ?? "";
+        chapterTitle = match[4]?.trim() ?? "";
     } else {
         match = title.trim().match(regexWithoutVol);
         if (match) {
-            mangaTitle = match[1]?.trim() || "Unknown Manga Title";
+            mangaTitle = match[1]?.trim() ?? "Unknown Manga Title";
             volumeNo = "";
-            chapterNo = match[2] || "";
-            chapterTitle = match[3]?.trim() || "";
+            chapterNo = match[2] ?? "";
+            chapterTitle = match[3]?.trim() ?? "";
         } else {
             mangaTitle = title.trim();
         }

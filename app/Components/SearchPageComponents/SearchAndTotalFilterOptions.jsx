@@ -18,10 +18,10 @@ export default function SearchTotalAndFilterOptions({
   isDark=true,
 }) {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [searchText, setSearchText] = useState(searchQuery || '');
+  const [searchText, setSearchText] = useState(searchQuery ?? '');
 
   useEffect(() => {
-    setSearchText(searchQuery || '');
+    setSearchText(searchQuery ?? '');
   }, [searchQuery]);
 
   const hasActiveFilters = Object.values(activeFilters).some(
@@ -38,7 +38,7 @@ export default function SearchTotalAndFilterOptions({
         if (newFilters[filterType]?.includes(value)) {
           newFilters[filterType] = newFilters[filterType].filter(item => item !== value);
         } else {
-          newFilters[filterType] = [...(newFilters[filterType] || []), value];
+          newFilters[filterType] = [...(newFilters[filterType] ?? []), value];
         }
       } else {
         newFilters[filterType] = value === newFilters[filterType] ? "" : value;
@@ -195,7 +195,7 @@ return (
               title="Content Rating"
               multiple={true}
               options={filterOptions.ratings}
-              selectedValues={activeFilters.rating || []}
+              selectedValues={activeFilters.rating ?? []}
               onSelectionChange={(value) => toggleFilter("rating", value)}
               countLabel="Any Rating"
               isDark={isDark}
@@ -205,7 +205,7 @@ return (
               title="Publication Status"
               multiple={true}
               options={filterOptions.statuses}
-              selectedValues={activeFilters.status || []}
+              selectedValues={activeFilters.status ?? []}
               onSelectionChange={(value) => toggleFilter("status", value)}
               countLabel="Any Status"
               isDark={isDark}
@@ -215,7 +215,7 @@ return (
               title="Language"
               multiple={true}
               options={filterOptions.languages}
-              selectedValues={activeFilters.language || []}
+              selectedValues={activeFilters.language ?? []}
               onSelectionChange={(value) => toggleFilter("language", value)}
               countLabel="Any Language"
               isDark={isDark}
@@ -225,7 +225,7 @@ return (
               title="Publication Year"
               multiple={true}
               options={yearOptions}
-              selectedValues={activeFilters.year || []}
+              selectedValues={activeFilters.year ?? []}
               onSelectionChange={(value) => toggleFilter("year", value)}
               countLabel="Any Year"
               isDark={isDark}
@@ -235,7 +235,7 @@ return (
               title="Demographic"
               multiple={true}
               options={filterOptions.demographics}
-              selectedValues={activeFilters.demographic || []}
+              selectedValues={activeFilters.demographic ?? []}
               onSelectionChange={(value) => toggleFilter("demographic", value)}
               countLabel="Any Demographic"
               isDark={isDark}
@@ -245,7 +245,7 @@ return (
               title="Publication Type"
               multiple={true}
               options={filterOptions.publicationTypes}
-              selectedValues={activeFilters.publicationType || []}
+              selectedValues={activeFilters.publicationType ?? []}
               onSelectionChange={(value) => toggleFilter("publicationType", value)}
               countLabel="Any Type"
               isDark={isDark}
@@ -262,7 +262,7 @@ return (
               title="Sort By"
               multiple={false}
               options={filterOptions.sortOptions}
-              selectedValues={activeFilters.sortBy || ""}
+              selectedValues={activeFilters.sortBy ?? ""}
               onSelectionChange={(value) => toggleFilter("sortBy", value)}
               countLabel="Default"
               isDark={isDark}
@@ -278,12 +278,12 @@ return (
           <div className="space-y-1">
             <h1 className="text-lg sm:text-xl lg:text-2xl font-bold">
               <span className={isDark ? "text-purple-400" : "text-purple-600"}>Results for </span>
-              <span className={isDark ? "text-white" : "text-gray-900"}>"</span>
+              <span className={isDark ? "text-white" : "text-gray-900"}>{`"`}</span>
               <span className={isDark ? "text-gray-200" : "text-gray-700"}>{searchQuery}</span>
-              <span className={isDark ? "text-white" : "text-gray-900"}>"</span>
+              <span className={isDark ? "text-white" : "text-gray-900"}>{`"`}</span>
             </h1>
             <p className={`${isDark ? 'text-gray-400' : 'text-gray-600'} text-sm`}>
-              {filteredResults?.length || 0} {(filteredResults?.length || 0) === 1 ? "result" : "results"} found
+              {filteredResults?.length ?? 0} {(filteredResults?.length ?? 0) === 1 ? "result" : "results"} found
             </p>
           </div>
         )}

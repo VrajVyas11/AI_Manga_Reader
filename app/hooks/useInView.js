@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 
 // Hook to detect if element is in viewport
 const useInView = (threshold = 0.1) => {
@@ -26,7 +26,7 @@ const useInView = (threshold = 0.1) => {
 
     observer.observe(element);
     return () => observer.disconnect();
-  }, []);
+  }, [threshold]);
 
   return [ref, inView];
 };

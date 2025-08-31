@@ -7,6 +7,7 @@ import {
 import { useCallback, useMemo } from "react";
 import { useManga } from "../../providers/MangaContext";
 import Image from "next/image";
+import Link from "next/link";
 
 function ReadingHistoryCard({
     manga,
@@ -48,12 +49,14 @@ function ReadingHistoryCard({
     );
 
     return (
-        <div
+        <Link
+            href={`/manga/${manga.id}/chapters`}
+            prefetch={true}
             className={`relative group overflow-hidden rounded-3xl transition-all duration-300 cursor-pointer ${isActive
-                    ? "ring-1 ring-purple-500/50 shadow-purple-500/20"
-                    : isDark
-                        ? "hover:ring-1 hover:ring-gray-600 hover:shadow-xl"
-                        : "hover:ring-1 hover:ring-gray-300 hover:shadow-lg"
+                ? "ring-1 ring-purple-500/50 shadow-purple-500/20"
+                : isDark
+                    ? "hover:ring-1 hover:ring-gray-600 hover:shadow-xl"
+                    : "hover:ring-1 hover:ring-gray-300 hover:shadow-lg"
                 } bg-transparent`}
             onClick={() => onMangaClick(manga)}
             aria-label={`Manga card for ${manga.title}`}
@@ -62,7 +65,7 @@ function ReadingHistoryCard({
                 <Image
                     width={300}
                     height={300}
-                    src={manga.coverImageUrl || manga.cover}
+                    src={manga.coverImageUrl ?? manga.cover}
                     alt={manga.title}
                     className="w-full h-full object-fill group-hover:scale-105 transition-transform duration-500"
                     loading="lazy"
@@ -70,8 +73,8 @@ function ReadingHistoryCard({
                 />
                 <div
                     className={`absolute inset-0 rounded-t-3xl ${isDark
-                            ? "bg-gradient-to-t from-black/90 via-black/40 to-transparent"
-                            : "bg-gradient-to-t from-white/90 via-black/20 to-transparent"
+                        ? "bg-gradient-to-t from-black/90 via-black/40 to-transparent"
+                        : "bg-gradient-to-t from-white/90 via-black/20 to-transparent"
                         }`}
                 />
                 <div className="absolute bottom-1 left-4 right-4">
@@ -116,10 +119,10 @@ function ReadingHistoryCard({
                     <button
                         onClick={handleFavorite}
                         className={`p-1.5 rounded-full transition-all focus:outline-none ${isFavorited
-                                ? "bg-red-600 text-white shadow-lg"
-                                : isDark
-                                    ? "bg-black hover:bg-red-600 text-gray-300 hover:text-white"
-                                    : "bg-gray-200 hover:bg-red-600 text-gray-700 hover:text-white"
+                            ? "bg-red-600 text-white shadow-lg"
+                            : isDark
+                                ? "bg-black hover:bg-red-600 text-gray-300 hover:text-white"
+                                : "bg-gray-200 hover:bg-red-600 text-gray-700 hover:text-white"
                             }`}
                         aria-label="Add to favorites"
                     >
@@ -128,10 +131,10 @@ function ReadingHistoryCard({
                     <button
                         onClick={handleBookmark}
                         className={`p-1.5 rounded-full transition-all focus:outline-none ${isBookmarked
-                                ? "bg-blue-600 text-white shadow-lg"
-                                : isDark
-                                    ? "bg-black hover:bg-blue-600 text-gray-300 hover:text-white"
-                                    : "bg-gray-200 hover:bg-blue-600 text-gray-700 hover:text-white"
+                            ? "bg-blue-600 text-white shadow-lg"
+                            : isDark
+                                ? "bg-black hover:bg-blue-600 text-gray-300 hover:text-white"
+                                : "bg-gray-200 hover:bg-blue-600 text-gray-700 hover:text-white"
                             }`}
                         aria-label="Add to bookmarks"
                     >
@@ -143,8 +146,8 @@ function ReadingHistoryCard({
             {isActive && (
                 <div
                     className={`absolute top-3 left-3 rounded-full flex items-center gap-1 px-3 py-2 text-xs select-none ${isDark
-                            ? "bg-purple-900/70 backdrop-blur-xl shadow-lg shadow-black text-white"
-                            : "bg-purple-600/70 backdrop-blur-sm shadow-md shadow-purple-400 text-white"
+                        ? "bg-purple-900/70 backdrop-blur-xl shadow-lg shadow-black text-white"
+                        : "bg-purple-600/70 backdrop-blur-sm shadow-md shadow-purple-400 text-white"
                         }`}
                 >
                     <Play size={12} className="fill-current" /> Reading
@@ -183,7 +186,7 @@ function ReadingHistoryCard({
                     </div>
                 </div>
             </div>
-        </div>
+        </Link>
     );
 }
 

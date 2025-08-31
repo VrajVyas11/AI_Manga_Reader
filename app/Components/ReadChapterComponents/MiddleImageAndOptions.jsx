@@ -243,7 +243,7 @@ function MiddleImageAndOptions({
                                         onLoadingComplete={() => handleImageLoad(page)}
                                         onError={handleImageError}
                                         placeholder="blur"
-                                        blurDataURL="/placeholder.jpg"
+                                        blurDataURL="./placeholder.jpg"
                                     />
                                     {!isLoadingOCR &&
                                         chapterInfo?.translatedLanguage?.trim() !== 'en' &&
@@ -403,7 +403,7 @@ function MiddleImageAndOptions({
                                             onLoadingComplete={() => handleImageLoad(page)}
                                             onError={handleImageError}
                                             placeholder="blur"
-                                            blurDataURL="/placeholder.jpg"
+                                            blurDataURL="./placeholder.jpg"
                                         />
                                         {!isLoadingOCR &&
                                             chapterInfo?.translatedLanguage?.trim() !== 'en' &&

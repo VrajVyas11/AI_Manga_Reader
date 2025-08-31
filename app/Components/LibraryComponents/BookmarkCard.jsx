@@ -2,6 +2,7 @@ import { Bookmark, Clock, Star } from "lucide-react";
 import { useState } from "react";
 import Image from "next/image";
 import ConfirmationDialog from "./ConfirmationDialog";
+import Link from "next/link";
 
 function BookmarkCard({ manga, bookmarkedAt, onMangaClick, addToBookMarks, isDark }) {
   const [showConfirm, setShowConfirm] = useState(false);
@@ -20,7 +21,9 @@ function BookmarkCard({ manga, bookmarkedAt, onMangaClick, addToBookMarks, isDar
 
   return (
     <>
-      <div
+      <Link
+        href={`/manga/${manga.id}/chapters`}
+        prefetch={true}
         className={`group rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 ${isDark
           ? "bg-gray-900/60 backdrop-blur-sm border border-gray-800/50 hover:border-gray-700/70 hover:shadow-[0_0_7px_rgba(0,0,0,1)] hover:shadow-blue-500/20"
           : "bg-white border border-gray-300 shadow-sm hover:border-gray-400 hover:shadow-md"
@@ -83,7 +86,7 @@ function BookmarkCard({ manga, bookmarkedAt, onMangaClick, addToBookMarks, isDar
             </p>
           </div>
         </div>
-      </div>
+      </Link>
       {showConfirm && (
         <ConfirmationDialog
           message={`Remove "${manga.title}" from bookmarks?`}

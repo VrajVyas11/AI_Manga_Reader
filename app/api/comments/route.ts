@@ -4,6 +4,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import puppeteer, { Browser } from 'puppeteer';
 
 let browserPromise: Promise<Browser> | null = null;
+export const dynamic = 'force-dynamic'; // Ensure dynamic execution in Next.js
+export const maxDuration = 60; // Vercel timeout in seconds
 
 // Initialize browser singleton
 async function getBrowser() {
@@ -65,7 +67,7 @@ export async function GET(req: NextRequest) {
             page = await browser.newPage();
 
             await page.setUserAgent(
-                'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Mobile Safari/537.36'
+                'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.7258.154 Mobile Safari/537.36'
             );
             await page.setExtraHTTPHeaders({
                 accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',

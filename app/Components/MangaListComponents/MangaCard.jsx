@@ -119,12 +119,12 @@ const Card = ({ manga, handleMangaClicked, isDark }) => {
             <div className={`w-full sm:w-[250px] overflow-hidden min-h-[290px] sm:min-h-[400px] rounded-lg ${isDark ? "bg-[#0c0221]/50 shadow-slate-600" : "bg-gray-100/50 shadow-gray-400"} p-[5px] shadow-[0_0_4px_rgba(0,0,0,0.5)] transition-transform duration-300 ease-out hover:scale-[102%] will-change-transform`}>
                 <div className="relative flex h-[155px] sm:h-[250px] flex-col rounded-[5px]">
                     <Image
-                        src={manga.coverImageUrl ?? '/placeholder.jpg'}
+                        src={manga.coverImageUrl ?? "./placeholder.jpg"}
                         alt={manga.title}
                         fill
                         className={`object-cover md:object-fill relative -mt-[1px] flex h-[155px] sm:h-[250px] flex-col rounded-[5px] rounded-tl-[20px] ${isDark ? "bg-gradient-to-tr from-[#1f2020] to-[#000d0e]" : "bg-gradient-to-tr from-gray-200 to-gray-300"}`}
                         placeholder="blur"
-                        blurDataURL="/placeholder.jpg"
+                        blurDataURL="./placeholder.jpg"
                     />
                     <div className={`absolute inset-x-0 bottom-0 ${isDark ? "bg-gradient-to-t from-black via-gray-900 to-transparent" : "bg-gradient-to-t from-gray-900/80 via-gray-800/50 to-transparent"} p-2 sm:p-4`}>
                         <h1 className={`flex flex-row w-full font-bold items-center gap-3 sm:items-start justify-center text-[8px] sm:text-xs tracking-[2px] text-white`}>

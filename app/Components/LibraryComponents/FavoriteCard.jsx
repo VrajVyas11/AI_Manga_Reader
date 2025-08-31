@@ -3,10 +3,12 @@ import { Heart, BookOpen } from "lucide-react";
 import { useState } from "react";
 import { langFullNames } from "../../constants/Flags";
 import ConfirmationDialog from "./ConfirmationDialog";
+import Image from "next/image";
+import Link from "next/link";
 
 function FavoriteCard({ mangaInfo, chapterInfo, onMangaClick, addToFavorite, isDark }) {
     const [showConfirm, setShowConfirm] = useState(false);
-    const [imageSrc, setImageSrc] = useState(chapterInfo[0]?.url || mangaInfo.coverImageUrl || "/placeholder.jpg");
+    const [imageSrc, setImageSrc] = useState(chapterInfo[0]?.url ?? mangaInfo.coverImageUrl ?? "./placeholder.jpg");
     const handleRemoveClick = (e) => {
         e.stopPropagation();
         setShowConfirm(true);
@@ -27,14 +29,19 @@ function FavoriteCard({ mangaInfo, chapterInfo, onMangaClick, addToFavorite, isD
                     : "hover:border-gray-300 hover:shadow-md"
                     }`}
             >
-                <div
-                    onClick={() => onMangaClick(mangaInfo)}
+                {console.log(chapterInfo)}
+                <Link
+                    href={`/manga/${mangaInfo.id}/chapter/${chapterInfo[0].id}/read`}
+                    prefetch={true}
+                    onClick={() => onMangaClick(mangaInfo,chapterInfo[0])}
                     className="relative h-auto w-full overflow-hidden"
                 >
-                    <img
+                    <Image
+                        width={100}
+                        height={100}
                         src={imageSrc}
                         alt={mangaInfo.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 xs:w-full xs:h-[175px]"
+                        className="w-full h-full max-h-[175px] object-cover group-hover:scale-105 transition-all duration-100 xs:w-full xs:h-[175px]"
                         onError={(e) => {
                             e.currentTarget.style.height = "175px";
                             setImageSrc(mangaInfo.coverImageUrl);
@@ -75,7 +82,7 @@ function FavoriteCard({ mangaInfo, chapterInfo, onMangaClick, addToFavorite, isD
                                         : "bg-gray-200 border-gray-300 text-gray-800"
                                         }`}
                                 >
-                                    {langFullNames[chapterInfo[0].translatedLanguage] ||
+                                    {langFullNames[chapterInfo[0].translatedLanguage] ??
                                         chapterInfo[0].translatedLanguage}
                                 </div>
                             )}
@@ -96,7 +103,7 @@ function FavoriteCard({ mangaInfo, chapterInfo, onMangaClick, addToFavorite, isD
                             </p>
                         </div>
                     </div>
-                </div>
+                </Link>
             </div>
             {showConfirm && (
                 <ConfirmationDialog

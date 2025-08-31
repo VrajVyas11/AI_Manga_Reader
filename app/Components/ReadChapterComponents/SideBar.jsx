@@ -59,10 +59,10 @@ const SideBar = ({
   );
 
   // Get chapters filtered by selected language and available languages
-  const { chaptersInSelectedLanguage, 
+  const { chaptersInSelectedLanguage,
     availableLanguagesForCurrentChapter,
     uniqueChapterNumbersInSelectedLanguage
-   } = useMemo(() => {
+  } = useMemo(() => {
     const languagesSet = new Set();
     const chapterLangMap = new Map();
 
@@ -86,7 +86,7 @@ const SideBar = ({
 
     // Get languages available for current chapter number
     const currentChapterNum = chapterInfo.chapter;
-    const chaptersForCurrent = chapterLangMap.get(currentChapterNum) || [];
+    const chaptersForCurrent = chapterLangMap.get(currentChapterNum) ?? [];
     const uniqueLanguages = Array.from(
       new Set(chaptersForCurrent.map((ch) => ch.translatedLanguage))
     );
@@ -157,7 +157,7 @@ const SideBar = ({
       const firstChapterNumber = uniqueChapterNumbersInSelectedLanguage[0];
       // Find the first chapter with this chapter number in selected language
       const firstChapter = chaptersInSelectedLanguage.find(ch => ch.chapter === firstChapterNumber);
-      
+
       if (firstChapter) {
         handleChapterClick(firstChapter);
         setChapterDropdownOpen(false);
@@ -170,7 +170,7 @@ const SideBar = ({
       const lastChapterNumber = uniqueChapterNumbersInSelectedLanguage[uniqueChapterNumbersInSelectedLanguage.length - 1];
       // Find the first chapter with this chapter number in selected language
       const lastChapter = chaptersInSelectedLanguage.find(ch => ch.chapter === lastChapterNumber);
-      
+
       if (lastChapter) {
         handleChapterClick(lastChapter);
         setChapterDropdownOpen(false);
@@ -201,7 +201,7 @@ const SideBar = ({
     />
   ));
   CoverImage.displayName = "CoverImage"
-  
+
   const coverImageProps = useMemo(() => ({
     src: mangaInfo.coverImageUrl,
     alt: mangaInfo.title,
@@ -319,7 +319,7 @@ const SideBar = ({
             <div className="flex items-center gap-2 md:gap-3">
               <Languages className={`${isDark ? 'text-slate-400' : 'text-gray-500'} w-3 h-3 md:w-4 md:h-4`} />
               <span className={`text-[11px] font-medium md:text-sm`}>
-                Language: {selectedLanguage?.toUpperCase() || langFullNames[selectedLanguage]}
+                Language: {selectedLanguage?.toUpperCase() ?? langFullNames[selectedLanguage]}
               </span>
             </div>
             <ChevronDown
@@ -347,8 +347,8 @@ const SideBar = ({
                 const sameChapterInNewLang = allChapters.find(
                   (ch) => ch.chapter === currentChapterNum && ch.translatedLanguage === lang
                 );
-                
-                const targetChapter = sameChapterInNewLang || allChapters
+
+                const targetChapter = sameChapterInNewLang ?? allChapters
                   .filter((ch) => ch.translatedLanguage === lang)
                   .sort((a, b) => parseFloat(a.chapter) - parseFloat(b.chapter))[0];
 
@@ -376,11 +376,11 @@ const SideBar = ({
                     `}
                   >
                     <StableFlag
-                      code={lang || 'en'}
+                      code={lang ?? 'en'}
                       className="w-4 h-4 rounded shadow-sm md:w-5 md:h-5"
                       alt="flag"
                     />
-                    <span className="font-medium">{langFullNames[lang] || lang}</span>
+                    <span className="font-medium">{langFullNames[lang] ?? lang}</span>
                   </Link>
                 );
               })}

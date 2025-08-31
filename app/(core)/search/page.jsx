@@ -18,7 +18,7 @@ const SearchPage = memo(() => {
   const [viewMode, setViewMode] = useState("grid");
   const [searchQuery, setSearchQuery] = useState("");
   const { theme } = useTheme()
-  const isDark=theme=="dark"
+  const isDark = theme == "dark"
   // Filter state
   const [activeFilters, setActiveFilters] = useState({
     rating: [],
@@ -33,31 +33,8 @@ const SearchPage = memo(() => {
 
   // Constants
   const ITEMS_PER_PAGE = 24;
-
-  // Initialize search from URL params
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    console.log(params)
-    const query = params.get("query") || "";
-    setSearchQuery(query);
-
-    if (query) {
-      fetchMangaData(query);
-    } else {
-      setIsLoading(false);
-      setError("Please enter a search term");
-    }
-  }, []);
-
-  // Filter manga when filter state changes
-  useEffect(() => {
-    if (searchResults.length > 0) {
-      applyFilters();
-    }
-  }, [activeFilters, searchResults]);
-
   // Fetch manga data with caching
-  const fetchMangaData = async (query) => {
+  const fetchMangaData = useCallback(async (query) => {
     setIsLoading(true);
     setError(null);
 
@@ -94,11 +71,26 @@ const SearchPage = memo(() => {
       setCurrentPage(1);
     } catch (err) {
       console.error("Error fetching manga:", err);
-      setError(err.message || "Failed to fetch manga data");
+      setError(err.message ?? "Failed to fetch manga data");
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
+  // Initialize search from URL params
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    console.log(params)
+    const query = params.get("query") ?? "";
+    setSearchQuery(query);
+
+    if (query) {
+      fetchMangaData(query);
+    } else {
+      setIsLoading(false);
+      setError("Please enter a search term");
+    }
+  }, [fetchMangaData]);
+
 
   // Apply filters to search results
   const applyFilters = useCallback(() => {
@@ -163,8 +155,8 @@ const SearchPage = memo(() => {
     if (activeFilters.publicationType.length > 0) {
       filteredResults = filteredResults.filter((manga) =>
         activeFilters.publicationType.some((demo) => {
-          const flatTags = manga.flatTags || [];
-          const originalLanguage = manga.originalLanguage || "";
+          const flatTags = manga.flatTags ?? [];
+          const originalLanguage = manga.originalLanguage ?? "";
           const normalizedTags = flatTags.map((tag) => tag.toLowerCase());
 
           switch (demo.toLowerCase()) {
@@ -196,19 +188,19 @@ const SearchPage = memo(() => {
       filteredResults.sort((a, b) => {
         switch (activeFilters.sortBy.trim()) {
           case "relevance":
-            return (a.title || "").localeCompare(b.title || "");
+            return (a.title ?? "").localeCompare(b.title ?? "");
           case "latestUploadedChapter":
-            return new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0);
+            return new Date(b.updatedAt ?? 0) - new Date(a.updatedAt ?? 0);
           case "followedCount":
-            const aFollows = a.rating?.follows || 0;
-            const bFollows = b.rating?.follows || 0;
+            const aFollows = a.rating?.follows ?? 0;
+            const bFollows = b.rating?.follows ?? 0;
             return bFollows - aFollows;
           case "createdAt":
-            return new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0);
+            return new Date(b.updatedAt ?? 0) - new Date(a.updatedAt ?? 0);
           case "title":
-            return (a.title || "").localeCompare(b.title || "");
+            return (a.title ?? "").localeCompare(b.title ?? "");
           case "year":
-            return (b.year || 0) - (a.year || 0);
+            return (b.year ?? 0) - (a.year ?? 0);
           case "minScore":
             return b.rating?.rating?.bayesian - a.rating?.rating?.bayesian;
           default:
@@ -220,6 +212,15 @@ const SearchPage = memo(() => {
     setFilteredResults(filteredResults);
     setCurrentPage(1);
   }, [activeFilters, searchResults]);
+
+  // Filter manga when filter state changes
+  useEffect(() => {
+    if (searchResults.length > 0) {
+      applyFilters();
+    }
+  }, [activeFilters, applyFilters, searchResults]);
+
+
 
   // Clear all filters
   const clearAllFilters = () => {
@@ -260,8 +261,8 @@ const SearchPage = memo(() => {
       );
       if (cacheKeys.length > 10) {
         cacheKeys.sort((a, b) => {
-          const timeA = localStorage.getItem(`${a}_timestamp`) || 0;
-          const timeB = localStorage.getItem(`${b}_timestamp`) || 0;
+          const timeA = localStorage.getItem(`${a}_timestamp`) ?? 0;
+          const timeB = localStorage.getItem(`${b}_timestamp`) ?? 0;
           return timeA - timeB;
         });
 
@@ -312,121 +313,121 @@ const SearchPage = memo(() => {
     }
   };
 
-return (
-  <div className={`min-h-[89vh] relative z-20 ${isDark ? 'text-slate-100' : 'text-gray-900'}`}>
-    <main className="max-w-full sm:max-w-[90vw] md:max-w-[95vw] lg:max-w-[91.5%] mx-auto px-2 py-6">
-      {/* Results header with controls */}
-      <SearchTotalAndFilterOptions
-        handleSearch={handleSearch}
-        setActiveFilters={setActiveFilters}
-        activeFilters={activeFilters}
-        clearAllFilters={clearAllFilters}
-        filteredResults={filteredResults}
-        searchQuery={searchQuery}
-        setViewMode={setViewMode}
-        viewMode={viewMode}
-        isDark={isDark}
-      />
+  return (
+    <div className={`min-h-[89vh] relative z-20 ${isDark ? 'text-slate-100' : 'text-gray-900'}`}>
+      <main className="max-w-full sm:max-w-[90vw] md:max-w-[95vw] lg:max-w-[91.5%] mx-auto px-2 py-6">
+        {/* Results header with controls */}
+        <SearchTotalAndFilterOptions
+          handleSearch={handleSearch}
+          setActiveFilters={setActiveFilters}
+          activeFilters={activeFilters}
+          clearAllFilters={clearAllFilters}
+          filteredResults={filteredResults}
+          searchQuery={searchQuery}
+          setViewMode={setViewMode}
+          viewMode={viewMode}
+          isDark={isDark}
+        />
 
-      {/* Loading state */}
-      {isLoading && (
-        <div className={
-          viewMode === "grid"
-            ? "grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-2 mt-5 relative gap-y-4 z-10"
-            : "grid grid-cols-1 md:grid-cols-2 gap-2  z-10 mt-5"
-        }>
-          {[...Array(12)].map((_, index) => (
-            <div key={index}>
-              {viewMode === "grid" ? (
-                <SearchMangaCardSkeleton isDark={isDark} />
-              ) : (
-                <SearchMangaListSkeleton isDark={isDark} />
-              )}
-            </div>
-          ))}        
-        </div>
-      )}
-
-      {/* Error state */}
-      {!isLoading && error && (
-        <div className="flex flex-col items-center justify-center py-16">
-          <div className={`${isDark ? 'bg-slate-950/20 border-slate-800' : 'bg-white/80 border-gray-300'} border rounded-xl p-6 max-w-md w-full text-center shadow-lg backdrop-blur-sm`}>
-            <div className={`${isDark ? 'bg-slate-800/50' : 'bg-gray-100'} w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4`}>
-              <AlertCircleIcon className={`h-6 w-6 ${isDark ? 'text-red-400' : 'text-red-600'}`} />
-            </div>
-            <h2 className={`text-xl font-semibold ${isDark ? 'text-slate-200' : 'text-gray-800'} mb-2`}>{error}</h2>
-            <p className={`${isDark ? 'text-slate-400' : 'text-gray-600'} mb-5`}>
-              {error === "No manga found"
-                ? "Try adjusting your search terms or filters."
-                : "Please try again later."}
-            </p>
-            <button
-              onClick={() => window.location.reload()}
-              className={`${isDark ? 'bg-gradient-to-r from-purple-700/70 to-indigo-700/70 hover:bg-purple-700' : 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700'} text-white px-5 py-2 rounded-lg transition`}
-            >
-              Retry
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Empty results after filtering */}
-      {!isLoading && !error && filteredResults.length === 0 && searchResults.length > 0 && (
-        <div className="flex h-fit flex-col items-center justify-center py-16">
-          <div className={`${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-gray-300'} border rounded-xl p-6 max-w-md w-full text-center shadow-lg`}>
-            <div className={`${isDark ? 'bg-slate-800/50' : 'bg-gray-100'} w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4`}>
-              <RouteOff className={`w-8 h-8 ${isDark ? 'text-gray-400' : 'text-gray-600'}`} />
-            </div>
-            <h2 className={`text-xl font-semibold ${isDark ? 'text-slate-200' : 'text-gray-800'} mb-2`}>
-              No matches found
-            </h2>
-            <p className={`${isDark ? 'text-slate-400' : 'text-gray-600'} mb-5`}>
-              No manga matched your current filter settings.
-            </p>
-            <button
-              onClick={clearAllFilters}
-              className={`${isDark ? 'bg-purple-600 hover:bg-purple-700' : 'bg-purple-600 hover:bg-purple-700'} text-white px-5 py-2 rounded-lg transition`}
-            >
-              Clear Filters
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Results grid/list */}
-      {!isLoading && !error && filteredResults.length > 0 && (
-        <>
-          <div
-            className={
-              viewMode === "grid"
-                ? "grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-2 mt-5 relative gap-y-4 z-10"
-                : "grid grid-cols-1 md:grid-cols-2 gap-2  z-10 mt-5"
-            }
-          >
-            {paginatedItems.map((manga) => (
-              <SearchMangaCardWith2ViewMode
-                key={manga.id}
-                manga={manga}
-                viewMode={viewMode}
-                isDark={isDark}
-              />
+        {/* Loading state */}
+        {isLoading && (
+          <div className={
+            viewMode === "grid"
+              ? "grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-2 mt-5 relative gap-y-4 z-10"
+              : "grid grid-cols-1 md:grid-cols-2 gap-2  z-10 mt-5"
+          }>
+            {[...Array(12)].map((_, index) => (
+              <div key={index}>
+                {viewMode === "grid" ? (
+                  <SearchMangaCardSkeleton isDark={isDark} />
+                ) : (
+                  <SearchMangaListSkeleton isDark={isDark} />
+                )}
+              </div>
             ))}
           </div>
+        )}
 
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <BottomPagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={goToPage}
-              isDark={isDark}
-            />
-          )}
-        </>
-      )}
-    </main>
-  </div>
-);
+        {/* Error state */}
+        {!isLoading && error && (
+          <div className="flex flex-col items-center justify-center py-16">
+            <div className={`${isDark ? 'bg-slate-950/20 border-slate-800' : 'bg-white/80 border-gray-300'} border rounded-xl p-6 max-w-md w-full text-center shadow-lg backdrop-blur-sm`}>
+              <div className={`${isDark ? 'bg-slate-800/50' : 'bg-gray-100'} w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4`}>
+                <AlertCircleIcon className={`h-6 w-6 ${isDark ? 'text-red-400' : 'text-red-600'}`} />
+              </div>
+              <h2 className={`text-xl font-semibold ${isDark ? 'text-slate-200' : 'text-gray-800'} mb-2`}>{error}</h2>
+              <p className={`${isDark ? 'text-slate-400' : 'text-gray-600'} mb-5`}>
+                {error === "No manga found"
+                  ? "Try adjusting your search terms or filters."
+                  : "Please try again later."}
+              </p>
+              <button
+                onClick={() => window.location.reload()}
+                className={`${isDark ? 'bg-gradient-to-r from-purple-700/70 to-indigo-700/70 hover:bg-purple-700' : 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700'} text-white px-5 py-2 rounded-lg transition`}
+              >
+                Retry
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Empty results after filtering */}
+        {!isLoading && !error && filteredResults.length === 0 && searchResults.length > 0 && (
+          <div className="flex h-fit flex-col items-center justify-center py-16">
+            <div className={`${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-gray-300'} border rounded-xl p-6 max-w-md w-full text-center shadow-lg`}>
+              <div className={`${isDark ? 'bg-slate-800/50' : 'bg-gray-100'} w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4`}>
+                <RouteOff className={`w-8 h-8 ${isDark ? 'text-gray-400' : 'text-gray-600'}`} />
+              </div>
+              <h2 className={`text-xl font-semibold ${isDark ? 'text-slate-200' : 'text-gray-800'} mb-2`}>
+                No matches found
+              </h2>
+              <p className={`${isDark ? 'text-slate-400' : 'text-gray-600'} mb-5`}>
+                No manga matched your current filter settings.
+              </p>
+              <button
+                onClick={clearAllFilters}
+                className={`${isDark ? 'bg-purple-600 hover:bg-purple-700' : 'bg-purple-600 hover:bg-purple-700'} text-white px-5 py-2 rounded-lg transition`}
+              >
+                Clear Filters
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Results grid/list */}
+        {!isLoading && !error && filteredResults.length > 0 && (
+          <>
+            <div
+              className={
+                viewMode === "grid"
+                  ? "grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-2 mt-5 relative gap-y-4 z-10"
+                  : "grid grid-cols-1 md:grid-cols-2 gap-2  z-10 mt-5"
+              }
+            >
+              {paginatedItems.map((manga) => (
+                <SearchMangaCardWith2ViewMode
+                  key={manga.id}
+                  manga={manga}
+                  viewMode={viewMode}
+                  isDark={isDark}
+                />
+              ))}
+            </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <BottomPagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={goToPage}
+                isDark={isDark}
+              />
+            )}
+          </>
+        )}
+      </main>
+    </div>
+  );
 });
-
+SearchPage.displayName = "SearchPage"
 export default memo(SearchPage);

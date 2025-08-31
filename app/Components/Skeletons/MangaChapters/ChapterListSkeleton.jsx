@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react';
+import React from 'react';
 import {
   Filter,
   History,
@@ -18,6 +18,7 @@ const SkeletonFlag = React.memo(() => (
   <div className="w-4 h-4 sm:w-6 sm:h-6 rounded-full bg-gray-700 animate-pulse" />
 ));
 
+SkeletonFlag.displayName="SkeletonFlag"
 // Skeleton Button Component
 const SkeletonButton = ({ children, className, icon: Icon, chevron, disabled = false }) => (
   <div
@@ -32,7 +33,7 @@ const SkeletonButton = ({ children, className, icon: Icon, chevron, disabled = f
 );
 
 // Skeleton Input Component
-const SkeletonInput = ({ icon: Icon, placeholder }) => (
+const SkeletonInput = ({ icon: Icon }) => (
   <div className="relative w-full sm:w-auto animate-pulse">
     {Icon && <Icon className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-700" />}
     <div className="bg-gray-600/30 rounded px-8 py-2 w-full sm:min-w-[200px] h-9 sm:h-10" />
@@ -79,8 +80,8 @@ const SkeletonChapterCard = ({ isRead = false }) => (
 
 // Main Skeleton Component
 const ChapterListWithFiltersSkeleton = () => {
-  const [showFilters, setShowFilters] = React.useState(false);
-  const [showHistory, setShowHistory] = React.useState(false);
+  const [showFilters] = React.useState(false);
+  const [showHistory] = React.useState(false);
 
   return (
     <div className="flex flex-col  w-full gap-4 lg:flex-row text-white font-sans">

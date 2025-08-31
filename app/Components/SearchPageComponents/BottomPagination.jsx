@@ -51,7 +51,7 @@ const BottomPagination = ({ currentPage, totalPages, onPageChange,isDark=true, }
         <ChevronLeft size={16} />
       </button>
 
-      {visiblePages.map((page, index) => {
+      {visiblePages.map((page) => {
         if (typeof page === 'string') {
           return (
             <span

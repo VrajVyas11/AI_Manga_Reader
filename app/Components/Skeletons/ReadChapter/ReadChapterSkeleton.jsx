@@ -1,4 +1,4 @@
-import { ArrowLeft, Image } from 'lucide-react';
+import { ArrowLeft, ImageIcon } from 'lucide-react';
 import React from 'react'
 
 function ReadChapterSkeleton() {
@@ -125,7 +125,7 @@ function ReadChapterSkeleton() {
                             animation: 'colorShift 1.5s ease-in-out infinite alternate',
                         }}
                     >
-                        <Image className="w-8 h-8 stroke-gray-400" />
+                        <ImageIcon  className="w-8 h-8 stroke-gray-400" />
                     </div>
                 </div>
 

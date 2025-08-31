@@ -12,7 +12,7 @@ const OCROverlay = ({
     if (loading && !translatedTexts[originalText]) {
       return "Translating...";
     }
-    return translatedTexts[originalText] || originalText;
+    return translatedTexts[originalText] ?? originalText;
   }, [loading, translatedTexts]);
   //  console.log(imageElement.naturalWidth);
   // console.log(imageElement.naturalHeight);

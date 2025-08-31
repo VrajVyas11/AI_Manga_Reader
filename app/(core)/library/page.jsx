@@ -32,6 +32,8 @@ const MangaLibrary = () => {
     getAllFromReadHistory,
     addToBookMarks,
     addToFavorite,
+    setSelectedManga,
+    addToReadHistory,
   } = useManga();
   const { theme } = useTheme();
   const isDark = theme == "dark";
@@ -53,8 +55,15 @@ const MangaLibrary = () => {
   const readingHistory = getAllFromReadHistory();
 
   const handleMangaClick = useCallback(
-    (manga) => router.push(`/manga/${manga.id}/chapters`),
-    [router]
+    (manga, chapter) => {
+      if (manga) {
+        if (chapter) {
+          addToReadHistory(manga, chapter)
+        }
+        setSelectedManga(manga)
+      }
+    },
+    [addToReadHistory, setSelectedManga]
   );
 
   // Filter function for all tabs
@@ -95,18 +104,18 @@ const MangaLibrary = () => {
               return new Date(b.lastReadAT) - new Date(a.lastReadAT);
             case "rating":
               return (
-                (b.manga.rating?.rating?.bayesian || 0) -
-                (a.manga.rating?.rating?.bayesian || 0)
+                (b.manga.rating?.rating?.bayesian ?? 0) -
+                (a.manga.rating?.rating?.bayesian ?? 0)
               );
             case "popular":
-              return (b.manga.rating?.follows || 0) - (a.manga.rating?.follows || 0);
+              return (b.manga.rating?.follows ?? 0) - (a.manga.rating?.follows ?? 0);
             case "title":
               return a.manga.title.localeCompare(b.manga.title);
             case "progress":
               const progressA =
-                (a.chapters.length / (a.allChaptersList.length || 1)) * 100;
+                (a.chapters.length / (a.allChaptersList.length ?? 1)) * 100;
               const progressB =
-                (b.chapters.length / (b.allChaptersList.length || 1)) * 100;
+                (b.chapters.length / (b.allChaptersList.length ?? 1)) * 100;
               return progressB - progressA;
             default:
               return 0;
@@ -180,8 +189,8 @@ const MangaLibrary = () => {
             {selectedManga && (
               <div
                 className={`group flex-row flex ${isDark
-                    ? "shadow-[0_0_7px_rgba(0,0,0,1)] shadow-purple-500/20  bg-gray-900/30  border-gray-800/40"
-                    : "shadow-[0_0_7px_rgba(0,0,0,0.1)] shadow-gray-400/20  bg-white/90  border-gray-300/40"
+                  ? "shadow-[0_0_7px_rgba(0,0,0,1)] shadow-purple-500/20  bg-gray-900/30  border-gray-800/40"
+                  : "shadow-[0_0_7px_rgba(0,0,0,0.1)] shadow-gray-400/20  bg-white/90  border-gray-300/40"
                   }  rounded-full p-1.5 sm:p-2 pr-2 sm:pr-3 backdrop-blur-sm border  max-w-[10rem] sm:max-w-sm w-full sm:w-auto items-center gap-2 sm:gap-4 transition focus:outline-none `}
                 aria-label={`Continue reading ${selectedManga.title}`}
               >
@@ -197,8 +206,8 @@ const MangaLibrary = () => {
                   />
                   <div
                     className={`absolute inset-0 ${isDark
-                        ? "bg-gradient-to-t from-black/90 via-black/40 to-transparent"
-                        : "bg-gradient-to-t from-black/10 via-black/10 to-transparent"
+                      ? "bg-gradient-to-t from-black/90 via-black/40 to-transparent"
+                      : "bg-gradient-to-t from-black/10 via-black/10 to-transparent"
                       }`}
                   />
                 </div>
@@ -219,13 +228,13 @@ const MangaLibrary = () => {
                 <button
                   onClick={() => router.push(`/manga/${selectedManga.id}/chapters`)}
                   className={`flex cursor-pointer items-center gap-1 ${isDark
-                      ? "bg-white/90 hover:bg-white text-black"
-                      : "bg-black/80 hover:bg-black text-white"
+                    ? "bg-white/90 hover:bg-white text-black"
+                    : "bg-black/80 hover:bg-black text-white"
                     } backdrop-blur-md text-xs p-2 sm:p-3 rounded-full ml-auto select-none `}
                 >
                   <Play size={14} className={` ${isDark
-                      ? " text-black fill-black"
-                      : " fill-white text-white"
+                    ? " text-black fill-black"
+                    : " fill-white text-white"
                     } `} />
                 </button>
               </div>
@@ -268,10 +277,10 @@ const MangaLibrary = () => {
                       key={tab.id}
                       onClick={() => setActiveTab(tab.id)}
                       className={`px-3 sm:px-5 font-semibold py-3 sm:py-5 text-xs sm:text-sm w-full sm:min-w-60 justify-center relative z-50 tracking-wider border-b-2 sm:border-b-2 border-t-0 rounded-2xl sm:rounded-3xl flex items-center gap-1 sm:gap-2 duration-0 transition-all ${activeTab === tab.id
-                          ? isDark
-                            ? "border-gray-500/40 hover:border-0 text-white bg-gray-800/30 backdrop-blur-lg" : "border-purple-400 hover:border-0 text-white bg-gray-800 backdrop-blur-lg"
-                          : isDark
-                            ? "border-transparent text-gray-400 hover:text-gray-200" : "border-transparent text-gray-700 hover:text-gray-900"
+                        ? isDark
+                          ? "border-gray-500/40 hover:border-0 text-white bg-gray-800/30 backdrop-blur-lg" : "border-purple-400 hover:border-0 text-white bg-gray-800 backdrop-blur-lg"
+                        : isDark
+                          ? "border-transparent text-gray-400 hover:text-gray-200" : "border-transparent text-gray-700 hover:text-gray-900"
                         }`}
                     >
                       <tab.icon strokeWidth={3} size={18} className="sm:w-5 sm:h-5" />
@@ -279,8 +288,8 @@ const MangaLibrary = () => {
                       <span className="sm:hidden">{tab.shortLabel}</span>
                       <span
                         className={`${isDark
-                            ? "bg-gray-800 text-gray-200"
-                            : "bg-gray-200  text-gray-700"
+                          ? "bg-gray-800 text-gray-200"
+                          : "bg-gray-200  text-gray-700"
                           } text-[9px] hidden sm:flex justify-center items-center sm:text-[10px] min-w-5 sm:min-w-6 min-h-5 sm:min-h-6 rounded-full ml-1 sm:ml-2`}
                       >
                         {tab.count}
@@ -302,8 +311,8 @@ const MangaLibrary = () => {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className={`pl-10 sm:pl-14 pr-4 sm:pr-4 py-3 sm:py-5 rounded-2xl sm:rounded-3xl w-full sm:w-80 text-sm sm:text-base focus:outline-none duration-0 focus:border-purple-500 transition-all ${isDark
-                        ? "bg-gray-950 border border-white/10 text-white placeholder-gray-400"
-                        : "bg-white border border-gray-300 text-black placeholder-gray-500"
+                      ? "bg-gray-950 border border-white/10 text-white placeholder-gray-400"
+                      : "bg-white border border-gray-300 text-black placeholder-gray-500"
                       }`}
                   />
                   <Search
@@ -328,12 +337,12 @@ const MangaLibrary = () => {
                   disabled={activeTab !== "history"}
                   onClick={() => setIsFilterOpen(!isFilterOpen)}
                   className={`flex disabled:opacity-70 disabled:cursor-not-allowed font-bold items-center gap-2 px-4 sm:px-7 backdrop-blur-lg py-3 sm:py-5 rounded-2xl sm:rounded-3xl transition-all border focus:outline-none text-sm sm:text-base w-full sm:w-auto justify-center ${isFilterOpen
-                      ? isDark
-                        ? "bg-purple-800/20 text-white border-purple-600/10"
-                        : "bg-purple-800 backdrop-blur-lg text-white border-purple-600"
-                      : isDark
-                        ? "bg-white/90 border-white/10 hover:bg-white text-black"
-                        : "bg-gray-900 border-gray-300 hover:bg-gray-950 text-white"
+                    ? isDark
+                      ? "bg-purple-800/20 text-white border-purple-600/10"
+                      : "bg-purple-800 backdrop-blur-lg text-white border-purple-600"
+                    : isDark
+                      ? "bg-white/90 border-white/10 hover:bg-white text-black"
+                      : "bg-gray-900 border-gray-300 hover:bg-gray-950 text-white"
                     }`}
                 >
                   <Sliders strokeWidth={3} size={14} className="sm:w-4 sm:h-4" />

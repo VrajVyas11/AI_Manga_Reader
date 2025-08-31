@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTheme } from "./providers/ThemeContext";
-
+import Link from "next/link"
 export default function Custom404() {
   const router = useRouter();
   const { theme } = useTheme();
@@ -18,9 +18,6 @@ export default function Custom404() {
     router.back();
   };
 
-  const handleGoHome = () => {
-    router.push("/manga-list");
-  };
 
   const handleRefresh = () => {
     window.location.reload();
@@ -131,7 +128,7 @@ export default function Custom404() {
                     className={`text-sm sm:text-base ${isDark ? "text-gray-400" : "text-gray-600"
                       } leading-relaxed`}
                   >
-                    This page seems to have been lost in translation. Let's get you
+                    This page seems to have been lost in translation. Let{"'"}s get you
                     back to reading some great manga.
                   </p>
                 </div>
@@ -139,8 +136,9 @@ export default function Custom404() {
 
               {/* Right - Actions */}
               <div className="space-x-3 flex flex-row justify-center items-center flex-wrap sm:space-y-4 sm:space-x-0">
-                <button
-                  onClick={handleGoHome}
+                <Link
+                  href={"/manga-list"}
+                  prefetch={true}
                   className={` w-fit md:w-full flex items-center justify-center gap-2 sm:gap-3 py-3 sm:py-4 px-4 sm:px-6 backdrop-blur-md border rounded-lg font-semibold text-white
                     transition duration-300 ease-in-out
                     ${isDark
@@ -150,7 +148,7 @@ export default function Custom404() {
                 >
                   <Home className="w-4 h-4 sm:w-5 sm:h-5" />
                   <span className="text-sm sm:text-base">Home</span>
-                </button>
+                </Link>
 
                 <button
                   onClick={handleGoBack}

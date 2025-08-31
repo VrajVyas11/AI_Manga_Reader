@@ -40,7 +40,7 @@ export async function GET(
             );
 
             const fetchedChapters = response.data.data;
-            const included = response.data.included || [];
+            // const included = response.data.included || [];
 
             console.log(
                 `Fetched ${fetchedChapters.length} chapters for languages: ${allAvailableLanguages.join(
