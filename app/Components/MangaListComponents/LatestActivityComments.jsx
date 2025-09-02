@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
     Clock,
     ExternalLink,
@@ -40,7 +40,7 @@ const LatestComments = () => {
     const [scrollLeft, setScrollLeft] = useState(0);
     const [showMore, setShowMore] = useState({});
     const [visible, setVisible] = useState(true);
-    const abortControllerRef = useRef(null);
+
     const fetchComments = useCallback(
         async (force = false) => {
             setLoading(true);
@@ -48,9 +48,6 @@ const LatestComments = () => {
 
             const now = Date.now();
             const cachedTimestamp = lastFetchTimestamp ?? 0;
-            if (abortControllerRef.current) {
-                abortControllerRef.current.abort();
-            }
 
             if (!force && now - cachedTimestamp < CACHE_DURATION_MS) {
                 try {
@@ -65,10 +62,9 @@ const LatestComments = () => {
                     console.error("Error parsing cached data:", e);
                 }
             }
-            abortControllerRef.current = new AbortController();
 
             try {
-                const response = await fetch("/api/comments/latestActivity", { signal: abortControllerRef.current.signal, });
+                const response = await fetch("/api/comments/latestActivity");
                 const data = await response.json();
 
                 if (!response.ok) {

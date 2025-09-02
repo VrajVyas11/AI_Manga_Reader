@@ -13,11 +13,11 @@ const useInView = (threshold = 0.1) => {
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        console.log('Intersection change:', {
-          isIntersecting: entry.isIntersecting,
-          intersectionRatio: entry.intersectionRatio,
-          time: Date.now()
-        });
+        // console.log('Intersection change:', {
+        //   isIntersecting: entry.isIntersecting,
+        //   intersectionRatio: entry.intersectionRatio,
+        //   time: Date.now()
+        // });
         
         setInView(entry.isIntersecting);
       },

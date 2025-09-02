@@ -7,7 +7,7 @@ import LoadingSpinner from "./Components/LoadingSpinner";
 import "./globals.css";
 import TopNavbar from "./Components/TopNavbar";
 import { ThemeProviderClient } from "./providers/ThemeProviderClient";
-
+import { PreferencesProvider } from "./providers/PreferencesContext";
 export default function RootLayout({
   children,
 }: {
@@ -25,8 +25,10 @@ export default function RootLayout({
           <TanstackProvider>
             <MangaProvider>
               <ThemeProviderClient>
+                <PreferencesProvider>
                 <TopNavbar />
                 {children}
+                </PreferencesProvider>
               </ThemeProviderClient>
             </MangaProvider>
           </TanstackProvider>
