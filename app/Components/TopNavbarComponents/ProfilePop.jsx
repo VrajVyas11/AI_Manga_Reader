@@ -19,7 +19,7 @@ import {
   Heart,
 } from "lucide-react";
 import { useTheme } from "../../providers/ThemeContext";
-import PreferencesModal from "./PreferencesPopUp"; // update path if needed
+import PreferencesPopUp from "./PreferencesPopUp"; // update path if needed
 
 function ProfilePop() {
   const [isOpen, setIsOpen] = useState(false);
@@ -282,7 +282,7 @@ function ProfilePop() {
       )}
 
       {/* Preferences Modal */}
-      <PreferencesModal isOpen={showPreferences} onClose={() => setShowPreferences(false)} />
+      <PreferencesPopUp isOpen={showPreferences} onClose={() => setShowPreferences(false)} />
     </div>
   );
 }
