@@ -11,6 +11,7 @@ import { useManga } from '../../providers/MangaContext';
 import { useTheme } from '../../providers/ThemeContext';
 import useInView from "../../hooks/useInView";
 import Link from 'next/link';
+import { useMangaFilters, useFilterStats } from '../../hooks/useMangaFilters'; // Import the hook
 
 const MangaCard = React.memo(() => {
     const { theme } = useTheme();
@@ -18,8 +19,17 @@ const MangaCard = React.memo(() => {
     const { data, isLoading, isError, error } = useMangaFetch('latest', 1);
     const [currentPage, setCurrentPage] = useState(1);
     const ITEMS_PER_PAGE = 20;
-    const processedLatestMangas = useMemo(() => data?.data ?? [], [data?.data]);
-    const totalPages = Math.ceil(processedLatestMangas.length / ITEMS_PER_PAGE);
+
+    // Get the original data
+    const originalMangas = useMemo(() => data?.data ?? [], [data?.data]);
+
+    // Apply filters using the custom hook
+    const filteredMangas = useMangaFilters(originalMangas);
+
+    // Get filter statistics
+    const filterStats = useFilterStats(originalMangas, filteredMangas);
+
+    const totalPages = Math.ceil(filteredMangas.length / ITEMS_PER_PAGE);
     const { setSelectedManga } = useManga();
 
     const handleMangaClicked = useCallback((manga) => {
@@ -32,8 +42,8 @@ const MangaCard = React.memo(() => {
 
     const currentMangas = useMemo(() => {
         const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-        return processedLatestMangas.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-    }, [processedLatestMangas, currentPage, ITEMS_PER_PAGE]);
+        return filteredMangas.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+    }, [filteredMangas, currentPage, ITEMS_PER_PAGE]);
 
     const goToPage = useCallback((page) => {
         if (page < 1 || page > totalPages) return;
@@ -56,26 +66,44 @@ const MangaCard = React.memo(() => {
                     <div className={`${isDark ? "bg-white/10" : "bg-gray-200/50"} p-3 rounded-lg`}>
                         <Flame className={`w-6 h-6 md:w-7 md:h-7 ${isDark ? "text-yellow-300" : "text-yellow-600"} drop-shadow-md`} />
                     </div>
-                    <div>
+                    <div className="flex-1">
                         <h2 className={`text-xl md:text-2xl font-bold ${isDark ? "text-white" : "text-gray-900"} uppercase tracking-wide`}>
                             Latest Releases
                         </h2>
-                        <p className={`text-xs ${isDark ? "text-gray-400" : "text-gray-600"} uppercase tracking-wide`}>
-                            Fresh Manga Updates
-                        </p>
+                        <div className="flex items-center gap-3">
+                            <p className={`text-xs ${isDark ? "text-gray-400" : "text-gray-600"} uppercase tracking-wide`}>
+                                Fresh Manga Updates
+                            </p>
+                            {filterStats.hasFilters && (
+                                <span className={`text-xs px-2 py-1 rounded-full ${isDark ? "bg-purple-600/20 text-purple-300" : "bg-purple-100 text-purple-700"}`}>
+                                    {filterStats.filteredCount} of {filterStats.originalCount} shown
+                                </span>
+                            )}
+                        </div>
                     </div>
                 </div>
-                <div className="grid w-[95%] sm:gap-y-4 mx-auto md:mx-5 xl:ml-16 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-                    {currentMangas.map((manga, index) => (
-                        <Card
-                            isDark={isDark}
-                            manga={manga}
-                            handleMangaClicked={handleMangaClicked}
-                            key={`${manga.id}-${currentPage}-${index}`} // Add currentPage to key for proper remounting
-                        />
-                    ))}
-                </div>
-                {loadMoreMangas && currentPage === totalPages && (
+
+                {currentMangas.length === 0 ? (
+                    <div className={`text-center py-12 mx-auto ${isDark ? "text-gray-400" : "text-gray-600"}`}>
+                        <div className="text-lg font-semibold mb-2">No manga found</div>
+                        <div className="text-sm">
+                            Try adjusting your preferences to see more content
+                        </div>
+                    </div>
+                ) : (
+                    <div className="grid w-[95%] sm:gap-y-4 mx-auto md:mx-5 xl:ml-16 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+                        {currentMangas.map((manga, index) => (
+                            <Card
+                                isDark={isDark}
+                                manga={manga}
+                                handleMangaClicked={handleMangaClicked}
+                                key={`${manga.id}-${currentPage}-${index}`}
+                            />
+                        ))}
+                    </div>
+                )}
+
+                {loadMoreMangas && currentPage === totalPages && filteredMangas.length > 0 && (
                     <button
                         className={`px-8 py-3 mt-12 ml-12 ${isDark ? "bg-purple-700 hover:bg-purple-800 text-white" : "bg-purple-500 hover:bg-purple-600 text-gray-900"} font-semibold rounded-lg transition-all duration-0 transform hover:scale-105 shadow-lg`}
                     >
@@ -84,15 +112,17 @@ const MangaCard = React.memo(() => {
                 )}
             </div>
             <div className='h-28' />
-            <div className="absolute bottom-0 inset-x-0 w-screen flex justify-center mb-8">
-                <MangaCardPagination
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    onPageChange={goToPage}
-                    loadMoreMangas={loadMoreMangas}
-                    onLoadMore={loadMoreMangas}
-                />
-            </div>
+            {totalPages > 1 && (
+                <div className="absolute bottom-0 inset-x-0 w-screen flex justify-center mb-8">
+                    <MangaCardPagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={goToPage}
+                        loadMoreMangas={loadMoreMangas}
+                        onLoadMore={loadMoreMangas}
+                    />
+                </div>
+            )}
         </Suspense>
     );
 });
@@ -110,22 +140,31 @@ const Card = ({ manga, handleMangaClicked, isDark }) => {
             href={`/manga/${manga.id}/chapters`}
             prefetch={true}
             onClick={() => handleMangaClicked(manga)}
-            className={`manga-card transform transition-all duration-500 ease-out cursor-pointer w-full flex justify-center items-start ${inView
+            className={`manga-card group transform transition-all duration-500 ease-out cursor-pointer w-full flex justify-center items-start ${inView
                 ? "opacity-100 translate-y-0"
                 : "opacity-0 translate-y-10"
                 }`}
-
         >
             <div className={`w-full sm:w-[250px] overflow-hidden min-h-[290px] sm:min-h-[400px] rounded-lg ${isDark ? "bg-[#0c0221]/50 shadow-slate-600" : "bg-gray-100/50 shadow-gray-400"} p-[5px] shadow-[0_0_4px_rgba(0,0,0,0.5)] transition-transform duration-300 ease-out hover:scale-[102%] will-change-transform`}>
-                <div className="relative flex h-[155px] sm:h-[250px] flex-col rounded-[5px]">
+                <div
+                    className={`relative flex h-[155px] sm:h-[250px] flex-col rounded-[5px] rounded-tl-[20px] 
+    ${manga.isCoverImageBlurred?"before:content-[''] before:absolute before:inset-0 before:bg-black/20 before:backdrop-blur-md before:transition-all before:duration-300 group-hover:before:opacity-0 pointer-events-none before:z-10 before:rounded-[5px] before:rounded-tl-[20px]":""}
+    ${isDark ? "bg-gradient-to-tr from-[#1f2020] to-[#000d0e]" : "bg-gradient-to-tr from-gray-200 to-gray-300"}
+    will-change-transform`}
+                >
                     <Image
                         src={manga.coverImageUrl ?? "./placeholder.jpg"}
                         alt={manga.title}
                         fill
-                        className={`object-cover md:object-fill relative -mt-[1px] flex h-[155px] sm:h-[250px] flex-col rounded-[5px] rounded-tl-[20px] ${isDark ? "bg-gradient-to-tr from-[#1f2020] to-[#000d0e]" : "bg-gradient-to-tr from-gray-200 to-gray-300"}`}
+                        className="object-cover w-full h-full block rounded-[5px] rounded-tl-[20px] relative"
                         placeholder="blur"
                         blurDataURL="./placeholder.jpg"
                     />
+
+                    {/* optional extra overlay that appears only when isCoverImageBlurred — keep pointer-events-none */}
+                    {manga.isCoverImageBlurred && (
+                        <div className="absolute inset-0 bg-black/20 rounded-[5px] rounded-tl-[20px] transition-all duration-300 hover:bg-transparent pointer-events-none z-20" />
+                    )}
                     <div className={`absolute inset-x-0 bottom-0 ${isDark ? "bg-gradient-to-t from-black via-gray-900 to-transparent" : "bg-gradient-to-t from-gray-900/80 via-gray-800/50 to-transparent"} p-2 sm:p-4`}>
                         <h1 className={`flex flex-row w-full font-bold items-center gap-3 sm:items-start justify-center text-[8px] sm:text-xs tracking-[2px] text-white`}>
                             <StableFlag className={`w-4 sm:w-7`} code={manga.originalLanguage ?? 'UN'} />

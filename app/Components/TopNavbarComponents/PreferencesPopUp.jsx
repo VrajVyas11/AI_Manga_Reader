@@ -1,362 +1,384 @@
-"use client";
-
-import React, { useEffect, useRef, useState } from "react";
+'use client';
+import React, { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import {
   X,
   Save,
-  RefreshCw,
+  RotateCcw,
   Eye,
   EyeOff,
-  Settings,
   Languages,
   Shield,
-  BookOpen,
-  Sparkles,
+  CheckCircle2,
+  Circle,
+  Settings,
+  Clapperboard,
 } from "lucide-react";
-import { usePreferences } from "@/app/providers/PreferencesContext";
 import { langFullNames } from "@/app/constants/Flags";
 import StableFlag from "../StableFlag";
+import { usePreferences } from "@/app/providers/PreferencesContext";
 
-/**
- * PreferencesModal (Tailwind-only + small scoped CSS for scrollbar)
- * - Dark theme, flat colors (no gradients)
- * - Purple + yellow accents
- * - Two-column responsive layout (no tabs)
- * - Thin purple scrollbar applied to the main scroll container
- */
-
-export default function PreferencesPopUp({ isOpen, onClose }) {
+export default function PreferencesModal({ isOpen = true, onClose = () => { }, isDark = true }) {
   const { preferences, updatePreferences, resetPreferences } = usePreferences();
   const [draft, setDraft] = useState(preferences);
   const modalRef = useRef(null);
 
+  // Memoize static data to prevent re-renders
+  const types = useMemo(() => [
+    { key: "manga", label: "Manga", icon: "ja", desc: "Japanese comics" },
+    { key: "manhwa", label: "Manhwa", icon: "ko", desc: "Korean comics" },
+    { key: "manhua", label: "Manhua", icon: "zh", desc: "Chinese comics" },
+  ], []);
+
+  const ageRatings = useMemo(() => [
+    { key: "all-ages", label: "All Ages", desc: "Family friendly", color: "text-emerald-400" },
+    { key: "teen", label: "Teen", desc: "13+ content", color: "text-blue-400" },
+    { key: "18+", label: "18+", desc: "Adult content", color: "text-amber-400" },
+    { key: "18++", label: "18++", desc: "Explicit content", color: "text-red-400" },
+  ], []);
+
+  // Sync draft with preferences when modal opens
   useEffect(() => {
     if (isOpen) setDraft(preferences);
   }, [isOpen, preferences]);
 
+  // Handle click outside
+
   useEffect(() => {
-    function onOutside(e) {
+
+    const handleOutside = (e) => {
+
       if (!isOpen) return;
+
       if (modalRef.current && !modalRef.current.contains(e.target)) onClose();
-    }
-    document.addEventListener("mousedown", onOutside);
-    return () => document.removeEventListener("mousedown", onOutside);
+
+    };
+
+    document.addEventListener("mousedown", handleOutside);
+
+    return () => document.removeEventListener("mousedown", handleOutside);
+
   }, [isOpen, onClose]);
 
-  if (!isOpen) return null;
+  // Optimized toggle functions with useCallback
 
-  const types = [
-    { key: "manga", label: "Manga", icon: "ja" },
-    { key: "manhwa", label: "Manhwa", icon: "ko" },
-    { key: "manhua", label: "Manhua", icon: "zh" },
-  ];
+  const toggleArrayItem = useCallback((arr, key) => {
 
-  const ageRatingKeys = [
-    { key: "all-ages", label: "All Ages", color: "emerald" },
-    { key: "teen", label: "Teen", color: "sky" },
-    { key: "18+", label: "18+", color: "amber" },
-    { key: "18++", label: "18++", color: "rose" },
-  ];
-
-  const toggleArrayItem = (arr, key) => {
     const set = new Set(arr || []);
+
     if (set.has(key)) set.delete(key);
+
     else set.add(key);
+
     return Array.from(set);
-  };
 
-  const handleTypeToggle = (key) =>
-    setDraft({ ...draft, types: toggleArrayItem(draft.types, key) });
+  }, []);
 
-  const handleLanguageToggle = (key) =>
-    setDraft({ ...draft, languages: toggleArrayItem(draft.languages, key) });
+  const handleTypeToggle = useCallback((key) => {
 
-  const handleAgeToggle = (key) =>
-    setDraft({
-      ...draft,
+    setDraft(prev => ({ ...prev, types: toggleArrayItem(prev.types, key) }));
+
+  }, [toggleArrayItem]);
+
+  const handleLanguageToggle = useCallback((key) => {
+
+    setDraft(prev => ({ ...prev, languages: toggleArrayItem(prev.languages, key) }));
+
+  }, [toggleArrayItem]);
+
+  const handleAgeToggle = useCallback((key) => {
+
+    setDraft(prev => ({
+
+      ...prev,
+
       contentFilters: {
-        ...draft.contentFilters,
+
+        ...prev.contentFilters,
+
         ageRatings: {
-          ...draft.contentFilters.ageRatings,
-          [key]: !draft.contentFilters.ageRatings?.[key],
+
+          ...prev.contentFilters.ageRatings,
+
+          [key]: !prev.contentFilters.ageRatings?.[key],
+
         },
+
       },
-    });
 
-  const handleHideAdultToggle = () =>
-    setDraft({
-      ...draft,
-      contentFilters: { ...draft.contentFilters, hideAdult: !draft.contentFilters.hideAdult },
-    });
+    }));
 
-  const handleBlurAdultToggle = () =>
-    setDraft({
-      ...draft,
-      contentFilters: { ...draft.contentFilters, blurAdult: !draft.contentFilters.blurAdult },
-    });
+  }, []);
 
-  const handleSave = () => {
+  const handleAdultSettingToggle = useCallback((setting) => {
+
+    setDraft(prev => ({
+
+      ...prev,
+
+      contentFilters: {
+
+        ...prev.contentFilters,
+
+        [setting]: !prev.contentFilters[setting]
+
+      },
+
+    }));
+
+  }, []);
+
+  const handleSave = useCallback(() => {
+
     if (!draft.languages || draft.languages.length === 0) {
-      alert("Select at least one preferred language.");
+
+      alert("Please select at least one language.");
+
       return;
+
     }
 
     if (!draft.types || draft.types.length === 0) {
-      setDraft((cur) => {
-        const all = types.map((t) => t.key);
-        const newDraft = { ...cur, types: all };
-        updatePreferences(newDraft);
-        onClose();
-        return newDraft;
-      });
+      const allTypes = types.map(t => t.key);
+      const newDraft = { ...draft, types: allTypes };
+      updatePreferences(newDraft);
+      onClose();
       return;
     }
 
     updatePreferences(draft);
     onClose();
-  };
+  }, [draft, types, updatePreferences, onClose]);
 
-  const handleReset = () => {
+  const handleReset = useCallback(() => {
+
     resetPreferences();
+
     onClose();
-  };
+
+  }, [resetPreferences, onClose]);
+
+  if (!isOpen) return null;
 
   return (
     <div
-      className="fixed inset-0 z-50 h-screen flex items-center justify-center"
-      aria-hidden
+      className="fixed inset-0 z-50 h-screen flex items-center justify-center p-4"
       onClick={onClose}
     >
-      {/* backdrop */}
-      <div className="absolute inset-0 bg-black/75 backdrop-blur-sm" aria-hidden />
-
-      {/* Small scoped CSS for thin purple scrollbar on .prefs-scroll */}
-      <style>{`
-        /* Thin purple scrollbar for modern browsers */
-        .prefs-scroll::-webkit-scrollbar { height: 8px; width: 8px; }
-        .prefs-scroll::-webkit-scrollbar-track { background: transparent; }
-        .prefs-scroll::-webkit-scrollbar-thumb {
-          background-color: rgba(139,92,246,0.9); /* purple-600 */
-          border-radius: 999px;
-        }
-        .prefs-scroll::-webkit-scrollbar-thumb:hover {
-          background-color: rgba(139,92,246,1);
-        }
-
-        /* Firefox */
-        .prefs-scroll {
-          scrollbar-width: thin;
-          scrollbar-color: rgba(139,92,246,0.9) transparent;
-        }
-      `}</style>
-
-      {/* modal */}
+      <div className={`absolute inset-0 ${isDark ? "bg-black/80 backdrop-blur-sm" : "bg-black/20 backdrop-blur-sm"}`} />
+      {/* Modal */}
       <div
         ref={modalRef}
-        role="dialog"
-        aria-modal="true"
         onClick={(e) => e.stopPropagation()}
-        className="relative w-[880px] max-w-[96%] max-h-[90vh] rounded-2xl
-                   bg-neutral-900 border border-neutral-800 p-0 flex flex-col shadow-xl overflow-hidden"
+        className={`relative w-full max-w-4xl max-h-[90vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden border backdrop-blur-lg ${isDark ? "bg-black/40 border-neutral-800 text-white" : "bg-white border-gray-200 text-gray-900"}`}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-800">
-          <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-lg flex items-center justify-center bg-neutral-800 border border-neutral-700">
-              <Settings className="w-5 h-5 text-yellow-300" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-100 flex items-center gap-2">
-                Preferences
-                <Sparkles className="w-4 h-4 text-purple-400" />
-              </h3>
-              <p className="text-xs text-neutral-400 mt-0.5">Configure what appears while reading</p>
-            </div>
+        <div className={`flex items-center justify-between p-6 border-b ${isDark ? "bg-neutral-950/95 border-neutral-800" : "bg-white/95 border-gray-200"} backdrop-blur-sm`}>
+          <div className="flex flex-row items-center gap-4">
+          <span className={`${isDark ? 'p-3.5 bg-purple-600/20' : 'p-2 bg-purple-100'} rounded-full`}>
+          <Settings className="w-7 h-7"/>
+          </span>
+          <div>
+            <h2 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Reading Preferences</h2>
+            <p className={`text-sm ${isDark ? "text-neutral-400" : "text-gray-600"} mt-1`}>Customize your reading experience</p>
           </div>
-
-          <div className="flex items-center gap-2">
+          </div>
+          <div className="flex items-center gap-3">
             <button
               onClick={handleReset}
-              className="flex items-center gap-2 px-3 py-2 rounded-md text-xs font-medium text-neutral-300 hover:bg-neutral-800/40 transition"
-              title="Reset to defaults"
+              className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-full transition-all duration-200 ${isDark ? "text-neutral-300 hover:text-white hover:bg-neutral-800" : "text-gray-700 hover:text-white hover:bg-gray-300"}`}
             >
-              <RefreshCw className="w-4 h-4" />
+              <RotateCcw size={16} />
               Reset
             </button>
-
-            <button
-              onClick={() => { setDraft(preferences); onClose(); }}
-              className="px-3 py-2 rounded-md text-xs font-medium text-neutral-300 hover:bg-neutral-800/40 transition"
-            >
-              Cancel
-            </button>
-
             <button
               onClick={handleSave}
-              className="flex items-center gap-2 px-3 py-2 rounded-md bg-purple-600 text-black font-semibold shadow-sm hover:opacity-95 transition"
+              className="flex items-center gap-2 px-6 py-2 bg-purple-800 hover:bg-purple-700 text-white font-semibold rounded-full transition-all duration-200 shadow-lg"
             >
-              <Save className="w-4 h-4" />
-              Save
+              <Save size={16} />
+              Apply
             </button>
 
             <button
               onClick={onClose}
-              className="w-9 h-9 rounded-md flex items-center justify-center text-neutral-300 hover:bg-neutral-800/40 transition"
-              aria-label="Close preferences"
+              className={`p-2 rounded-full transition-all duration-200 ${isDark ? 'text-neutral-400 hover:text-white hover:bg-neutral-800' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'}`}
             >
-              <X size={18} />
+              <X size={20} />
             </button>
           </div>
         </div>
 
-        {/* Body: two-column responsive layout */}
-        <div className="p-6 prefs-scroll overflow-y-auto flex-1">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Left column: Types + Age Ratings */}
-            <div className="space-y-6">
-              {/* Content Types */}
-              <section className="p-4 rounded-lg bg-neutral-850 border border-neutral-800">
-                <div className="flex items-center gap-2 mb-3">
-                  <BookOpen className="w-5 h-5 text-purple-300" />
-                  <h4 className="text-sm font-semibold text-gray-100">Content Types</h4>
-                  <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-yellow-400/10 text-yellow-300 border border-yellow-400/10">required</span>
-                </div>
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="p-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-                <div className="grid grid-cols-3 gap-3">
-                  {types.map((type) => {
-                    const checked = draft.types?.includes(type.key);
-                    return (
-                      <button
-                        key={type.key}
-                        onClick={() => handleTypeToggle(type.key)}
-                        className={`flex flex-col my-6 gap-2 p-3 rounded-md w-fit text-left transition border
-                          ${checked ? "bg-neutral-800 border-purple-600" : "bg-neutral-900/30 border-neutral-800"}
-                          hover:shadow-[0_6px_18px_rgba(124,58,237,0.06)]`}
-                      >
-                        <div className="flex flex-row justify-start items-center gap-2"><StableFlag code={type.icon} className={` h-6 w-6`}/>
-                        <div className="font-medium text-gray-100">{type.label}</div>
-                        </div>
-                        <div className="text-xs text-neutral-400">Traditional style</div>
-                      </button>
-                    );
-                  })}
+            {/* Content Types */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className={`${isDark ? 'p-3 bg-purple-600/20 rounded-full' : 'p-2 bg-purple-100 rounded-full'}`}>
+                  <Clapperboard className={`${isDark ? 'w-5 h-5 text-purple-400' : 'w-5 h-5 text-purple-600'}`} />
                 </div>
-              </section>
-
-              {/* Age Ratings */}
-              <section className="p-4 rounded-lg bg-neutral-850 border border-neutral-800">
-                <div className="flex items-center gap-2 mb-3">
-                  <Shield className="w-5 h-5 text-purple-300" />
-                  <h4 className="text-sm font-semibold text-gray-100">Age Ratings</h4>
-                  <p className="text-xs text-neutral-400 ml-auto">toggle visibility</p>
+                <div>
+                  <h3 className={`font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>Content Types</h3>
+                  <p style={{ color: isDark ? undefined : undefined }} className={`text-xs ${isDark ? "text-neutral-400" : "text-gray-600"}`}>Choose what to show</p>
                 </div>
+              </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  {ageRatingKeys.map((rating) => {
-                    const checked = !!draft.contentFilters?.ageRatings?.[rating.key];
-
-                    return (
-                      <button
-                        key={rating.key}
-                        onClick={() => handleAgeToggle(rating.key)}
-                        className={`flex  items-center gap-3 p-4 mt-0.5 rounded-md transition border
-                          ${checked ? "bg-neutral-800 border-purple-600 shadow-sm" : "bg-neutral-900/30 border-neutral-800"}
-                          hover:translate-y-[-2px]`}
-                      >
-                        <div className={`w-7 h-7 rounded-full flex items-center justify-center  ${checked ? "bg-purple-500/80" : "bg-neutral-800/60"}`}>
-                          {checked ? "✓" : ""}
-                        </div>
-                        <div className="text-sm font-medium text-gray-100">{rating.label}</div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </section>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {types.map((type) => {
+                  const isSelected = draft.types?.includes(type.key);
+                  return (
+                    <button
+                      key={type.key}
+                      onClick={() => handleTypeToggle(type.key)}
+                      className={`p-4 rounded-xl border transition-all duration-200 text-left group ${isSelected ? isDark ? "bg-purple-600/20 border-purple-600 shadow-lg" : "bg-purple-100 border-purple-300 text-purple-800 shadow-sm" : `${isDark ? "bg-neutral-700/50" : "bg-gray-100"} border ${isDark ? 'border-neutral-700 hover:border-neutral-600 hover:bg-neutral-800' : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'}`}`}
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <StableFlag code={type.icon} className="w-6 h-6" />
+                        {isSelected ?
+                          <CheckCircle2 className={`${isDark ? 'w-5 h-5 text-purple-400' : 'w-5 h-5 text-purple-600'}`} /> :
+                          <Circle className={`w-5 h-5 ${isDark ? 'text-neutral-600 group-hover:text-neutral-500' : 'text-gray-300 group-hover:text-gray-500'}`} />
+                        }
+                      </div>
+                      <div className={`font-medium ${isDark ? 'text-white' : 'text-gray-900'} mb-1`}>{type.label}</div>
+                      <div className={`text-xs ${isDark ? "text-neutral-400" : "text-gray-600"}`}>{type.desc}</div>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
-            {/* Right column: Languages + Adult Controls */}
-            <div className="space-y-6">
-              {/* Languages */}
-              <section className="p-4 rounded-lg bg-neutral-850 border border-neutral-800">
-                <div className="flex items-center gap-2 mb-3">
-                  <Languages className="w-5 h-5 text-purple-300" />
-                  <h4 className="text-sm font-semibold text-gray-100">Preferred Languages</h4>
-                  <p className="text-xs text-neutral-400 ml-auto">select 1+</p>
+            {/* Age Ratings */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className={`${isDark ? 'p-3 bg-yellow-600/20 rounded-full' : 'p-2 bg-yellow-100 rounded-full'}`}>
+                  <Shield className={`${isDark ? 'w-5 h-5 text-yellow-400' : 'w-5 h-5 text-yellow-600'}`} />
                 </div>
+                <div>
+                  <h3 className={`font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>Age Ratings</h3>
+                  <p className={`text-xs ${isDark ? "text-neutral-400" : "text-gray-600"}`}>Filter by content rating</p>
+                </div>
+              </div>
 
-                <div className="max-h-32 overflow-y-auto grid grid-cols-2 gap-2 p-1">
-                  {Object.entries(langFullNames).map(([code, name]) => {
-                    const checked = draft.languages?.includes(code);
+              <div className="grid grid-cols-2 gap-3">
+                {ageRatings.map((rating) => {
+                  const isSelected = !!draft.contentFilters?.ageRatings?.[rating.key];
+                  return (
+                    <button
+                      key={rating.key}
+                      onClick={() => handleAgeToggle(rating.key)}
+                      className={`p-4 rounded-xl border transition-all duration-200 text-left ${isSelected ? (isDark ? 'bg-neutral-800 border-neutral-600' : 'bg-gray-100 border-gray-300') : (isDark ? 'bg-neutral-800/30 border-neutral-700 hover:border-neutral-600 hover:bg-neutral-800/50' : 'bg-white/50 border-gray-200 hover:border-gray-300 hover:bg-gray-50')}`}
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <div className={`text-sm font-bold ${rating.color}`}>
+                          {rating.label}
+                        </div>
+                        {isSelected ?
+                          <CheckCircle2 className="w-4 h-4 text-green-400" /> :
+                          <Circle className={`w-4 h-4 ${isDark ? 'text-neutral-600' : 'text-gray-300'}`} />
+                        }
+                      </div>
+                      <div className={`text-xs ${isDark ? "text-neutral-400" : "text-gray-600"}`}>{rating.desc}</div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Languages */}
+            <div className="space-y-4 -mt-10">
+              <div className="flex items-center gap-3">
+                <div className={`${isDark ? 'p-3 bg-blue-600/20 rounded-full' : 'p-2 bg-blue-100 rounded-full'}`}>
+                  <Languages className={`${isDark ? 'w-5 h-5 text-blue-400' : 'w-5 h-5 text-blue-600'}`} />
+                </div>
+                <div>
+                  <h3 className={`font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>Languages</h3>
+                  <p className={`text-xs ${isDark ? "text-neutral-400" : "text-gray-600"}`}>Select preferred languages</p>
+                </div>
+              </div>
+
+              <div
+                style={{ scrollbarWidth: "thin", scrollbarColor: 'rgba(155, 0, 200, 0.6) rgba(0, 0, 0, 0.1)' }}
+                className={`${isDark ? 'max-h-48 overflow-y-auto bg-neutral-800/30' : 'max-h-48 overflow-y-auto bg-gray-50'} rounded-xl p-3`}
+              >
+                <div className="grid grid-cols-2 gap-2">
+                  {Object.entries({ ...{ all: "All languages" }, ...langFullNames }).map(([code, name]) => {
+                    const isSelected = draft.languages?.includes(code);
                     return (
                       <button
                         key={code}
                         onClick={() => handleLanguageToggle(code)}
-                        className={`text-sm border border-gray-500/30 px-3 py-2 rounded-md text-left transition
-                          ${checked ? "bg-purple-600 text-white shadow-[inset_0_0_16px_rgba(88,47,160,0.12)]" : "bg-neutral-900/30 text-neutral-200"}
-                          hover:scale-[1.02]`}
+                        className={`px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-left ${isSelected ? (isDark ? 'bg-purple-600/20 border border-purple-500 text-white shadow-md' : 'bg-purple-100 border border-purple-300 text-purple-800 shadow-sm') : (isDark ? 'bg-neutral-700/50 text-neutral-300 hover:bg-neutral-700 hover:text-white' : 'bg-white text-gray-700 hover:bg-gray-50 hover:text-gray-900')}`}
                       >
                         {name}
                       </button>
                     );
                   })}
                 </div>
-              </section>
+              </div>
+            </div>
 
-              {/* Adult Content Controls */}
-              <section className="p-4 rounded-lg bg-neutral-850 border border-neutral-800">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-2.5 h-2.5 rounded-full bg-yellow-400/80" />
-                  <h4 className="text-sm font-semibold text-gray-100">Adult Content Settings</h4>
-                  <p className="text-xs text-neutral-400 ml-auto">visibility & thumbnails</p>
+            {/* Adult Content Settings */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className={`${isDark ? 'p-3 bg-red-600/20 rounded-full' : 'p-2 bg-red-100 rounded-full'}`}>
+                  <Eye className={`${isDark ? 'w-5 h-5 text-red-400' : 'w-5 h-5 text-red-600'}`} />
                 </div>
-
-                <div className="grid grid-cols-1 gap-3">
-                  <div className="flex items-center justify-between gap-3 p-3 rounded-md bg-neutral-900/20 border border-neutral-800">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-md bg-neutral-800 flex items-center justify-center">
-                        <EyeOff className="w-4 h-4 text-yellow-300" />
-                      </div>
-                      <div>
-                        <div className="text-sm font-medium text-gray-100">Hide Adult Content</div>
-                        <div className="text-xs text-neutral-400">Removes explicit items</div>
-                      </div>
-                    </div>
-
-                    <button
-                      onClick={handleHideAdultToggle}
-                      className={`relative inline-flex items-center h-6 w-11 rounded-full transition ${draft.contentFilters?.hideAdult ? "bg-yellow-400" : "bg-neutral-700/40"}`}
-                      aria-pressed={!!draft.contentFilters?.hideAdult}
-                    >
-                      <span className={`absolute left-1 top-0.5 h-4 w-4 rounded-full bg-white transition-transform ${draft.contentFilters?.hideAdult ? "translate-x-5" : ""}`} />
-                    </button>
-                  </div>
-
-                  <div className="flex items-center justify-between gap-3 p-3 rounded-md bg-neutral-900/20 border border-neutral-800">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-md bg-yellow-900/10 flex items-center justify-center">
-                        <Eye className="w-4 h-4 text-purple-400" />
-                      </div>
-                      <div>
-                        <div className="text-sm font-medium text-gray-100">Blur Adult Covers</div>
-                        <div className="text-xs text-neutral-400">Soft blur on thumbnails</div>
-                      </div>
-                    </div>
-
-                    <button
-                      onClick={handleBlurAdultToggle}
-                      className={`relative inline-flex items-center h-6 w-11 rounded-full transition ${draft.contentFilters?.blurAdult ? "bg-purple-600" : "bg-neutral-700/40"}`}
-                      aria-pressed={!!draft.contentFilters?.blurAdult}
-                    >
-                      <span className={`absolute left-1 top-0.5 h-4 w-4 rounded-full bg-white transition-transform ${draft.contentFilters?.blurAdult ? "translate-x-5" : ""}`} />
-                    </button>
-                  </div>
+                <div>
+                  <h3 className={`font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>Adult Content</h3>
+                  <p className={`text-xs ${isDark ? "text-neutral-400" : "text-gray-600"}`}>Control mature content display</p>
                 </div>
-              </section>
+              </div>
+
+              <div className="space-y-3">
+                {[
+                  {
+                    key: 'hideAdult',
+                    label: 'Hide Adult Content',
+                    desc: 'Completely hide explicit content',
+                    icon: EyeOff,
+                  },
+                  {
+                    key: 'blurAdult',
+                    label: 'Blur Adult Covers',
+                    desc: 'Apply blur effect to adult thumbnails',
+                    icon: Eye,
+                  }
+                ].map((setting) => {
+                  const Icon = setting.icon;
+                  const isEnabled = draft.contentFilters?.[setting.key];
+
+                  return (
+                    <div
+                      key={setting.key}
+                      className={`${isDark ? 'flex items-center justify-between p-4 bg-neutral-800/30 rounded-xl border border-neutral-700' : 'flex items-center justify-between p-4 bg-white rounded-xl border border-gray-200'}`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={`${isDark ? 'p-2 bg-neutral-700 rounded-full' : 'p-2 bg-gray-100 rounded-full'}`}>
+                          <Icon className={`${isDark ? 'w-4 h-4 text-neutral-300' : 'w-4 h-4 text-gray-600'}`} />
+                        </div>
+                        <div>
+                          <div className={`font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>{setting.label}</div>
+                          <div className={`text-xs ${isDark ? "text-neutral-400" : "text-gray-600"}`}>{setting.desc}</div>
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={() => handleAdultSettingToggle(setting.key)}
+                        className={`relative w-12 h-6 rounded-full transition-all duration-200 ${isEnabled ? isDark ? "bg-purple-600" : "bg-purple-600" : isDark ? "bg-neutral-600" : "bg-gray-200"}`}
+                      >
+                        <div
+                          className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all duration-200 ${isEnabled ? 'left-7' : 'left-1'}`}
+                        />
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>
-
       </div>
     </div>
   );
+
 }

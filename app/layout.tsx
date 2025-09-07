@@ -16,9 +16,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <script
+        {/* <script
           src="https://unpkg.com/react-scan/dist/auto.global.js"
-        />
+        /> */}
         </head>
       <body cz-shortcut-listen="true">
         <Suspense fallback={<LoadingSpinner text="Please Wait..." />}>

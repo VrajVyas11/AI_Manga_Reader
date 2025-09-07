@@ -91,7 +91,7 @@ const SearchMangaCard = ({
         ? 'bg-gray-900 group-hover:shadow-purple-500/20'
         : 'bg-gray-100 group-hover:shadow-purple-500/20'}`}>
         {/* Cover Image - keep size as is */}
-        <div className="absolute inset-0">
+        <div className={`absolute inset-0  ${manga?.isCoverImageBlurred ? "before:content-[''] before:absolute before:inset-0 before:bg-black/20 before:backdrop-blur-md before:transition-all before:duration-300 group-hover:before:opacity-0 before:z-10" : ""}`}>
           <Image
             width={300}
             height={300}

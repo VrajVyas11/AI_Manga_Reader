@@ -52,9 +52,9 @@ function SearchMangaList({
       role="button"
       aria-label={`Open manga ${manga.title}`}
     >
-      <div className="flex gap-2 md:gap-4 ">
+      <div className="flex  gap-2 md:gap-4 ">
         {/* Cover Image */}
-        <div className="relative flex-shrink-0">
+        <div className={`relative flex-shrink-0  ${manga?.isCoverImageBlurred ? "before:content-[''] before:absolute before:inset-0 before:bg-black/20 before:backdrop-blur-md before:transition-all before:duration-300 hover:before:opacity-0 before:rounded-md before:z-10" : ""}`}>
           <Image
             src={manga.coverImageUrl ?? "/placeholder.jpg"}
             width={64}

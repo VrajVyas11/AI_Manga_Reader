@@ -44,7 +44,7 @@ interface PreferencesContextType {
 }
 
 const defaultPreferences: UserPreferences = {
-  languages: ['english'],
+  languages: ['all'],
   contentFilters: {
     hideAdult: false,
     blurAdult: true,
@@ -53,7 +53,7 @@ const defaultPreferences: UserPreferences = {
       'all-ages': true,
       'teen': true,
       '18+': true,
-      '18++': false
+      '18++': true
     }
   },
   reading: {
