@@ -1,37 +1,36 @@
 # 🌌 **AI Manga Reader** 🌟
 
-
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+[![Live Demo Render.com](https://img.shields.io/badge/Live-Demo-brightgreen.svg?style=for-the-badge)](https://ai-manga-reader.onrender.com/)
+[![Live Demo Railway.com](https://img.shields.io/badge/Live-Demo-red.svg?style=for-the-badge)](https://aimangareader-production.up.railway.app/)
 [![GitHub Stars](https://img.shields.io/github/stars/VrajVyas11/AI_Manga_Reader?style=social)](https://github.com/VrajVyas11/AI_Manga_Reader/stargazers)
 [![GitHub Forks](https://img.shields.io/github/forks/VrajVyas11/AI_Manga_Reader?style=social)](https://github.com/VrajVyas11/AI_Manga_Reader/network)
 
-
 **Dive into a Universe of Manga, Manhwa, and Manhua!**  
 > AI Manga Reader is a sleek Next.js web app that transforms how you read manga. Powered by the MangaDex API, it gives you instant access to a huge collection of manga in multiple languages, with flexible reading modes like vertical, horizontal, single, or dual-panel views.  
-> What sets it apart is its AI-powered OCR translation (using ***easyocr-js*** package) that instantly translates text from manga images, making foreign-language titles easy to enjoy. Plus, the built-in text-to-speech (TTS) feature offers over 20 customizable voices so you can listen to your favorite manga anywhere, anytime.  
->  
-> **New!** The Manga List now features a **Latest Activity Feed** that surfaces recent community discussions and comments from MangaDex forums. Since MangaDex does not provide an API for this, the app uses web scraping of the [MangaDex Latest Activity page](https://forums.mangadex.org/whats-new/latest-activity) to extract manga title, chapter, volume, chapter title, comment author, original post author, and the forum thread where the discussion is happening. Stay connected with real-time fan conversations alongside your manga browsing experience.  
->  
-> **Also New!** The Manga Chapter view now includes **Comments** scraped directly from MangaDex forum threads (via URLs like `https://forums.mangadex.org/threads/threadId/Page-NO`), letting you read fan discussions related to the manga and chapters you love.  
->  
-> **Introducing the Library**: Your personal manga hub to manage reading history, search history, bookmarked mangas, and favorite chapters — all with powerful filters and sorting to keep your collection organized and accessible.  
->  
-> With trending searches, smart filters, personalized settings, and these new community and library features, AI Manga Reader delivers a fast, smooth, and immersive experience on desktop, tablet, and mobile. Whether you’re new to manga or a longtime fan, this app makes reading more accessible and enjoyable than ever. 🚀
-> **Addes New Navigation** the manga chapters and read chapter pages now have special navigation bar which are bread crumbs for better back and forth 
+>
+> Experience manga reading with AI-powered OCR translation using ***easyocr-js*** package that instantly translates text from manga images, making foreign-language titles easy to enjoy. Plus, the built-in text-to-speech (TTS) feature offers over 20 customizable voices so you can listen to your favorite manga anywhere, anytime.  
+>
+> The Manga List features a **Latest Activity Feed** that surfaces community discussions and comments from MangaDex forums. The app uses web scraping of the [MangaDex Latest Activity page](https://forums.mangadex.org/whats-new/latest-activity) to extract manga title, chapter, volume, chapter title, comment author, original post author, and forum thread information.
+>
+> The Manga Chapter view includes **Comments** scraped directly from MangaDex forum threads (via URLs like `https://forums.mangadex.org/threads/threadId/Page-NO`), letting you read fan discussions related to the manga and chapters you love.
+>
+> The **Library** serves as your personal manga hub to manage reading history, search history, bookmarked mangas, and favorite chapters — all with powerful filters and sorting to keep your collection organized and accessible.
+
 ---
 
 ## 🌍 **Project Overview**
 
-**AI Manga Reader** is your portal to an unparalleled manga experience. Built with **Next.js** and fueled by the **MangaDex API**, it blends cutting-edge technology with a passion for storytelling. From **real-time OCR translation** using `easyocr-js` to **AI-driven TTS**, this app makes manga accessible and immersive for fans worldwide.
+**AI Manga Reader** is your portal to an unparalleled manga experience. Built with **Next.js** and fueled by the **MangaDex API**, it blends cutting-edge technology with a passion for storytelling.
 
-🔥 **Why It Shines**:
-- **MangaDex API**: No API key needed, just pure manga magic.
-- **OCR Translation**: Powered by `easyocr-js` and Google Translate API.
-- **TTS**: 20+ AI voices with customizable speed and language.
-- **Latest Activity Feed**: Real-time community discussions scraped from MangaDex forums to keep you updated on fan conversations.
-- **Responsive Design**: Flawless on desktop, tablet, or mobile.
-
----
+🔥 **Key Features**:
+- **MangaDex API Integration**: No API key needed, just pure manga magic
+- **OCR Translation**: Powered by `easyocr-js` and Google Translate API
+- **TTS**: 20+ AI voices with customizable speed and language
+- **Latest Activity Feed**: Real-time community discussions from MangaDex forums
+- **Theme Support**: Dark and Light modes for comfortable reading
+- **Responsive Design**: Optimized for desktop, tablet, and mobile devices
+- **Multiple Reading Modes**: Vertical, horizontal, single, or dual-panel views
 
 ## 📸 **Screenshots**
 
@@ -83,6 +82,10 @@ Feast your eyes on the stunning UI, two previews per row.
 | -------------- | ------------- |
 | ![Not Found Page](./livedemoimages/18.png) | ![Profile PopUp](./livedemoimages/19.png) |
 
+| 🌐 Preferences Page |
+| -------------- | 
+| ![Not Found Page](./livedemoimages/20.png) |
+
 ## Light Theme
 
 | 📚 Manga List| 📚 Manga List|
@@ -117,9 +120,13 @@ Feast your eyes on the stunning UI, two previews per row.
 | ------------- | ------------- |
 | ![Library Page](./livedemoimages/l16.png) |  ![Library Page](./livedemoimages/l17.png) | 
 
-| 🌐 Not Found Page | 
-| -------------- |
-| ![Not Found Page](./livedemoimages/l18.png) |=
+| 🌐 Not Found Page |  🌐 Profile Popup | 
+| -------------- | -------------- | 
+| ![Not Found Page](./livedemoimages/l18.png) | ![Not Found Page](./livedemoimages/l19.png) |
+
+| 🌐 Preferences Page |
+| -------------- | 
+| ![Not Found Page](./livedemoimages/l20.png) |
 
 ---
 
@@ -297,6 +304,24 @@ Built for speed, crafted for perfection.
 
 ---
 
+### 🎨 **Theme Support**
+Customize your reading experience:
+
+- **Dark Mode**: 
+  - Optimized for night reading
+  - Reduces eye strain
+  - Purple and yellow accents
+- **Light Mode**:
+  - Clean, bright interface
+  - High contrast for daylight reading
+  - Accessible color scheme
+- **Responsive Design**:
+  - Adapts to all screen sizes
+  - Consistent experience across devices
+  - Touch-friendly interface
+
+---
+
 ## 🚀 **Getting Started**
 
 ### Prerequisites
@@ -354,21 +379,21 @@ Built for speed, crafted for perfection.
 ## 🛣 **Roadmap**
 
 ### 🌱 **Phase 1: UX Perfection**
-- [ ] Personalized manga recommendations
-- [ ] Reading progress tracking
-- [ ] Light/dark mode toggle
-- [ ] Interactive onboarding tutorial
+- [x] Community comments and ratings
+- [x] Reading progress tracking
+- [x] Light/dark mode toggle
+- [x] Bookmark pages/panels
+- [x] Multilingual TTS with text highlighting
 
 ### 🚀 **Phase 2: Next-Level Features**
 - [ ] Offline reading and downloads
-- [ ] Bookmark pages/panels
-- [ ] Multilingual TTS with text highlighting
+- [ ] Interactive onboarding tutorial
 - [ ] Share chapters on social media
 
 ### 🌐 **Phase 3: Community & Scale**
 - [ ] Backend sync for user profiles
-- [ ] Community comments and ratings
 - [ ] Additional APIs (e.g., MangaPlus)
+- [ ] Personalized manga recommendations
 
 ### 💰 **Phase 4: Monetization & Mobile**
 - [ ] Ads and affiliate links
