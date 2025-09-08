@@ -165,7 +165,7 @@ const Card = ({ manga, handleMangaClicked, isDark }) => {
                     {manga.isCoverImageBlurred && (
                         <div className="absolute inset-0 bg-black/20 rounded-[5px] rounded-tl-[20px] transition-all duration-300 hover:bg-transparent pointer-events-none z-20" />
                     )}
-                    <div className={`absolute inset-x-0 bottom-0 ${isDark ? "bg-gradient-to-t from-black via-gray-900 to-transparent" : "bg-gradient-to-t from-gray-900/80 via-gray-800/50 to-transparent"} p-2 sm:p-4`}>
+                    <div className={`absolute z-50 inset-x-0 bottom-0 ${isDark ? "bg-gradient-to-t from-black via-gray-900 to-transparent" : "bg-gradient-to-t from-gray-900/80 via-gray-800/50 to-transparent"} p-2 sm:p-4`}>
                         <h1 className={`flex flex-row w-full font-bold items-center gap-3 sm:items-start justify-center text-[8px] sm:text-xs tracking-[2px] text-white`}>
                             <StableFlag className={`w-4 sm:w-7`} code={manga.originalLanguage ?? 'UN'} />
                             {manga.title.length > 40 ? `${manga.title.slice(0, 40)}...` : manga.title}

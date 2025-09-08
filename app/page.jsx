@@ -39,9 +39,9 @@ const Home = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isVisible, setIsVisible] = useState(true);
   const [topSearches, setTopSearches] = useState(TopFavouriteMangas);
-  const [error, setError] = useState(null);
   const router = useRouter();
   const { setSelectedManga } = useManga();
+
   // Debounce function memoized
   const debounce = useCallback((func, wait) => {
     let timeout;
@@ -69,8 +69,23 @@ const Home = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [handleScroll]);
 
-  // Fetch TopManga list on mount
+  // Fetch TopManga list on mount with retry logic
   useEffect(() => {
+    const fetchWithRetry = async (url, options, retries = 2) => {
+      try {
+        const response = await fetch(url, options);
+        if (!response.ok) throw new Error(`Failed to fetch: ${response.status}`);
+        return await response.json();
+      } catch (err) {
+        if (retries > 0) {
+          console.warn(`Retrying fetch (${retries} attempts left):`, err);
+          await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait 1s before retry
+          return fetchWithRetry(url, options, retries - 1);
+        }
+        throw err; // If retries are exhausted, throw the error
+      }
+    };
+
     const fetchTopMangaList = async () => {
       try {
         const cached = getFromStorage("topMangaList");
@@ -79,13 +94,15 @@ const Home = () => {
           return;
         }
 
-        const listResponse = await fetch(
-          "https://api.mangadex.org/user/0dd9b63a-f561-4632-b739-84397cb60ca7/list?limit=10");
-        if (!listResponse.ok) throw new Error(`Failed to fetch lists: ${listResponse.status}`);
+        const listData = await fetchWithRetry(
+          "https://api.mangadex.org/user/0dd9b63a-f561-4632-b739-84397cb60ca7/list?limit=10",
+          { method: "GET" },
+          2
+        );
 
-        const listData = await listResponse.json();
-        if (listData.result !== "ok" || !Array.isArray(listData.data))
+        if (listData.result !== "ok" || !Array.isArray(listData.data)) {
           throw new Error("Invalid list response");
+        }
 
         const topMangaList = listData.data.find(
           (list) => list.id === "864f1275-0048-4ffd-b6ee-bde52f3bc80b"
@@ -99,13 +116,12 @@ const Home = () => {
 
         if (mangaIds.length === 0) throw new Error("No manga IDs found");
 
-        // Use your new API endpoint
-        const mangaResponse = await fetch(`/api/manga/${mangaIds.join(',')}`); // Pass the signal
-        if (!mangaResponse.ok) {
-          throw new Error(`Failed to fetch manga details: ${mangaResponse.status}`);
-        }
+        const mangaData = await fetchWithRetry(
+          `/api/manga/${mangaIds.join(',')}`,
+          { method: "GET" },
+          2
+        );
 
-        const mangaData = await mangaResponse.json();
         if (!mangaData.data || !Array.isArray(mangaData.data)) {
           throw new Error("Invalid manga response");
         }
@@ -123,12 +139,12 @@ const Home = () => {
           console.log("Fetch aborted");
           return; // Exit early if fetch was aborted
         }
-        setError("Failed to load TopManga list. Showing default titles.");
-        console.error(err);
-        setTopSearches(TopFavouriteMangas);
+        console.error("Failed to load TopManga list after retries:", err);
+        setTopSearches(TopFavouriteMangas); // Fallback to default
         saveToStorage("topMangaList", TopFavouriteMangas);
       }
     };
+
     fetchTopMangaList();
   }, []);
 
@@ -205,9 +221,6 @@ const Home = () => {
 
           {/* Top Searches */}
           <div className="max-w-4xl mx-auto">
-            {error && (
-              <div className="bg-red-600 text-white px-4 py-2 mb-4 rounded-md text-center">{error}</div>
-            )}
             <div className="flex h-40 sm:h-auto overflow-hidden flex-wrap items-center justify-center">
               <span className="text-gray-400 mr-2 mb-2">Top search:</span>
               {renderedTopSearches}
@@ -249,7 +262,8 @@ const GOTOHomeButton = React.memo(() => (
     </Link>
   </div>
 ));
-GOTOHomeButton.displayName = "GOTOHomeButton"
+GOTOHomeButton.displayName = "GOTOHomeButton";
+
 const LOGO = React.memo(() => (
   <div className="flex justify-center mb-10">
     <Link href="/" className="inline-block">
@@ -264,4 +278,4 @@ const LOGO = React.memo(() => (
     </Link>
   </div>
 ));
-LOGO.displayName = "LOGO"
+LOGO.displayName = "LOGO";

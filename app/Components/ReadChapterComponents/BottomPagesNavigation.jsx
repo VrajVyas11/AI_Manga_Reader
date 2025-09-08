@@ -21,11 +21,11 @@ function BottomPagesNavigation({
     }, [setCurrentIndex, panels, pages]);
 
     const handleTabClick = (pageIndex) => {
-        console.log(pageIndex)
+        // console.log(pageIndex)
         setCurrentIndex(pageIndex);
-        console.log(currentIndex); 
+        // console.log(currentIndex); 
     };
-console.log(currentIndex);
+// console.log(currentIndex);
     // Handle screen clicks
     useEffect(() => {
         const handleScreenClick = (event) => {
@@ -107,7 +107,7 @@ return (
             <button
               key={index}
               onClick={(e) => {
-                console.log(index);
+                // console.log(index);
                 e.stopPropagation(); // Prevent triggering screen click
                 handleTabClick(index);
               }}

@@ -56,7 +56,7 @@ export default function ReadChapter() {
     }
   }, [chapterInfo, selectedLanguage]);
 
-  console.log(selectedMemoManga);
+  // console.log(selectedMemoManga);
 
   useEffect(() => {
     if (pages && pages?.chapter?.dataSaver?.length > 0 && pages?.chapter?.data?.length > 0) {

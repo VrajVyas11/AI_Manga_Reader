@@ -81,7 +81,7 @@ const SliderComponent = React.memo(() => {
   // use filteredMangas as the source for the slider
   const mangas = useMemo(() => filteredMangas.slice(0, 8) ?? [], [filteredMangas]);
   // -------------------------------------------------------------------
-console.log(mangas)
+// console.log(mangas)
   const [activeIndex, setActiveIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [touchStart, setTouchStart] = useState(0);

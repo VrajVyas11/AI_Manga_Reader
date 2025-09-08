@@ -29,7 +29,7 @@ function FavoriteCard({ mangaInfo, chapterInfo, onMangaClick, addToFavorite, isD
                     : "hover:border-gray-300 hover:shadow-md"
                     }`}
             >
-                {console.log(chapterInfo)}
+                {/* {console.log(chapterInfo)} */}
                 <Link
                     href={`/manga/${mangaInfo.id}/chapter/${chapterInfo[0].id}/read`}
                     prefetch={true}

@@ -41,7 +41,7 @@ MemoizedStableFlag.displayName = "MemoizedStableFlag"
 const ChapterListWithFilters = ({ chapters, manga, handleChapterClick, isDark = true }) => {
   const { getAllFromReadHistory } = useManga();
   // States
-  console.log(isDark)
+  // console.log(isDark)
   const [readingHistory, setReadingHistory] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortOrder, setSortOrder] = useState('descending');

@@ -5,31 +5,24 @@ import {
   Settings,
   Moon,
   Sun,
-  LogOut,
   ChevronRight,
   Shield,
   HelpCircle,
-  LogIn,
-  UserPlus,
   Github,
-  Bookmark,
-  History,
-  Bell,
-  Download,
-  Heart,
 } from "lucide-react";
 import { useTheme } from "../../providers/ThemeContext";
 import PreferencesPopUp from "./PreferencesPopUp"; // update path if needed
-
+import ComingSoonPopup from "./ComingSoonPopup"
 function ProfilePop() {
   const [isOpen, setIsOpen] = useState(false);
   const [showPreferences, setShowPreferences] = useState(false);
+  const [isComingSoonPopupOpen, setIsComingSoonPopupOpen] = useState(false);
   const popupRef = useRef(null);
   const buttonRef = useRef(null);
   const { theme, toggleTheme } = useTheme();
-  let isLoggedIn = false,
-    user = { name: "Vraj", email: "vyasvraj92@gmail.com" },
-    signOut = () => {};
+  // let isLoggedIn = false,
+  // user = { name: "Vraj", email: "vyasvraj92@gmail.com" }
+  // signOut = () => {};
   const router = useRouter();
   const isDark = theme === "dark";
 
@@ -62,63 +55,32 @@ function ProfilePop() {
     setIsOpen(false);
   };
 
-  const handleSignOut = () => {
-    signOut();
-    setIsOpen(false);
-    router.push("/");
+  // const handleSignOut = () => {
+  //   signOut();
+  //   setIsOpen(false);
+  //   router.push("/");
+  // };
+
+  const handleComingSoonPopupClose = () => {
+    setIsComingSoonPopupOpen(prev => !prev);
   };
 
+
   const menuItems = [
-    {
-      icon: User,
-      label: "Profile",
-      href: "/profile",
-      authRequired: true,
-    },
-    {
+{
       icon: Settings,
       label: "Preferences",
       action: () => setShowPreferences(true),
     },
     {
-      icon: Bookmark,
-      label: "My Library",
-      href: "/library",
-      authRequired: true,
-    },
-    {
-      icon: History,
-      label: "Reading History",
-      href: "/history",
-      authRequired: true,
-    },
-    {
-      icon: Heart,
-      label: "Favorites",
-      href: "/favorites",
-      authRequired: true,
-    },
-    {
-      icon: Download,
-      label: "Downloads",
-      href: "/downloads",
-      authRequired: true,
-    },
-    {
-      icon: Bell,
-      label: "Notifications",
-      href: "/notifications",
-      authRequired: true,
-    },
-    {
       icon: Shield,
       label: "Privacy & Security",
-      href: "/privacy",
+      action: () => handleComingSoonPopupClose(),
     },
     {
       icon: HelpCircle,
       label: "Help & Support",
-      href: "/help",
+      action: () => handleComingSoonPopupClose(),
     },
     {
       icon: Github,
@@ -132,14 +94,13 @@ function ProfilePop() {
     <div className="relative inline-block">
       {/* Profile Button */}
       <button
-      suppressHydrationWarning
+        suppressHydrationWarning
         ref={buttonRef}
         onClick={() => setIsOpen(!isOpen)}
-        className={`flex items-center border justify-center p-2.5 rounded-full shadow-lg hover:shadow-xl backdrop-blur-sm transition-all duration-0 ${
-          isDark
-            ? "border-purple-500/30 bg-slate-900/80 hover:bg-slate-900"
-            : "border-purple-300/50 bg-white/80 hover:bg-gray-50/80"
-        }`}
+        className={`flex items-center border justify-center p-2.5 rounded-full shadow-lg hover:shadow-xl backdrop-blur-sm transition-all duration-0 ${isDark
+          ? "border-purple-500/30 bg-slate-900/80 hover:bg-slate-900"
+          : "border-purple-300/50 bg-white/80 hover:bg-gray-50/80"
+          }`}
         aria-haspopup="true"
         aria-expanded={isOpen}
       >
@@ -153,32 +114,29 @@ function ProfilePop() {
       {isOpen && (
         <div
           ref={popupRef}
-          className={`absolute right-0 mt-3 w-80 rounded-2xl shadow-2xl z-50 overflow-hidden backdrop-blur-md border ${
-            isDark ? "bg-black border-slate-700/50" : "bg-gray-100 border-gray-500/30"
-          }`}
+          className={`absolute right-0 mt-3 w-80 rounded-2xl shadow-2xl z-50 overflow-hidden backdrop-blur-md border ${isDark ? "bg-black border-slate-700/50" : "bg-gray-100 border-gray-500/30"
+            }`}
           role="menu"
           aria-label="Profile menu"
         >
           {/* Header */}
           <div
-            className={`px-6 py-5 border-b ${
-              isDark ? "border-slate-700/50 bg-slate-800/30" : "border-gray-500/15 bg-gray-50/30"
-            }`}
+            className={`px-6 py-5 border-b ${isDark ? "border-slate-700/50 bg-slate-800/30" : "border-gray-500/15 bg-gray-50/30"
+              }`}
           >
             <div className="flex items-center space-x-4">
               <div
-                className={`w-14 h-14 rounded-full flex items-center justify-center border-2 ${
-                  isDark ? "bg-slate-900 border-purple-500/10" : "bg-gray-100 border-purple-300/30"
-                }`}
+                className={`w-14 h-14 rounded-full flex items-center justify-center border-2 ${isDark ? "bg-slate-900 border-purple-500/10" : "bg-gray-100 border-purple-300/30"
+                  }`}
               >
                 <User size={28} className={isDark ? "text-purple-400" : "text-purple-600"} />
               </div>
               <div>
                 <h3 className={`font-semibold text-lg ${isDark ? "text-slate-200" : "text-gray-900"}`}>
-                  {isLoggedIn ? user?.name : "Guest Reader"}
+                  {"Guest Reader"}
                 </h3>
                 <p className={`text-sm ${isDark ? "text-slate-400" : "text-gray-600"}`}>
-                  {isLoggedIn ? `Member since ${user?.joinDate}` : "Sign in to unlock features"}
+                  {"Trial App Beta User"}
                 </p>
               </div>
             </div>
@@ -187,15 +145,12 @@ function ProfilePop() {
           {/* Menu Items */}
           <div className="py-2">
             {menuItems.map((item, index) => {
-              if (item.authRequired && !isLoggedIn) return null;
-
               return (
                 <button
                   key={index}
                   onClick={() => handleNavigation(item)}
-                  className={`w-full flex px-6 py-3 items-center justify-between transition-colors duration-150 group ${
-                    isDark ? "hover:bg-slate-800/50 text-slate-300" : "hover:bg-gray-100/50 text-gray-700"
-                  }`}
+                  className={`w-full flex px-6 py-3 items-center justify-between transition-colors duration-150 group ${isDark ? "hover:bg-slate-800/50 text-slate-300" : "hover:bg-gray-100/50 text-gray-700"
+                    }`}
                   role="menuitem"
                 >
                   <div className="flex items-center space-x-4">
@@ -221,9 +176,8 @@ function ProfilePop() {
             >
               <button
                 onClick={toggleTheme}
-                className={`w-full px-6 py-3 flex items-center justify-between transition-colors duration-150 group ${
-                  isDark ? "hover:bg-slate-800/50" : "hover:bg-gray-100/50"
-                }`}
+                className={`w-full px-6 py-3 flex items-center justify-between transition-colors duration-150 group ${isDark ? "hover:bg-slate-800/50" : "hover:bg-gray-100/50"
+                  }`}
                 role="menuitem"
               >
                 <div className="flex items-center space-x-4">
@@ -241,43 +195,7 @@ function ProfilePop() {
                 </div>
               </button>
             </div>
-
-            {/* Auth Actions */}
-            {isLoggedIn ? (
-              <div className={`border-t mt-2 pt-2 ${isDark ? "border-slate-700/50" : "border-gray-500/15"}`}>
-                <button
-                  onClick={handleSignOut}
-                  className="w-full px-6 py-3 flex items-center space-x-4 text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors duration-150 group"
-                  role="menuitem"
-                >
-                  <LogOut size={20} />
-                  <span>Sign Out</span>
-                </button>
-              </div>
-            ) : (
-              <div className="w-full flex flex-row">
-                <div className={`w-full border-t mt-2 pt-2 pl-2 ${isDark ? "border-slate-700/50" : "border-gray-500/15"}`}>
-                  <button
-                    onClick={() => router.push("/auth/signin")}
-                    className="w-full px-4 py-3 flex justify-center items-center space-x-3 text-yellow-400 hover:text-yellow-300 hover:bg-yellow-500/10 transition-colors duration-150 group"
-                    role="menuitem"
-                  >
-                    <LogIn size={18} />
-                    <span>Sign In</span>
-                  </button>
-                </div>
-                <div className={`w-full border-t mt-2 pt-2 pr-2 ${isDark ? "border-slate-700/50" : "border-gray-500/15"}`}>
-                  <button
-                    onClick={() => router.push("/auth/signup")}
-                    className="w-full px-4 py-3 flex justify-center items-center space-x-3 text-purple-400 hover:text-purple-300 hover:bg-purple-500/10 transition-colors duration-150 group"
-                    role="menuitem"
-                  >
-                    <UserPlus size={18} />
-                    <span>Sign Up</span>
-                  </button>
-                </div>
-              </div>
-            )}
+            {isComingSoonPopupOpen && <ComingSoonPopup handleComingSoonPopupClose={handleComingSoonPopupClose} />}
           </div>
         </div>
       )}
