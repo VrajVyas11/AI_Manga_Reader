@@ -91,7 +91,7 @@ function MangaReadHistory() {
     );
 
     if (!mounted) return <MangaReadHistorySkeleton isDark={isDark} />;
-
+    if (readHistory.length == 0) return null
     return (
         <div className="w-[100% -12px] mx-2 md:ml-2 md:px-6 mb-6">
             <div className="flex mb-7 items-center justify-between">
