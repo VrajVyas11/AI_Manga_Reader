@@ -70,83 +70,37 @@ const Home = () => {
   }, [handleScroll]);
 
   // Fetch TopManga list on mount with retry logic
-  useEffect(() => {
-    const fetchWithRetry = async (url, options, retries = 2) => {
-      try {
-        const response = await fetch(url, options);
-        if (!response.ok) throw new Error(`Failed to fetch: ${response.status}`);
-        return await response.json();
-      } catch (err) {
-        if (retries > 0) {
-          console.warn(`Retrying fetch (${retries} attempts left):`, err);
-          await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait 1s before retry
-          return fetchWithRetry(url, options, retries - 1);
-        }
-        throw err; // If retries are exhausted, throw the error
+useEffect(() => {
+  const fetchTopMangaList = async () => {
+    try {
+      const cached = getFromStorage("topMangaList");
+      if (cached?.data) {
+        setTopSearches(cached.data);
+        return;
       }
-    };
 
-    const fetchTopMangaList = async () => {
-      try {
-        const cached = getFromStorage("topMangaList");
-        if (cached?.data) {
-          setTopSearches(cached.data);
-          return;
-        }
-
-        const listData = await fetchWithRetry(
-          "https://api.mangadex.org/user/0dd9b63a-f561-4632-b739-84397cb60ca7/list?limit=10",
-          { method: "GET" },
-          2
-        );
-
-        if (listData.result !== "ok" || !Array.isArray(listData.data)) {
-          throw new Error("Invalid list response");
-        }
-
-        const topMangaList = listData.data.find(
-          (list) => list.id === "864f1275-0048-4ffd-b6ee-bde52f3bc80b"
-        );
-        if (!topMangaList) throw new Error("TopManga list not found");
-
-        const mangaIds = topMangaList.relationships
-          .filter((rel) => rel.type === "manga" && rel.id)
-          .map((rel) => rel.id)
-          .slice(0, 10); // Limit to 10 IDs
-
-        if (mangaIds.length === 0) throw new Error("No manga IDs found");
-
-        const mangaData = await fetchWithRetry(
-          `/api/manga/${mangaIds.join(',')}`,
-          { method: "GET" },
-          2
-        );
-
-        if (!mangaData.data || !Array.isArray(mangaData.data)) {
-          throw new Error("Invalid manga response");
-        }
-
-        const processedManga = mangaData.data; // Already processed by the API
-
-        if (processedManga.length > 0) {
-          setTopSearches(processedManga);
-          saveToStorage("topMangaList", processedManga);
-        } else {
-          throw new Error("No valid manga found");
-        }
-      } catch (err) {
-        if (err.name === 'AbortError') {
-          console.log("Fetch aborted");
-          return; // Exit early if fetch was aborted
-        }
-        console.error("Failed to load TopManga list after retries:", err);
-        setTopSearches(TopFavouriteMangas); // Fallback to default
-        saveToStorage("topMangaList", TopFavouriteMangas);
+      const resp = await fetch('/api/manga/UsersTop', { method: 'GET' });
+      if (!resp.ok) {
+        throw new Error(`Failed to fetch top mangas: ${resp.status}`);
       }
-    };
+      const json = await resp.json();
 
-    fetchTopMangaList();
-  }, []);
+      if (!json?.data || !Array.isArray(json.data)) {
+        throw new Error('Invalid response from server');
+      }
+
+      setTopSearches(json.data);
+      saveToStorage('topMangaList', json.data);
+    } catch (err) {
+      console.error('Failed to load TopManga list:', err);
+      // Fallback to your default
+      setTopSearches(TopFavouriteMangas);
+      saveToStorage('topMangaList', TopFavouriteMangas);
+    }
+  };
+
+  fetchTopMangaList();
+}, []);
 
   const handleSearch = useCallback(
     (e) => {
