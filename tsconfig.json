@@ -22,6 +22,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "app/manga/[mangaId]/chapters/page.jsx", "app/manga-list/page.jsx", "app/Core/Home.jsx", "app/(home)/layout.jsx", "app/(home)/manga/layout.jsx", "app/(home)/page.tsx", "app/page.jsx"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "app/manga/[mangaId]/chapters/page.jsx", "app/manga-list/page.jsx", "app/Core/Home.jsx", "app/(home)/layout.jsx", "app/(home)/manga/layout.jsx", "app/(home)/page.tsx", "app/page.jsx", "app/(core)/manga/[mangaId]/chapter/[chapterId]/read/page.jsx"],
   "exclude": ["node_modules"]
 }
