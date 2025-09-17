@@ -44,8 +44,8 @@ const OCROverlay = ({
           //  const scaledX = x1 * scaleX + offsetX;
           //  const scaledY = y1 * scaleY + offsetY - 60;
 
-          const scaledX = x1 * imageElement.naturalWidth / (imageElement.naturalHeight / imageElement.naturalWidth > 2 ? imageElement.naturalWidth * 3 : imageElement.naturalWidth * (layout == "vertical" ? 2 : 2.5))
-          const scaledY = y1 * imageElement.naturalHeight / (imageElement.naturalHeight > 900 ? imageElement.naturalHeight * 4 : imageElement.naturalHeight * (layout == "vertical" ? 2 : 2.5));
+          const scaledX = x1 * imageElement.naturalWidth / (imageElement.naturalHeight / imageElement.naturalWidth > 2 ? imageElement.naturalWidth * 3 : imageElement.naturalWidth * (layout == "vertical" ? 2 : 2.5)+200)
+          const scaledY = y1 * imageElement.naturalHeight / (imageElement.naturalHeight > 900 ? imageElement.naturalHeight * 4 : imageElement.naturalHeight * (layout == "vertical" ? 2 : 2.5) +200);
           return (
             <div
               key={i}

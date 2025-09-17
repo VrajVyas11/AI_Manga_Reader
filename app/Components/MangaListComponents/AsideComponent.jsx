@@ -5,7 +5,7 @@ import {
   Heart,
   Flame,
   Trophy,
-  Eye,
+  // Eye,
   MessageCircle,
   UserPlus,
 } from "lucide-react";
@@ -115,10 +115,10 @@ function AsideComponent() {
               <p className={`text-xs ${isDark ? "text-gray-400" : "text-gray-600"} uppercase tracking-wide`}>{statConfig[selectedCategory].subtitle}</p>
             </div>
           </div>
-          <button className={`flex items-center gap-1.5 px-3 py-3.5 rounded-md text-sm ${isDark ? "text-gray-300 hover:text-white hover:bg-gray-800/50 border-gray-700/50" : "text-gray-600 hover:text-gray-900 hover:bg-gray-200/50 border-gray-300/50"} transition-all duration-200 border`}>
+          {/* <button className={`flex items-center gap-1.5 px-3 py-3.5 rounded-md text-sm ${isDark ? "text-gray-300 hover:text-white hover:bg-gray-800/50 border-gray-700/50" : "text-gray-600 hover:text-gray-900 hover:bg-gray-200/50 border-gray-300/50"} transition-all duration-200 border`}>
             <Eye className="w-4 h-4" />
             View All
-          </button>
+          </button> */}
         </div>
         <nav className="flex justify-center mx-2 md:mx-0 gap-4 mb-6">
           {categories.map(({ key, label, icon: Icon, accent }) => {

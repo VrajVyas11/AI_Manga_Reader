@@ -92,48 +92,119 @@ function MiddleImageAndOptions({
         [translatedTexts, memoizedHandleTranslate]
     );
 
+    // Enhanced handleUpload function for MiddleImageAndOptions component
     const handleUpload = useCallback(
         async (imageUrl, from) => {
-            if (!imageUrl) return alert('No image found!');
+            if (!imageUrl) {
+                console.error('❌ No image URL provided');
+                return alert('No image found!');
+            }
 
+            console.log(`🔄 Starting ${from} operation for image: ${imageUrl}`);
             setIsLoadingOCR(true);
+
             try {
+                // Fetch and convert image to file
                 const response = await fetch(imageUrl);
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch image: ${response.status} ${response.statusText}`);
+                }
+
                 const blob = await response.blob();
+                console.log(`📁 Image blob size: ${blob.size} bytes, type: ${blob.type}`);
+
                 const file = new File([blob], 'image.jpg', { type: blob.type });
 
                 const formData = new FormData();
                 formData.append('file', file);
 
+                console.log('🚀 Sending OCR request...');
                 const apiResponse = await fetch('/api/readTextAndReplace', {
                     method: 'POST',
                     body: formData,
                 });
 
-                if (!apiResponse.ok) throw new Error('API request failed');
+                console.log(`📡 API Response status: ${apiResponse.status}`);
+
+                if (!apiResponse.ok) {
+                    const errorText = await apiResponse.text();
+                    console.error('❌ API Error Response:', errorText);
+                    throw new Error(`API request failed: ${apiResponse.status} ${apiResponse.statusText}`);
+                }
 
                 const result = await apiResponse.json();
-                console.log('OCR Result:', result);
+                console.log('📝 Full API Result:', JSON.stringify(result, null, 2));
 
-                const ocrResult = result.text.data;
-                const processedText =
-                    result.status === 'error'
-                        ? 'No Text Found'
-                        : result.text.data.map((item) => item.text).join(' ');
+                // Handle both old and new response formats
+                let ocrResult = [];
+                let processedText = '';
+                let hasValidText = false;
+
+                // Check for different response structures
+                if (result.text && result.text.data && Array.isArray(result.text.data)) {
+                    ocrResult = result.text.data;
+                    processedText = ocrResult
+                        .filter(item => item && item.text && item.text.trim())
+                        .map(item => item.text.trim())
+                        .join(' ');
+                    hasValidText = processedText.length > 0;
+                } else if (Array.isArray(result.text)) {
+                    // Fallback for direct array response
+                    ocrResult = result.text.map(item => ({
+                        text: typeof item === 'string' ? item : (item.text || String(item)),
+                        bbox: item.bbox || null,
+                        confidence: item.confidence || 0
+                    }));
+                    processedText = ocrResult
+                        .filter(item => item.text && item.text.trim())
+                        .map(item => item.text.trim())
+                        .join(' ');
+                    hasValidText = processedText.length > 0;
+                } else if (result.status === 'error') {
+                    console.log('⚠️ OCR returned error status');
+                    processedText = 'No Text Found';
+                    hasValidText = false;
+                } else {
+                    console.warn('⚠️ Unexpected result format:', result);
+                    processedText = 'Unexpected response format';
+                    hasValidText = false;
+                }
+
+                console.log(`📖 Processed text (${processedText.length} chars):`, processedText.substring(0, 100) + (processedText.length > 100 ? '...' : ''));
+                console.log(`✅ Has valid text: ${hasValidText}`);
+
+                if (!hasValidText) {
+                    console.log('ℹ️ No text detected in image');
+                    alert('No text was detected in the image. Please try with a different image or check if the image contains clear text.');
+                    return;
+                }
 
                 if (from === 'translate') {
-                    const translated = await memoizedHandleTranslate(processedText);
-                    const translatedocrResult = await translateAll(ocrResult);
-                    setPageTranslations((prev) => ({
-                        ...prev,
-                        [imageUrl]: {
-                            ocrResult: ocrResult,
-                            translatedocrResult: translatedocrResult,
-                            textResult: translated,
-                        },
-                    }));
-                    setIsItTextToSpeech(false);
-                } else {
+                    console.log('🔄 Starting translation process...');
+                    try {
+                        const translated = await memoizedHandleTranslate(processedText);
+                        console.log('🌐 Translation completed:', translated?.substring(0, 100) + (translated?.length > 100 ? '...' : ''));
+
+                        const translatedocrResult = await translateAll(ocrResult);
+                        console.log('🔄 Batch translation completed');
+
+                        setPageTranslations((prev) => ({
+                            ...prev,
+                            [imageUrl]: {
+                                ocrResult: ocrResult,
+                                translatedocrResult: translatedocrResult,
+                                textResult: translated,
+                            },
+                        }));
+                        setIsItTextToSpeech(false);
+                        console.log('✅ Translation data saved to state');
+                    } catch (translateError) {
+                        console.error('❌ Translation failed:', translateError);
+                        alert('Text was extracted but translation failed. Please try again.');
+                        return;
+                    }
+                } else if (from === 'speak') {
+                    console.log('🔊 Setting up text for speech...');
                     setPageTTS((prev) => ({
                         ...prev,
                         [imageUrl]: {
@@ -143,13 +214,30 @@ function MiddleImageAndOptions({
                     }));
                     setFullOCRResult(ocrResult);
                     setIsItTextToSpeech(true);
+                    console.log('✅ Speech data saved to state');
                 }
+
                 setShowMessage(true);
+                console.log('✅ OCR operation completed successfully');
+
             } catch (error) {
-                console.error('Error:', error);
-                alert('Something went wrong!');
+                console.error('❌ OCR Operation Error:', error);
+                console.error('❌ Error Stack:', error.stack);
+
+                let errorMessage = 'Something went wrong with the OCR process!';
+
+                if (error.message.includes('Failed to fetch image')) {
+                    errorMessage = 'Could not load the image. Please try again.';
+                } else if (error.message.includes('API request failed')) {
+                    errorMessage = 'OCR service temporarily unavailable. Please try again in a moment.';
+                } else if (error.message.includes('network')) {
+                    errorMessage = 'Network error. Please check your connection and try again.';
+                }
+
+                alert(errorMessage);
             } finally {
                 setIsLoadingOCR(false);
+                console.log('🏁 OCR operation finished');
             }
         },
         [memoizedHandleTranslate, setFullOCRResult, setIsItTextToSpeech, setPageTTS, setPageTranslations, setShowMessage, translateAll]
@@ -295,14 +383,8 @@ function MiddleImageAndOptions({
                                                     <TextToSpeech
                                                         page={page}
                                                         handleUpload={handleUpload}
-                                                        ready={Boolean(
-                                                            pageTTS[page] ? isItTextToSpeech : pageTranslations[page]
-                                                        )}
-                                                        text={
-                                                            (pageTTS[page] && isItTextToSpeech) || pageTranslations[page]
-                                                                ? pageTranslations[page]?.textResult
-                                                                : pageTTS[page]?.textResult
-                                                        }
+                                                        ready={Boolean(pageTranslations[page] || pageTTS[page])}
+                                                        text={pageTranslations[page] ? pageTranslations[page]?.textResult : pageTTS[page]?.textResult}
                                                         layout={layout}
                                                         isDark={isDark}
                                                     />
@@ -449,14 +531,8 @@ function MiddleImageAndOptions({
                                                     <TextToSpeech
                                                         page={page}
                                                         handleUpload={handleUpload}
-                                                        ready={Boolean(
-                                                            pageTTS[page] ? isItTextToSpeech : pageTranslations[page]
-                                                        )}
-                                                        text={
-                                                            (pageTTS[page] && isItTextToSpeech) || pageTranslations[page]
-                                                                ? pageTranslations[page]?.textResult
-                                                                : pageTTS[page]?.textResult
-                                                        }
+                                                        ready={Boolean(pageTranslations[page] || pageTTS[page])}
+                                                        text={pageTranslations[page] ? pageTranslations[page]?.textResult : pageTTS[page]?.textResult}
                                                         layout={layout}
                                                         isDark={isDark}
                                                     />
