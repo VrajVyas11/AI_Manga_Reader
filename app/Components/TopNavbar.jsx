@@ -8,7 +8,7 @@ import {
   ChevronRight,
   Home,
   NotebookTabs,
-  Download,
+  // Download,
   Compass,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
@@ -110,7 +110,7 @@ const TopNavbar = () => {
     { path: "/manga-list", name: "Home", icon: Home },
     { path: "/search", name: "Search", icon: Search },
     { path: "/library", name: "Library", icon: NotebookTabs },
-    { path: "/download", name: "Download", icon: Download },
+    // { path: "/download", name: "Download", icon: Download },
   ];
 
   if (pathname === "/") return null;

@@ -345,7 +345,7 @@ const LatestComments = () => {
                                         key={comment.id ?? index}
                                         className="flex-shrink-0 w-80 relative group"
                                     >
-                                        <div className={`relative ${showMore[comment.id] ? "h-auto" : "h-[290px]"} ${isDark ? "bg-gray-800/10 border-purple-500/20 hover:border-purple-500/40" : "bg-gray-100/50 border-purple-400/20 hover:border-purple-400/40"} mt-1 backdrop-blur-2xl border rounded-2xl p-5 pb-0 transition-all duration-0 shadow-xl`}>
+                                        <div className={`relative ${showMore[comment.id] ? "h-auto" : "h-[295px]"} ${isDark ? "bg-gray-800/10 border-purple-500/20 hover:border-purple-500/40" : "bg-gray-100/50 border-purple-400/20 hover:border-purple-400/40"} mt-1 backdrop-blur-2xl overflow-hidden border rounded-[50px] p-5 pb-0 transition-all duration-0 shadow-xl`}>
                                             <div className="flex items-start space-x-4 mb-4">
                                                 <div className="relative">
                                                     <div className={`absolute -inset-1 ${isDark ? "bg-gradient-to-r from-purple-500/80 to-cyan-500/80" : "bg-gradient-to-r from-purple-400/80 to-cyan-400/80"} rounded-full blur opacity-40`}></div>
@@ -401,7 +401,7 @@ const LatestComments = () => {
                                                 <div className="mb-1">
                                                     <div className="relative">
                                                         <div className={`absolute inset-0 ${isDark ? "" : "bg-gray-200/20"} rounded-xl blur-sm`}></div>
-                                                        <div className={`relative rounded-xl p-5 py-4 border ${isDark ? "border-yellow-500/10" : "border-yellow-400/10"} shadow-inner`}>
+                                                        <div className={`relative rounded-[40px] p-6 py-5 border ${isDark ? "border-yellow-500/10" : "border-yellow-400/10"} shadow-inner`}>
                                                             <p className={`text-[14px] leading-relaxed line-clamp-4 ${isDark ? "text-white/90" : "text-gray-900/90"}`}>
                                                                 {`" ${comment.commentContent}"`}
                                                             </p>

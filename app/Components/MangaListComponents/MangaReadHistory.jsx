@@ -108,7 +108,7 @@ function MangaReadHistory() {
                         )}
                     </div>
                 </div>
-                <Link href={"/library"} onClick={()=>window.scrollTo({ top: 0, behavior: 'smooth' })} className={`flex items-center gap-1.5 px-3 py-3.5 rounded-md text-sm ${isDark ? "text-gray-300 hover:text-white hover:bg-gray-800/50 border-gray-700/50" : "text-gray-600 hover:text-gray-900 hover:bg-gray-200/50 border-gray-300/50"} transition-all duration-200 border`}>
+                <Link href={"/library"} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className={`flex items-center gap-1.5 px-3 py-3.5 rounded-md text-sm ${isDark ? "text-gray-300 hover:text-white hover:bg-gray-800/50 border-gray-700/50" : "text-gray-600 hover:text-gray-900 hover:bg-gray-200/50 border-gray-300/50"} transition-all duration-200 border`}>
                     <Eye className="w-4 h-4" />
                     View All
                 </Link>
@@ -248,7 +248,12 @@ function MangaReadHistory() {
                                 })}
                         </div>
 
-                        <div className="flex sm:hidden gap-2 overflow-x-auto pb-4">
+                        <div
+                            style={{
+                                scrollbarWidth: "thin",
+                                scrollbarColor: "rgba(155, 89, 182, 0.6) rgba(0, 0, 0, 0.1)",
+                            }}
+                            className="flex sm:hidden gap-2 overflow-x-auto pb-4">
                             {sortedReadHistory.map((item, index) => (
                                 <Link
                                     key={`mobile-${item.manga.id}-${index}`}

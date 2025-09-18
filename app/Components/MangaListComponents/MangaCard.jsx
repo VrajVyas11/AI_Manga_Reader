@@ -11,7 +11,7 @@ import { useManga } from '../../providers/MangaContext';
 import { useTheme } from '../../providers/ThemeContext';
 import useInView from "../../hooks/useInView";
 import Link from 'next/link';
-import { useMangaFilters, useFilterStats } from '../../hooks/useMangaFilters'; // Import the hook
+import { useMangaFilters, useFilterStats } from '../../hooks/useMangaFilters';
 
 const MangaCard = React.memo(() => {
     const { theme } = useTheme();
@@ -131,16 +131,40 @@ MangaCard.displayName = 'MangaCard';
 
 export default MangaCard;
 
-const Card = ({ manga, handleMangaClicked, isDark }) => {
+// Optimized Card component with minimal changes to preserve exact styling
+const Card = React.memo(({ manga, handleMangaClicked, isDark }) => {
     const [ref, inView] = useInView(0.1);
+
+    // Memoize expensive calculations only
+    const memoizedData = useMemo(() => ({
+        rating: manga?.rating?.rating?.bayesian?.toFixed(2) ?? 'N/A',
+        commentsCount: (() => {
+            const count = manga?.rating?.comments?.repliesCount ?? 0;
+            return count > 1000 ? count.toString()[0] + 'K' : count;
+        })(),
+        followsCount: (() => {
+            const follows = manga?.rating?.follows ?? 0;
+            return follows > 1000 ? follows.toString()[0] + 'K' : follows;
+        })(),
+        timeAgo: (() => {
+            const minutes = Math.floor((new Date() - new Date(manga.updatedAt)) / 60000);
+            return `${Math.floor(minutes / 60)}h ${minutes % 60}m ago`;
+        })(),
+        truncatedTitle: manga.title.length > 40 ? `${manga.title.slice(0, 40)}...` : manga.title
+    }), [manga]);
+
+    // Memoize click handler
+    const handleClick = useCallback(() => {
+        handleMangaClicked(manga);
+    }, [handleMangaClicked, manga]);
 
     return (
         <Link
             ref={ref}
             href={`/manga/${manga.id}/chapters`}
             prefetch={true}
-            onClick={() => handleMangaClicked(manga)}
-            className={`manga-card group transform transition-all duration-500 ease-out cursor-pointer w-full flex justify-center items-start ${inView
+            onClick={handleClick}
+            className={`manga-card group transform transition-all duration-500 ease-out cursor-pointer w-full flex justify-center items-start will-change-transform ${inView
                 ? "opacity-100 translate-y-0"
                 : "opacity-0 translate-y-10"
                 }`}
@@ -156,9 +180,12 @@ const Card = ({ manga, handleMangaClicked, isDark }) => {
                         src={manga.coverImageUrl ?? "./placeholder.jpg"}
                         alt={manga.title}
                         fill
+                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                         className="object-cover w-full h-full block rounded-[5px] rounded-tl-[20px] relative"
                         placeholder="blur"
-                        blurDataURL="./placeholder.jpg"
+                        blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+                        priority={false}
+                        loading="lazy"
                     />
 
                     {/* optional extra overlay that appears only when isCoverImageBlurred — keep pointer-events-none */}
@@ -168,7 +195,7 @@ const Card = ({ manga, handleMangaClicked, isDark }) => {
                     <div className={`absolute z-50 inset-x-0 bottom-0 ${isDark ? "bg-gradient-to-t from-black via-gray-900 to-transparent" : "bg-gradient-to-t from-gray-900/80 via-gray-800/50 to-transparent"} p-2 sm:p-4`}>
                         <h1 className={`flex flex-row w-full font-bold items-center gap-3 sm:items-start justify-center text-[8px] sm:text-xs tracking-[2px] text-white`}>
                             <StableFlag className={`w-4 sm:w-7`} code={manga.originalLanguage ?? 'UN'} />
-                            {manga.title.length > 40 ? `${manga.title.slice(0, 40)}...` : manga.title}
+                            {memoizedData.truncatedTitle}
                         </h1>
                     </div>
                     <div className={`relative z-20 h-[29px] md:h-[39px] -ml-1 -mt-1 w-[60%] -skew-x-[40deg] rounded-br-[10px] ${isDark ? "bg-[#0c0221] shadow-[-10px_-10px_0_0_#0c0221]" : "bg-gray-100 shadow-[-10px_-10px_0_0_rgb(229,231,235)]"} before:absolute before:right-[-2px] before:top-0 before:h-[12px] before:w-[70px] sm:before:w-[129px] before:rounded-tl-[11px]`} />
@@ -202,28 +229,18 @@ const Card = ({ manga, handleMangaClicked, isDark }) => {
                 </div>
                 <div className="p-[2px_4px] sm:p-[5px_10px] w-full">
                     <div className={`flex justify-between mt-2 ${isDark ? "text-gray-300" : "text-gray-700"} text-sm`}>
-                        {['star', 'comment', 'heart'].map((icon, i) => {
-                            let IconComponent;
-                            let value;
-                            if (icon === 'star') {
-                                IconComponent = Star;
-                                value = manga?.rating?.rating?.bayesian?.toFixed(2) ?? 'N/A';
-                            } else if (icon === 'comment') {
-                                IconComponent = MessageSquareText;
-                                const count = manga?.rating?.comments?.repliesCount ?? 0;
-                                value = count > 1000 ? count.toString()[0] + 'K' : count;
-                            } else if (icon === 'heart') {
-                                IconComponent = HeartIcon;
-                                const follows = manga?.rating?.follows ?? 0;
-                                value = follows > 1000 ? follows.toString()[0] + 'K' : follows;
-                            }
-                            return (
-                                <div key={i} className="flex text-[11px] sm:text-base items-center gap-0.5 sm:gap-2">
-                                    <IconComponent className={`w-6 h-6 sm:w-7 sm:h-7 ${icon === "star" ? isDark ? "text-yellow-500" : "text-yellow-600" : icon === "heart" ? isDark ? "fill-rose-500/50 text-rose-500" : "fill-rose-600/50 text-rose-600" : isDark ? "text-white/70" : "text-gray-700/70"} rounded-md p-1`} aria-hidden="true" />
-                                    <span>{value}</span>
-                                </div>
-                            );
-                        })}
+                        <div className="flex text-[11px] sm:text-base items-center gap-0.5 sm:gap-2">
+                            <Star className={`w-6 h-6 sm:w-7 sm:h-7 ${isDark ? "text-yellow-500" : "text-yellow-600"} rounded-md p-1`} aria-hidden="true" />
+                            <span>{memoizedData.rating}</span>
+                        </div>
+                        <div className="flex text-[11px] sm:text-base items-center gap-0.5 sm:gap-2">
+                            <MessageSquareText className={`w-6 h-6 sm:w-7 sm:h-7 ${isDark ? "text-white/70" : "text-gray-700/70"} rounded-md p-1`} aria-hidden="true" />
+                            <span>{memoizedData.commentsCount}</span>
+                        </div>
+                        <div className="flex text-[11px] sm:text-base items-center gap-0.5 sm:gap-2">
+                            <HeartIcon className={`w-6 h-6 sm:w-7 sm:h-7 ${isDark ? "fill-rose-500/50 text-rose-500" : "fill-rose-600/50 text-rose-600"} rounded-md p-1`} aria-hidden="true" />
+                            <span>{memoizedData.followsCount}</span>
+                        </div>
                     </div>
                     <div className="mt-3 flex flex-col sm:min-h-[100px] justify-between">
                         <div className="flex flex-wrap gap-1">
@@ -238,15 +255,13 @@ const Card = ({ manga, handleMangaClicked, isDark }) => {
                         </div>
                         <div className='h-8' />
                         <p className={`text-[7px] bottom-2 md:bottom-3 pr-6 mx-auto sm:text-xs tracking-widest w-full absolute z-30 flex justify-center items-center text-center ${isDark ? "text-gray-400" : "text-gray-600"} mt-4`}>
-                            Last updated:{' '}
-                            {(() => {
-                                const minutes = Math.floor((new Date() - new Date(manga.updatedAt)) / 60000);
-                                return `${Math.floor(minutes / 60)}h ${minutes % 60}m ago`;
-                            })()}
+                            Last updated: {memoizedData.timeAgo}
                         </p>
                     </div>
                 </div>
             </div>
         </Link>
     );
-};
+});
+
+Card.displayName = 'Card';
