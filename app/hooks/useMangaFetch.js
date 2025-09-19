@@ -22,7 +22,7 @@ export const fetchMangaType = async (type, page) => {
   // Do the network request
   try {
     // fetch(`/api/manga/${type}?page=${page}`, { next: { revalidate: 60 } })
-    const res = await fetch(`/api/manga/${type}?page=${page}`);
+    const res = await fetch(`/api/manga/${type}?page=${page}`, { next: { revalidate: 60 } });
     if (!res.ok) {
       const errText = await res.text().catch(() => res.statusText);
       // mark as failed so subsequent calls won't read cached data
@@ -48,7 +48,7 @@ export const useMangaFetch = (type, page) => {
     queryFn: () => fetchMangaType(type, page),
     staleTime: 60 * 60 * 1000,
     gcTime: 2 * 60 * 60 * 1000,
-    refetchOnMount: 'always',
+    refetchOnMount: true, // Changed from 'always' to true (default behavior: refetch only if stale)
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     retry: 2,
@@ -64,10 +64,9 @@ export const useMangaFetch = (type, page) => {
   });
 
   useEffect(() => {
-    // If the stored raw entry is tainted, invalidate so react-query
-    // picks up fresh data (or triggers retry according to retry policy).
+    // If the stored raw entry is tainted (exists but ok === false), invalidate to force a retry
     const raw = getRawFromStorage(cacheKey);
-    if (!raw || raw.ok === false) {
+    if (raw && raw.ok === false) {
       queryClient.invalidateQueries(['manga', type, page]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

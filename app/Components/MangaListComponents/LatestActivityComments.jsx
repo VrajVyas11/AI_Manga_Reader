@@ -345,7 +345,7 @@ const LatestComments = () => {
                                         key={comment.id ?? index}
                                         className="flex-shrink-0 w-80 relative group"
                                     >
-                                        <div className={`relative ${showMore[comment.id] ? "h-auto" : "h-[295px]"} ${isDark ? "bg-gray-800/10 border-purple-500/20 hover:border-purple-500/40" : "bg-gray-100/50 border-purple-400/20 hover:border-purple-400/40"} mt-1 backdrop-blur-2xl overflow-hidden border rounded-[50px] p-5 pb-0 transition-all duration-0 shadow-xl`}>
+                                        <div className={`relative ${showMore[comment.id] ? "h-auto" : "h-[295px]"} ${isDark ? " border-purple-500/0 hover:scale-[101%] shadow-[inset_0_0_7px_rgba(200,200,200,0.16)]" : "bg-white border-purple-400/20 hover:border-purple-400/40"} mt-1 backdrop-blur-2xl overflow-hidden border rounded-[50px] p-5 pb-0 transition-all duration-0 shadow-md`}>
                                             <div className="flex items-start space-x-4 mb-4">
                                                 <div className="relative">
                                                     <div className={`absolute -inset-1 ${isDark ? "bg-gradient-to-r from-purple-500/80 to-cyan-500/80" : "bg-gradient-to-r from-purple-400/80 to-cyan-400/80"} rounded-full blur opacity-40`}></div>
