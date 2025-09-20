@@ -2,13 +2,10 @@
 "use client";
 import React, { useState, useEffect, useCallback } from "react";
 import {
-    Clock,
-    ExternalLink,
     RefreshCw,
     MessageCircle,
     Activity,
     Zap,
-    BookOpen,
     ChevronUp,
     ChevronDown,
     Laugh,
@@ -17,8 +14,8 @@ import {
     Heart,
     CircleFadingArrowUp,
     Sparkles,
-    TrendingUp,
     CornerDownRight,
+    ScrollText,
 } from "lucide-react";
 import LatestActivityCommentsSkeleton from "../Skeletons/MangaList/LatestActivityCommentsSkeleton";
 import { useTheme } from "../../providers/ThemeContext";
@@ -239,14 +236,14 @@ const LatestComments = () => {
                 <hr className={`w-full border-[1px] ${isDark ? "border-white/20" : "border-gray-300/50"}`} />
                 <button
                     onClick={() => setVisible((prev) => !prev)}
-                    className={`px-5 py-3 min-w-fit gap-2 flex flex-row justify-start items-center border-[1px] ${isDark ? "bg-black/30 border-white/20 text-gray-300" : "bg-gray-100/50 border-gray-300/50 text-gray-700"} rounded-xl font-semibold shadow-lg transition-transform duration-0`}
+                    className={`flex min-w-fit items-center gap-4 pl-6 pr-4 py-4 rounded-2xl text-sm font-semibold ${isDark ? "text-gray-300 hover:text-white  border-gray-700/0  shadow-[inset_0_0_5px_rgba(200,200,200,0.2)]" : "text-gray-600 hover:text-gray-900  border-gray-300/50"} transition-all duration-200 border`}
                     aria-label="Toggle comments visibility"
                     title="Show Comments"
                 >
-                    <div className={`w-8 h-4 rounded-full relative transition-colors duration-0 ${isDark ? "bg-gray-600" : "bg-gray-400"}`}>
+                    <span className=" min-w-fit">Show Comments</span>
+                    <div className={`w-8 h-4 min-w-fit rounded-full relative transition-colors duration-0 ${isDark ? "bg-gray-600" : "bg-gray-400"}`}>
                         <div className="w-4 h-4 bg-white rounded-full absolute top-0 transition-transform duration-0 translate-x-0.5" />
                     </div>
-                    <span>Show Comments</span>
                 </button>
             </div>
         );
@@ -287,7 +284,7 @@ const LatestComments = () => {
                         <div className="flex items-center space-x-3">
                             <button
                                 onClick={() => fetchComments(true)}
-                                className={`px-5 py-3.5 min-w-fit gap-2 flex flex-row justify-start items-center border-[1px] ${isDark ? "bg-black/30 border-white/20 text-gray-300 hover:bg-black/40 hover:border-purple-400/40" : "bg-gray-100/50 border-gray-300/50 text-gray-700 hover:bg-gray-200/50 hover:border-purple-600/40"} rounded-xl font-semibold shadow-lg transition-transform duration-0`}
+                                className={`flex items-center gap-1.5 px-4 py-4 rounded-2xl text-sm ${isDark ? "text-gray-300 hover:text-white hover:bg-gray-800/50 border-gray-700/0  shadow-[inset_0_0_5px_rgba(200,200,200,0.2)]" : "text-gray-600 hover:text-gray-900 hover:bg-gray-200/50  border-gray-300/50"} transition-all duration-200 border`}
                                 disabled={loading}
                                 aria-label="Refresh comments"
                             >
@@ -299,14 +296,14 @@ const LatestComments = () => {
                             </button>
                             <button
                                 onClick={() => setVisible((prev) => !prev)}
-                                className={`px-5 py-3 min-w-fit gap-2 flex flex-row justify-start items-center border-[1px] ${isDark ? "bg-black/30 border-white/20 text-gray-300 hover:bg-black/40" : "bg-gray-100/50 border-gray-300/50 text-gray-700 hover:bg-gray-200/50"} rounded-xl font-semibold shadow-lg transition-transform duration-0`}
+                                className={`flex items-center gap-4 pl-6 pr-4 py-4 rounded-2xl text-sm font-semibold ${isDark ? "text-gray-300 hover:text-white  border-gray-700/0  shadow-[inset_0_0_5px_rgba(200,200,200,0.2)]" : "text-gray-600 hover:text-gray-900  border-gray-300/50"} transition-all duration-200 border`}
                                 aria-label="Toggle comments visibility"
                                 title="Hide Comments"
                             >
-                                <div className={`w-8 h-4 rounded-full relative transition-colors duration-0 ${isDark ? "bg-purple-600/70" : "bg-purple-400/70"}`}>
+                                <span>Hide Comments</span>
+                                <div className={`w-8 h-4 rounded-full relative transition-colors duration-0 ${isDark ? "bg-purple-600/70" : "bg-purple-800/70"}`}>
                                     <div className="w-4 h-4 bg-white rounded-full absolute top-0 transition-transform duration-0 translate-x-4" />
                                 </div>
-                                <span>Hide Comments</span>
                             </button>
                         </div>
                     </div>
@@ -345,7 +342,7 @@ const LatestComments = () => {
                                         key={comment.id ?? index}
                                         className="flex-shrink-0 w-80 relative group"
                                     >
-                                        <div className={`relative ${showMore[comment.id] ? "h-auto" : "h-[295px]"} ${isDark ? " border-purple-500/0 hover:scale-[101%] shadow-[inset_0_0_7px_rgba(200,200,200,0.16)]" : "bg-white border-purple-400/20 hover:border-purple-400/40"} mt-1 backdrop-blur-2xl overflow-hidden border rounded-[50px] p-5 pb-0 transition-all duration-0 shadow-md`}>
+                                        <div className={`relative ${showMore[comment.id] ? "h-auto" : "h-[295px]"} ${isDark ? " border-purple-500/0 hover:scale-[101%] !shadow-[inset_0_0_25px_rgba(200,200,200,0.08)]" : "bg-white border-purple-400/20 hover:border-purple-400/40"} mt-1 backdrop-blur-2xl overflow-hidden border rounded-[50px] p-5 pb-0 transition-all duration-0 shadow-md`}>
                                             <div className="flex items-start space-x-4 mb-4">
                                                 <div className="relative">
                                                     <div className={`absolute -inset-1 ${isDark ? "bg-gradient-to-r from-purple-500/80 to-cyan-500/80" : "bg-gradient-to-r from-purple-400/80 to-cyan-400/80"} rounded-full blur opacity-40`}></div>
@@ -367,7 +364,7 @@ const LatestComments = () => {
                                                     </h3>
                                                     <div className={`flex items-center justify-between w-full space-x-2 text-sm ${isDark ? "text-slate-400" : "text-slate-600"} mt-1`}>
                                                         <span className="flex flex-row items-center justify-start gap-2">
-                                                            <Clock className={`w-4 h-4 -mt-0.5 ${isDark ? "text-cyan-400" : "text-cyan-600"}`} />
+                                                            <Activity strokeWidth={3.5} className={`w-4 h-4 -mt-0.5 ${isDark ? "text-cyan-400" : "text-cyan-600"}`} />
                                                             {comment.timeAgo}
                                                         </span>
                                                         <div className={`w-1 h-1 ${isDark ? "bg-slate-500/30" : "bg-slate-400/30"} rounded-full`}></div>
@@ -382,7 +379,7 @@ const LatestComments = () => {
                                             <div className="mb-4">
                                                 <div className="flex items-center space-x-2 text-sm flex-wrap gap-2">
                                                     <span className={`flex flex-row justify-start items-center ${isDark ? "text-slate-300" : "text-slate-700"}`}>
-                                                        <CornerDownRight strokeWidth={3} className={`w-4 h-4 mx-2 ${isDark ? "text-slate-500" : "text-slate-400"}`} />
+                                                        {getActionText(comment.reactionType) ? <CornerDownRight strokeWidth={3} className={`w-4 h-4 mx-2 ${isDark ? "text-slate-500" : "text-slate-400"}`} /> : <span className="h-4" />}
                                                         {getActionText(comment.reactionType)}
                                                         {comment.repliedTO && (
                                                             <a
@@ -431,50 +428,50 @@ const LatestComments = () => {
                                             </button>
                                             {showMore[comment.id] && (
                                                 <div>
-                                                    <div className={`relative rounded-xl p-5 border ${isDark ? "border-yellow-500/10" : "border-yellow-400/10"} shadow-inner`}>
-                                                        <div className={`flex items-center ${(comment.chapterNo || comment.volumeNo) ? "mb-2" : "mb-0"} space-x-3`}>
-                                                            <BookOpen className={`w-4 h-4 ${isDark ? "text-white-500 drop-shadow-[0_0_2px_rgba(255,204,0,0.7)]" : "text-gray-900 drop-shadow-[0_0_2px_rgba(202,138,4,0.7)]"}`} />
+                                                    <div className={`relative rounded-[40px]  p-5 border ${isDark ? "border-yellow-500/10" : "border-yellow-400/10"} shadow-inner`}>
+                                                        <div className={`flex items-center space-x-3`}>
+                                                            <span className="bg-white/10 rounded-full p-2 shadow-[0_0_2px_rgba(255,204,0,0.7)] "> <ScrollText className={`w-4 h-4 ${isDark ? "text-white drop-shadow-[0_0_2px_rgba(255,204,0,0.2)]" : "text-gray-900 drop-shadow-[0_0_2px_rgba(202,138,4,0.7)]"}`} /></span>
                                                             <h3
-                                                                className={`text-xs truncate max-w-[calc(100%-3rem)] select-text ${isDark ? "text-yellow-400" : "text-yellow-600"}`}
+                                                                className={`text-sm truncate font-bold max-w-[calc(100%-3rem)] capitalize select-text ${isDark ? "text-white" : "text-black"}`}
                                                                 title={comment.mangaTitle}
                                                             >
                                                                 {truncateTitle(comment.mangaTitle, 30)}
                                                             </h3>
                                                         </div>
-                                                        <div className="flex flex-wrap justify-between items-center gap-2">
-                                                            <div className={`flex flex-row w-full space-x-6 text-[10px] ${isDark ? "text-purple-300" : "text-purple-600"} font-semibold tracking-wide min-w-[140px]`}>
-                                                                {comment.volumeNo && (
-                                                                    <div className="flex justify-start flex-row w-1/2 gap-1 items-center">
-                                                                        <span className={`uppercase ${isDark ? "text-purple-400" : "text-purple-500"} select-none`}>Volume :</span>
-                                                                        <span className={`text-xs ${isDark ? "text-yellow-400" : "text-yellow-600"}`}>{comment.volumeNo}</span>
-                                                                    </div>
-                                                                )}
+                                                        <div className="flex  ml-11 flex-wrap justify-between items-center gap-2">
+                                                            <div className={`flex  flex-row w-full space-x-6 text-[12px] ${isDark ? "text-purple-300" : "text-purple-600"} font-semibold tracking-wide `}>
                                                                 {comment.chapterNo && (
                                                                     <div className="flex flex-row w-1/2 gap-1 items-center">
-                                                                        <span className={`uppercase ${isDark ? "text-purple-400" : "text-purple-500"} select-none`}>Chapter :</span>
+                                                                        <span className={` ${isDark ? "text-purple-400" : "text-purple-500"} select-none`}>Chapter :</span>
                                                                         <span className={`text-xs ${isDark ? "text-yellow-400" : "text-yellow-600"}`}>{comment.chapterNo}</span>
+                                                                    </div>
+                                                                )}
+                                                                {(comment.chapterNo || comment.volumeNo) && (
+                                                                    <div className="flex justify-start flex-row w-1/2 gap-1 items-center">
+                                                                        <span className={` ${isDark ? "text-purple-400" : "text-purple-500"} select-none`}>Volume :</span>
+                                                                        <span className={` ${isDark ? "text-yellow-400" : "text-yellow-600"}`}>{comment?.volumeNo ? comment?.volumeNo : "?"}</span>
                                                                     </div>
                                                                 )}
                                                             </div>
                                                             {(comment.chapterTitle || comment.chapterNo) && (
                                                                 <p
-                                                                    className={`text-xs flex flex-row gap-1 max-w-[60%] select-text ${isDark ? "text-purple-300/90" : "text-purple-600/90"}`}
+                                                                    className={`text-[12px] tracking-wide  flex flex-row gap-1 max-w-[60%] select-text ${isDark ? "text-purple-300/90" : "text-purple-600/90"}`}
                                                                     title={comment.chapterTitle ?? `Chapter ${comment.chapterNo}`}
                                                                 >
-                                                                    <span className={`uppercase font-semibold ${isDark ? "text-purple-400" : "text-purple-500"} select-none mr-2 text-[10px]`}>
+                                                                    <span className={`font-semibold tracking-wide ${isDark ? "text-purple-400" : "text-purple-500"} select-none `}>
                                                                         Title:
                                                                     </span>
-                                                                    {`"`}
-                                                                    <span className="w-full flex justify-start items-center whitespace-nowrap italic">
-                                                                        {truncateTitle(comment.chapterTitle ?? `Chapter ${comment.chapterNo}`, 20)}
+
+                                                                    <span className="w-full flex font-semibold tracking-wide justify-start items-center whitespace-nowrap">
+                                                                        {`"`} {truncateTitle(comment.chapterTitle ?? `Chapter ${comment.chapterNo}`, 20)}{`"`}
                                                                     </span>
-                                                                    {`"`}
+
                                                                 </p>
                                                             )}
                                                         </div>
                                                     </div>
-                                                    <div className="h-14" />
-                                                    <div className={`absolute bottom-0 left-0 right-0 p-4 ${isDark ? "bg-gradient-to-t from-gray-900/80 to-transparent" : "bg-gradient-to-t from-gray-200/80 to-transparent"} rounded-b-2xl`}>
+                                                    <div className="h-7" />
+                                                    {/* <div className={`absolute bottom-0 left-0 right-0 p-4 ${isDark ? "bg-gradient-to-t from-gray-900/80 to-transparent" : "bg-gradient-to-t from-gray-200/80 to-transparent"} rounded-b-2xl`}>
                                                         <div className="flex items-center justify-between">
                                                             <div className="flex items-center space-x-2">
                                                                 <div className={`flex items-center space-x-1 text-[14px] ${isDark ? "text-gray-400" : "text-gray-600"}`}>
@@ -495,7 +492,7 @@ const LatestComments = () => {
                                                                 <ExternalLink className={`w-3 h-3 ${isDark ? "text-purple-400 group-hover/link:text-purple-300" : "text-purple-600 group-hover/link:text-purple-500"} group-hover/link:rotate-12 transition-transform duration-0`} />
                                                             </a>
                                                         </div>
-                                                    </div>
+                                                    </div> */}
                                                 </div>
                                             )}
                                         </div>

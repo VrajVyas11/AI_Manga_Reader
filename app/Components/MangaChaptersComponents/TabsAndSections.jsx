@@ -10,7 +10,7 @@ import StableFlag from "../StableFlag";
 import ChapterList from './ChapterList';
 import CommentsOnManga from './CommentsOnManga';
 import TabsAndSectionsSkeleton from '../Skeletons/MangaChapters/TabsAndSectionsSkeleton';
-
+import CoverArts from "../MangaChaptersComponents/CoverArts"
 // Move static data outside component to prevent recreation
 const websiteNames = {
   al: "AniList",
@@ -97,6 +97,10 @@ function TabsAndSections({ manga, chapters, handleChapterClick, isDark }) {
       {
         label: `Comments (${memoManga?.rating?.comments?.repliesCount ?? 0})`,
         content: <CommentsOnManga manga={memoManga} isDark={isDark} />,
+      },
+            {
+        label: `Cover Arts`,
+        content: <CoverArts manga={memoManga} isDark={isDark} />,
       },
     ],
     [chapters, isDark, memoManga, uniqueVolumes, handleChapterClick]

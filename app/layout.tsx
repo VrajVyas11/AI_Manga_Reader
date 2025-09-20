@@ -8,7 +8,9 @@ import "./globals.css";
 import TopNavbar from "./Components/TopNavbar";
 import { ThemeProviderClient } from "./providers/ThemeProviderClient";
 import { PreferencesProvider } from "./providers/PreferencesContext";
-
+import { GoogleAnalytics } from "@next/third-parties/google";
+import dynamic from "next/dynamic";
+const AnalyticsClient = dynamic(() => import("./Components/AnalyticsClient"));
 const BASE_URL = "https://ai-manga-reader.onrender.com"; // <- set your canonical site URL
 const SITE_NAME = "AI Manga Reader";
 const DEFAULT_TITLE = "AI Manga Reader — Read Manga, Manhwa & Manhua with OCR & TTS";
@@ -93,12 +95,14 @@ export default function RootLayout({
               <ThemeProviderClient>
                 <PreferencesProvider>
                   <TopNavbar />
+                  <AnalyticsClient />
                   {children}
                 </PreferencesProvider>
               </ThemeProviderClient>
             </MangaProvider>
           </TanstackProvider>
         </Suspense>
+        <GoogleAnalytics gaId="G-KNS1W3ZXQQ" />
       </body>
     </html>
   );

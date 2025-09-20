@@ -140,7 +140,7 @@ function MangaReadHistory() {
                                 return (
                                     <div
                                         key={`${item.manga.id}-${index}`}
-                                        className={`relative hidden sm:block rounded-[30px] pl-2 pr-4 ${isDark ? "bg-gray-900/10 border-gray-700/30 hover:border hover:border-gray-400/20 shadow-[inset_0_0_10px_rgba(255,255,255,0.14)]" : "bg-white border-gray-200/10 hover:border hover:border-gray-400/20 shadow-black/20 hover:shadow-md"} border shadow-sm   transform -translate-y-0.5 hover:-translate-y-1 transition-all duration-0 overflow-hidden`}
+                                        className={`relative hidden sm:block rounded-[30px] pl-2 pr-4 ${isDark ? "bg-gray-900/10 border-gray-700/30 hover:border hover:border-gray-400/20 !shadow-[inset_0_0_10px_rgba(200,200,200,0.1)]" : "bg-white border-gray-200/10 hover:border hover:border-gray-400/20 shadow-black/20 hover:shadow-md"} border shadow-sm   transform -translate-y-0.5 hover:-translate-y-1 transition-all duration-0 overflow-hidden`}
                                         style={{ animation: `slideIn ${0.2 + index * 0.1}s ease-out` }}
                                     >
                                         <div className={`absolute inset-0 ${isDark ? "bg-gradient-to-r from-purple-500/10 to-cyan-500/10" : "bg-gradient-to-r from-purple-300/10 to-cyan-300/10"} opacity-0 hover:opacity-100 transition-opacity duration-300`} />
