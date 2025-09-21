@@ -46,45 +46,46 @@ Feast your eyes on the stunning UI, two previews per row.
 | -------------- |
 | ![Landing Page](./livedemoimages/1.png) |
 
-| 📚 Manga List | 📚 Manga List |
-| ------------ | ------------ |
-| ![Manga List](./livedemoimages/2.png) | ![Manga List](./livedemoimages/3.png) |
+| 📚 Manga List| 📚 Manga List|
+| ------------- | ------------- |
+| ![Manga List](./livedemoimages/2.png) |  ![Manga List](./livedemoimages/3.png) | 
 
-📚 Manga List | 📄 Manga Chapter | 
-| --------------- | ---------------- |
-| ![Manga Chapter](./livedemoimages/4.png) | ![Manga Chapter](./livedemoimages/5.png) |
+| 📚 Manga List |  📄 Manga Chapter | 
+| -------------- | -------------- |
+| ![Manga List](./livedemoimages/4.png) | ![Manga Chapter](./livedemoimages/5.png) |
 
-|📄 Manga Chapter | 📄 Manga Chapter | 
+| 📄 Manga Chapter |  📄 Manga Chapter | 
 | -------------- | -------------- |
 | ![Manga Chapter](./livedemoimages/6.png) | ![Manga Chapter](./livedemoimages/7.png) |
 
-| 📺 Read Chapter |📺 Read Chapter |
+| 📄 Manga Chapter |📺 Read Chapter |
 | -------------- | -------------- |
-| ![Read Chapter](./livedemoimages/8.png) | ![Read Chapter](./livedemoimages/9.png) |
+| ![Manga Chapter](./livedemoimages/8.png) | ![Read Chapter](./livedemoimages/9.png) |
 
 |  📺 Read Chapter |📺 Read Chapter| 
 | ------------- | ------------- |
 | ![Read Chapter](./livedemoimages/10.png) | ![Read Chapter](./livedemoimages/11.png) |
 
-| 🔍 Search Page |🔍 Search Page |
+| 📺 Read Chapter |🔍 Search Page |
 | ------------- | ------------- |
-| ![Search Page](./livedemoimages/12.png) | ![Search Page](./livedemoimages/13.png) |
+| ![Read Chapter](./livedemoimages/12.png) | ![Search Page](./livedemoimages/13.png) |
 
-| 🔍 Search Page | 📚 Library Page |
+| 🔍 Search Page | 🔍 Search Page |
 | ------------- | ------------- |
-| ![Search Page](./livedemoimages/14.png) |  ![Library Page](./livedemoimages/15.png) | 
+| ![Search Page](./livedemoimages/14.png) |  ![Search Page](./livedemoimages/15.png) | 
 
 | 📚 Library Page | 📚 Library Page |
 | ------------- | ------------- |
 | ![Library Page](./livedemoimages/16.png) |  ![Library Page](./livedemoimages/17.png) | 
 
-| 🌐 Not Found Page | 🔍 Profile PopUp |
-| -------------- | ------------- |
-| ![Not Found Page](./livedemoimages/18.png) | ![Profile PopUp](./livedemoimages/19.png) |
+| 📚 Library Page |  🌐 Not Found Page | 
+| -------------- | -------------- | 
+| ![ Library Page](./livedemoimages/18.png) | ![Not Found Page](./livedemoimages/19.png) |
 
-| 🌐 Preferences Page |
-| -------------- | 
-| ![Not Found Page](./livedemoimages/20.png) |
+| 🌐 Profile Popup | 🌐 Preferences Page |
+| -------------- | -------------- | 
+| ![Profile Popup](./livedemoimages/20.png) | ![Preferences Page](./livedemoimages/21.png) |
+
 
 ## Light Theme
 
@@ -100,33 +101,33 @@ Feast your eyes on the stunning UI, two previews per row.
 | -------------- | -------------- |
 | ![Manga Chapter](./livedemoimages/l6.png) | ![Manga Chapter](./livedemoimages/l7.png) |
 
-| 📺 Read Chapter |📺 Read Chapter |
+| 📄 Manga Chapter |📺 Read Chapter |
 | -------------- | -------------- |
-| ![Read Chapter](./livedemoimages/l8.png) | ![Read Chapter](./livedemoimages/l9.png) |
+| ![Manga Chapter](./livedemoimages/l8.png) | ![Read Chapter](./livedemoimages/l9.png) |
 
 |  📺 Read Chapter |📺 Read Chapter| 
 | ------------- | ------------- |
 | ![Read Chapter](./livedemoimages/l10.png) | ![Read Chapter](./livedemoimages/l11.png) |
 
-| 🔍 Search Page |🔍 Search Page |
+| 📺 Read Chapter |🔍 Search Page |
 | ------------- | ------------- |
-| ![Search Page](./livedemoimages/l12.png) | ![Search Page](./livedemoimages/l13.png) |
+| ![Read Chapter](./livedemoimages/l12.png) | ![Search Page](./livedemoimages/l13.png) |
 
-| 🔍 Search Page | 📚 Library Page |
+| 🔍 Search Page | 🔍 Search Page |
 | ------------- | ------------- |
-| ![Search Page](./livedemoimages/l14.png) |  ![Library Page](./livedemoimages/l15.png) | 
+| ![Search Page](./livedemoimages/l14.png) |  ![Search Page](./livedemoimages/l15.png) | 
 
 | 📚 Library Page | 📚 Library Page |
 | ------------- | ------------- |
 | ![Library Page](./livedemoimages/l16.png) |  ![Library Page](./livedemoimages/l17.png) | 
 
-| 🌐 Not Found Page |  🌐 Profile Popup | 
+| 📚 Library Page |  🌐 Not Found Page | 
 | -------------- | -------------- | 
-| ![Not Found Page](./livedemoimages/l18.png) | ![Not Found Page](./livedemoimages/l19.png) |
+| ![ Library Page](./livedemoimages/l18.png) | ![Not Found Page](./livedemoimages/l19.png) |
 
-| 🌐 Preferences Page |
-| -------------- | 
-| ![Not Found Page](./livedemoimages/l20.png) |
+| 🌐 Profile Popup | 🌐 Preferences Page |
+| -------------- | -------------- | 
+| ![Profile Popup](./livedemoimages/l20.png) | ![Preferences Page](./livedemoimages/l21.png) |
 
 ---
 
@@ -184,6 +185,12 @@ Dive deep into your chosen manga with style and substance.
 - **Comments Section**:
 	- View fan discussions and comments related to the manga and chapters.
 	- Comments are fetched via web scraping from MangaDex forum threads at URLs like https://forums.mangadex.org/threads/threadId/Page-NO.
+- **Cover Art Section**:
+	- A dedicated gallery showcasing all available cover art for the selected manga.
+	- Filter by Language: Users can view cover arts specific to Japanese, English, or other available languages.
+	- Interactive Preview: Clicking a cover expands it in a modal/lightbox view.
+	- Details Overlay: Each cover shows additional info such as upload date, uploader (if available), and resolution.
+	- Persistent Selection: Users can mark a favorite cover, which syncs with their library and persists across sessions.
 - Seamlessly transitions to the Read Chapter experience.
 
 ### 📺 **Read Chapter**
