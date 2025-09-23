@@ -181,14 +181,14 @@ function AsideComponent() {
           </div>
         </div>
 
-        <nav className="flex justify-center gap-4 px-3 mb-5">
+        <nav className="flex justify-center gap-4  px-3 mb-5">
           {categories.map(({ key, label, icon: Icon, accent }) => {
             const active = selectedCategory === key;
             return (
               <button
                 key={key}
                 onClick={() => setSelectedCategory(key)}
-                className={`flex min-w-28 justify-center items-center gap-2 px-4 py-3 rounded-lg text-sm font-semibold transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500
+                className={`flex min-w-24 sm:min-w-28 justify-center items-center gap-2 px-4 py-3 rounded-lg text-sm font-semibold transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500
                  ${
                    active
                      ? `${isDark ? "bg-[rgba(255,255,255,0.08)]" : "bg-gray-200/50"} ${accent}`
@@ -207,7 +207,7 @@ function AsideComponent() {
           })}
         </nav>
 
-        <ul className="grid grid-cols-3 md:block gap-3 px-2 md:px-4">
+        <ul className="grid grid-cols-3 ml-2 sm:ml-0 md:block gap-x-0 gap-y-3 sm:gap-3 px-2 md:px-4">
           {mangaToDisplay.slice(0, 9).map((manga, idx) => (
             <Link
               key={manga.id}
@@ -219,13 +219,13 @@ function AsideComponent() {
                   handleMangaClicked(manga);
                 }
               }}
-              className={`flex items-center gap-3 md:gap-4 cursor-pointer rounded-md px-3 py-2 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500
+              className={`flex  items-center gap-1 md:gap-4 cursor-pointer rounded-md px-3 py-2 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500
                 ${isDark ? "hover:bg-gray-800/40" : "hover:bg-gray-200/40"}`}
               aria-label={`${manga.title} - ${statConfig[selectedCategory].label}: ${statConfig[selectedCategory].getValue(manga)}`}
             >
-              <div className="flex-shrink-0 w-6 md:w-7 text-center">
+              <div className="hidden sm:flex -mr-2 ml-2 w-6 md:w-7 text-center">
                 <span
-                  className={`text-2xl md:text-5xl font-extrabold bg-clip-text text-transparent ${
+                  className={`text-3xl md:text-5xl font-extrabold bg-clip-text text-transparent ${
                     isDark
                       ? "bg-gradient-to-b from-gray-600 to-gray-700"
                       : "bg-gradient-to-b from-gray-400 to-gray-600 "
@@ -235,7 +235,7 @@ function AsideComponent() {
                 </span>
               </div>
 
-              <div className="flex-shrink-0 w-10 h-14 md:w-12 md:h-16 rounded-md overflow-hidden shadow-sm">
+              <div className="flex-shrink-0 w-9 h-11 -ml-2 sm:-ml-0 md:w-12 md:h-16 rounded-lg sm:rounded-md overflow-hidden shadow-sm">
                 <Image
                   width={300}
                   height={300}
@@ -248,9 +248,9 @@ function AsideComponent() {
                 />
               </div>
 
-              <div className="flex flex-col ml-2 flex-1 min-w-0">
+              <div className="flex flex-col ml-1 sm:ml-2 flex-1 min-w-0">
                 <h3
-                  className={`text-sm md:text-base font-semibold truncate ${
+                  className={`text-xs md:text-base font-semibold line-clamp-1 ${
                     isDark ? "text-white" : "text-gray-900"
                   }`}
                   title={manga.title}

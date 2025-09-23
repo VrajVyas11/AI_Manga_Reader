@@ -117,7 +117,7 @@ function MangaReadHistory() {
     return (
         <div className="w-[100% -12px] mx-2 md:ml-2 md:px-6 mb-6">
 
-            <div className="flex items-center justify-between px-2 mb-6">
+            <div className="flex items-center justify-between px-2 mb-3 sm:mb-6">
                 <div className="flex items-center gap-3">
                     <div
                         className={`relative ${isDark ? "bg-white/10" : "bg-gray-200/50"} p-2.5 rounded-lg`}
@@ -297,39 +297,50 @@ function MangaReadHistory() {
                         </div>
 
                         <div
-                            style={{
+                        style={{
                                 scrollbarWidth: 'thin',
                                 scrollbarColor: `${isDark ? 'rgba(147, 51, 234, 0.6) rgba(0, 0, 0, 0.1)' : 'rgba(147, 51, 234, 0.6) rgba(0, 0, 0, 0.1)'}`,
                             }}
-                            className="flex sm:hidden gap-2 overflow-x-auto py-3 -mx-4 px-4"
+                            className={`mobile-scroll-area  overflow-x-auto sm:hidden flex gap-3 pb-3 -ml-1 px-4 ${isDark ? 'text-white' : 'text-gray-900'
+                                }`}
+                            role="region"
+                            aria-label="Recently read manga"
                         >
-                            {sortedReadHistory.map((item, index) => (
+                            {sortedReadHistory.map((item, idx) => (
                                 <Link
-                                    key={`mobile-${item.manga.id}-${index}`}
+                                    key={`mobile-${item.manga.id}-${idx}`}
                                     href={`/manga/${item.manga.id}/chapters`}
                                     prefetch={true}
                                     onClick={() => handleMangaCoverImageClicked(item.manga)}
-                                    className="flex-shrink-0 w-[88px]"
+                                    className="w-[76px] shrink-0"
+                                    aria-label={`Open ${item.manga.title}`}
                                 >
                                     <div
-                                        className={`relative w-[88px] h-[73px] rounded-md overflow-hidden border ${isDark ? 'border-gray-700/50 shadow-purple-400/20' : 'border-gray-200/50 shadow-purple-600/20'} shadow-sm hover:shadow-md transition-all duration-300`}
+                                        className={`relative  aspect-[2/3] rounded-md overflow-hidden border transition-shadow duration-300 ${isDark
+                                                ? 'border-gray-700/60 shadow-[0_6px_18px_rgba(147,51,234,0.08)]'
+                                                : 'border-gray-200/60 shadow-[0_6px_18px_rgba(147,51,234,0.12)]'
+                                            } hover:shadow-md`}
                                     >
                                         <Image
                                             src={item.manga.coverImageUrl}
                                             alt={item.manga.title}
                                             fill
-                                            className="object-cover group-hover:scale-105 transition-transform duration-300"
+                                            sizes="88px"
+                                            className="object-cover transition-transform duration-300 will-change-transform hover:scale-105"
+                                            style={{ objectPosition: 'top' }}
                                         />
-                                        <div className={`absolute inset-0 ${isDark ? 'bg-black/20' : 'bg-gray-900/20'} opacity-0 hover:opacity-100 transition-opacity duration-200 flex items-center justify-center`}>
-                                            <Eye className={`w-5 h-5 ${isDark ? 'text-white' : 'text-gray-200'}`} />
-                                        </div>
                                     </div>
-                                    <h3 className={`mt-1.5 text-[12.5px] font-semibold text-center ${isDark ? 'text-white' : 'text-gray-900'} line-clamp-2`}>
+
+                                    <h3
+                                        className={`mt-2 text-[12.5px] font-semibold text-center line-clamp-2 ${isDark ? 'text-white' : 'text-gray-900'
+                                            }`}
+                                    >
                                         {item.manga.title}
                                     </h3>
                                 </Link>
                             ))}
                         </div>
+
 
                         {readHistory.length > 2 && (
                             <button

@@ -205,7 +205,7 @@ const LatestComments = () => {
         switch (type) {
             case "Funny":
                 return (
-                    <Laugh className={`w-4 h-4 ${isDark ? "text-yellow-400 fill-yellow-400/20" : "text-yellow-600 fill-yellow-600/20"}`}/>
+                    <Laugh className={`w-4 h-4 ${isDark ? "text-yellow-400 fill-yellow-400/20" : "text-yellow-600 fill-yellow-600/20"}`} />
                 );
             case "Strike":
                 return (
@@ -285,28 +285,37 @@ const LatestComments = () => {
             <div className="relative p-5 w-full">
                 <div className="max-w-[95%] mx-auto">
                     <div className="flex mb-6 items-center justify-between">
-                        <div className="flex items-center gap-2.5">
-                            <div className={`relative ${isDark ? "bg-white/10" : "bg-gray-200/50"} p-2.5 rounded-lg`}>
-                                <MessageCircle className={`w-6 h-6 ${isDark ? "text-sky-300" : "text-sky-600"} drop-shadow-md`} />
-                                <div className={`absolute -top-1.5 -right-1.5 w-4.5 h-4.5 ${isDark ? "bg-gradient-to-r from-yellow-400 to-orange-400" : "bg-gradient prominant-to-r from-yellow-600 to-orange-600"} rounded-full border-2 ${isDark ? "border-gray-950" : "border-gray-300"} flex items-center justify-center animate-pulse`}>
+                        <div className="flex mx-2  items-center gap-3">
+                            <div className={`relative ${isDark ? "bg-white/10" : "bg-gray-200/50"} p-3 rounded-lg`}>
+                                <MessageCircle
+                                    className={`w-6 h-6 md:w-7 md:h-7 ${isDark ? "text-sky-300" : "text-sky-600"
+                                        } drop-shadow-md`}
+                                />
+                                <div className={`absolute -top-1.5 -right-1.5 p-1 w-4.5 h-4.5 ${isDark ? "bg-gradient-to-r from-yellow-400 to-orange-400" : "bg-gradient prominant-to-r from-yellow-600 to-orange-600"} rounded-full border-2 ${isDark ? "border-gray-950" : "border-gray-300"} flex items-center justify-center animate-pulse`}>
                                     <Zap className={`w-2.5 h-2.5 ${isDark ? "text-white fill-white" : "text-gray-900 fill-gray-900"}`} />
                                 </div>
                             </div>
-                            <div>
-                                <h2 className={`text-lg md:text-xl font-bold ${isDark ? "text-white" : "text-gray-900"} uppercase tracking-wide`}>
+                            <div className="flex-1">
+                                <h2
+                                    className={`text-xl md:text-2xl font-bold ${isDark ? "text-white" : "text-gray-900"
+                                        } uppercase tracking-wide`}
+                                >
                                     LATEST COMMUNITY ACTIVITY
                                 </h2>
-                                <p className={`text-xs ${isDark ? "text-gray-400" : "text-gray-600"} uppercase tracking-wide flex flex-row w-full`}>
-                                    <Activity className={`w-3.5 h-3.5 mr-2 ${isDark ? "text-yellow-300" : "text-yellow-600"}`} />
-                                    Real-time community interactions
-                                    {lastUpdatedDisplay && (
-                                        <span>
-                                            (Last Updated At : {lastUpdatedDisplay})
-                                        </span>
-                                    )}
-                                </p>
+                                <div className="flex items-center gap-3">
+                                    <p className={`text-xs flex items-center ${isDark ? "text-gray-400" : "text-gray-600"} uppercase tracking-wide`}>
+                                        <Activity className={`w-3.5 h-3.5 mr-2 ${isDark ? "text-yellow-300" : "text-yellow-600"}`} />
+                                        Real-time community interactions
+                                        {lastUpdatedDisplay && (
+                                            <span>
+                                                (Last Updated At : {lastUpdatedDisplay})
+                                            </span>
+                                        )}
+                                    </p>
+                                </div>
                             </div>
                         </div>
+
                         <div className="flex items-center space-x-3">
                             <button
                                 onClick={() => fetchComments(true)}

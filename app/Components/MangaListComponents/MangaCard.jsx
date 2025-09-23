@@ -67,7 +67,7 @@ const MangaCard = React.memo(() => {
 
     return (
         <Suspense fallback={<MangaCardSkeleton isDark={isDark} />}>
-            <div className="w-full flex flex-col">
+            <div className="w-full flex px-1 sm:px-0 flex-col">
                 <div className="flex mx-2 sm:mx-5 xl:mx-16 mb-7 sm:mb-8 items-center gap-3">
                     <div className={`${isDark ? "bg-white/10" : "bg-gray-200/50"} p-3 rounded-lg`}>
                         <Flame
@@ -104,7 +104,7 @@ const MangaCard = React.memo(() => {
                         <div className="text-sm">Try adjusting your preferences to see more content</div>
                     </div>
                 ) : (
-                    <div className="grid w-[95%] sm:gap-y-4 mx-auto md:mx-5 xl:ml-16 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+                    <div className="grid w-[95%] gap-2 sm:gap-4 mx-auto md:mx-5 xl:ml-16 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ">
                         {currentMangas.map((manga, index) => (
                             <Card
                                 isDark={isDark}
@@ -181,35 +181,35 @@ const Card = React.memo(({ manga, handleMangaClicked, isDark }) => {
             href={`/manga/${manga.id}/chapters`}
             prefetch={true}
             onClick={handleClick}
-            className={`manga-card group transform transition-all duration-500 ease-out cursor-pointer w-full flex justify-center items-start will-change-transform ${inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+            className={`manga-card group transform transition-all duration-[400ms] ease-in-out cursor-pointer w-full flex justify-center items-start will-change-transform ${inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
                 }`}
         >
             <div
-                className={` origin-center w-full overflow-hidden min-h-[267px] sm:min-h-[368px] rounded-2xl ${isDark ? "bg-[#060111]/50 shadow-slate-600/40" : "bg-gray-100/50 shadow-gray-400"
-                    } p-[5px] shadow-[0_-1px_7px_rgba(0,0,0,0.2)] transition-transform duration-300 ease-out hover:scale-[0.98] will-change-transform`}
+                className={` origin-center w-full min-h-[267px] sm:min-h-[368px] rounded-2xl ${isDark ? "bg-[#060111]/50 shadow-slate-600/40" : "bg-gray-100/50 shadow-gray-400"
+                    } p-[5px] shadow-[0_-1px_7px_rgba(0,0,0,0.2)] transition-transform duration-300 ease-in-out  will-change-transform`}
             >
                 <div
-                    className={`relative flex h-[143px] sm:h-[230px] flex-col rounded-[12px] rounded-tl-[20px] ${manga.isCoverImageBlurred
+                    className={`
+    relative flex h-[200px] sm:h-[280px] flex-col
+    rounded-t-[10px]
+    overflow-hidden  
+    ${manga.isCoverImageBlurred
                             ? "before:content-[''] before:absolute before:inset-0 before:bg-black/20 before:backdrop-blur-sm before:transition-all before:duration-300 group-hover:before:opacity-0 pointer-events-none before:z-10 before:rounded-[5px] before:rounded-tl-[20px]"
-                            : ""
-                        } ${isDark ? "bg-gradient-to-tr from-[#1f2020] to-[#000d0e]" : "bg-gradient-to-tr from-gray-200 to-gray-300"} will-change-transform`}
+                            : ""}
+    ${isDark ? "bg-gradient-to-tr from-[#1f2020] to-[#000d0e]" : "bg-gradient-to-tr from-gray-200 to-gray-300"}
+    will-change-transform
+  `}
                 >
                     <Image
                         src={manga.coverImageUrl ?? "./placeholder.jpg"}
                         alt={manga.title}
                         fill
-                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                        className="object-cover w-full h-full block rounded-[12px] rounded-tl-[20px] relative"
+                        className="absolute inset-0 mt-6 sm:mt-9 w-full h-full object-fill"
                         placeholder="blur"
-                        blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+                        blurDataURL="data:..."
                         priority={false}
                         loading="lazy"
                     />
-
-                    {/* optional extra overlay that appears only when isCoverImageBlurred — keep pointer-events-none */}
-                    {manga.isCoverImageBlurred && (
-                        <div className="absolute inset-0 bg-black/20 rounded-[5px] rounded-tl-[20px] transition-all duration-300 hover:bg-transparent pointer-events-none z-20" />
-                    )}
 
                     {/* bottom gradient + title */}
                     <div
@@ -221,13 +221,13 @@ const Card = React.memo(({ manga, handleMangaClicked, isDark }) => {
                             {memoizedData.truncatedTitle}
                         </h1>
                     </div>
-
+                    <div className="absolute inset-0 h-7 sm:h-[38px] rounded-t-[12px] backdrop-blur-[2px] z-10" />
                     <div className={`relative z-20 h-[29px] md:h-[39px] -ml-1 -mt-1 w-[60%] -skew-x-[40deg] rounded-br-[10px] ${isDark ? "bg-[#060111] shadow-[-10px_-10px_0_0_#060111]" : "bg-white shadow-[-10px_-10px_0_0_rgb(255,255,255)]"} before:absolute before:right-[-2px] before:top-0 before:h-[12px] before:w-[70px] sm:before:w-[129px] before:rounded-tl-[11px]`} />
-                    <div className={`absolute left-0 top-4 sm:top-[35px] z-50 h-[13px] w-[115px] before:absolute before:h-full before:w-1/2 sm:before:w-full before:rounded-tl-[15px] ${isDark ? "before:shadow-[-5px_-5px_0_2px_#060111]" : "before:shadow-[-5px_-5px_0_2px_rgb(255,255,255)]"}`} />
+                    <div className={`absolute left-0 top-[25px] sm:top-[35px] z-50 h-[19px] w-[105px] before:absolute before:h-full before:w-1/2 sm:before:w-full before:rounded-tl-full ${isDark ? "before:shadow-[-5px_-5px_0_2px_#060111]" : "before:shadow-[-5px_-5px_0_2px_rgb(255,255,255)]"}`} />
                     <div className="absolute top-0 flex h-[30px] w-full justify-between">
                         <div className="h-full flex flex-row justify-center items-center aspect-square">
-                            <span className={`absolute gap-2 md:gap-3 top-[7px] left-4 z-30 text-[9px] sm:text-[11px] sm:tracking-widest rounded-full pr-2 sm:min-w-24 flex items-center justify-center font-bold ${isDark ? "text-white" : "text-gray-900"}`}>
-                                <Activity strokeWidth={3.5} className={`size-4 ${manga.status === 'completed'
+                            <span className={`absolute gap-2 md:gap-3 top-[3px] sm:top-[7px] left-4 z-30 text-[9px] sm:text-[11px] sm:tracking-widest rounded-full pr-2 sm:min-w-24 flex items-center justify-center font-bold ${isDark ? "text-white" : "text-gray-900"}`}>
+                                <Activity strokeWidth={3.5} className={` size-2.5 sm:size-4 ${manga.status === 'completed'
                                     ? isDark ? 'fill-[#00c8f58b] text-[#00c9f5]' : 'text-[#00a3cc]'
                                     : manga.status === 'ongoing'
                                         ? isDark ? 'text-[#04d000]' : 'text-[#03a300]'
@@ -237,14 +237,14 @@ const Card = React.memo(({ manga, handleMangaClicked, isDark }) => {
                                 <span className=''>{manga.status.charAt(0).toUpperCase() + manga.status.slice(1).toLowerCase()}</span>
                             </span>
                         </div>
-                        <div className="flex">
+                        <div className="flex w-full ">
                             <span
                                 className={`${manga.contentRating.toUpperCase() === 'SAFE'
-                                    ? 'pr-6 xl:pr-8'
+                                    ? 'pr-8'
                                     : manga.contentRating.toUpperCase() === 'EROTICA'
-                                        ? 'pr-2 xl:pr-5'
-                                        : 'pr-1'
-                                    } z-10 tracking-widest mt-[1.5px] mr-2 top-0 right-0  flex items-center justify-end text-center border-2 absolute py-[3px] sm:py-[7px] min-w-36 text-[6px] sm:text-[10px] font-semibold rounded-lg md:rounded-xl ${isDark ? "text-white" : "text-gray-100"} bg-opacity-70 ${getRatingColor(manga.contentRating.toString() + 'Border') ?? getRatingColor('default')} backdrop-blur-lg ${getRatingColor(manga.contentRating) ?? getRatingColor('default')}`}
+                                        ? 'pr-5'
+                                        : 'pr-3'
+                                    } z-10 tracking-widest mt-[1.5px] top-0 right-0  flex items-center justify-end text-center border-2 w-full  absolute py-[5px] sm:py-[7px] min-w-36 text-[6px] sm:text-[10px] font-semibold rounded-lg md:rounded-xl ${isDark ? "text-white" : "text-gray-100"} bg-opacity-70 ${getRatingColor(manga.contentRating.toString() + 'Border') ?? getRatingColor('default')} backdrop-blur-lg ${getRatingColor(manga.contentRating) ?? getRatingColor('default')}`}
                             >
                                 {manga.contentRating.toUpperCase()}
                             </span>
@@ -271,7 +271,7 @@ const Card = React.memo(({ manga, handleMangaClicked, isDark }) => {
                             {manga.flatTags.slice(0, 4).map((tag) => (
                                 <span
                                     key={tag}
-                                    className={`${isDark ? "shadow-[inset_0_0_5px_rgba(200,200,200,0.3)] border-gray-700/30 hover:bg-gray-800" : "bg-gray-200 border-gray-300 hover:bg-gray-300"} backdrop-blur-md rounded-lg sm:min-w-16 duration-0 shadow-md px-2 sm:px-3 py-1 sm:py-1.5 border transition-colors text-center flex flex-row font-bold items-start justify-center text-[9px] sm:text-[10px] sm:tracking-[1px] ${isDark ? "text-white" : "text-gray-900"}`}
+                                    className={`${isDark ? "!shadow-[inset_0_0_5px_rgba(200,200,200,0.2)] border-gray-700/30 hover:bg-gray-800" : "bg-gray-200 shadow-md border-gray-300 hover:bg-gray-300"} backdrop-blur-md rounded-lg sm:min-w-16 duration-0  px-2 sm:px-3 py-1 sm:py-1.5 border transition-colors text-center flex flex-row font-bold items-start justify-center text-[9px] sm:text-[10px] sm:tracking-[1px] ${isDark ? "text-white" : "text-gray-900"}`}
                                 >
                                     {tag.length > 12 ? tag.slice(0, 12) + "..." : tag}
                                 </span>
