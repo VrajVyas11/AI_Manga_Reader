@@ -316,7 +316,7 @@ function MangaReadHistory() {
                                     aria-label={`Open ${item.manga.title}`}
                                 >
                                     <div
-                                        className={`relative  aspect-[2/3] rounded-md overflow-hidden border transition-shadow duration-300 ${isDark
+                                        className={`relative  aspect-[3/4] rounded-xl overflow-hidden border transition-shadow duration-300 ${isDark
                                                 ? 'border-gray-700/60 shadow-[0_6px_18px_rgba(147,51,234,0.08)]'
                                                 : 'border-gray-200/60 shadow-[0_6px_18px_rgba(147,51,234,0.12)]'
                                             } hover:shadow-md`}
