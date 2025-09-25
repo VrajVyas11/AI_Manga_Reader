@@ -50,7 +50,9 @@ export default function RootLayout({
         <meta name="keywords" content="manga, manhwa, manhua, manga reader, OCR, translation, TTS, MangaDex, read manga online, manga list" />
         <meta name="theme-color" content="#1f2937" />
         <link rel="canonical" href={BASE_URL} />
-
+{/* <script
+          src="https://unpkg.com/react-scan/dist/auto.global.js"
+        /> */}
         {/* Open Graph */}
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content={SITE_NAME} />

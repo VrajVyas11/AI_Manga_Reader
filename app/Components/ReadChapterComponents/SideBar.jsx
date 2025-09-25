@@ -241,6 +241,8 @@ const SideBar = ({
   }
 
   return (
+    <>
+          <div className='h-screen w-14 bg-transparent relative sm:hidden'/>
     <div
       className={`
       absolute md:relative px-2 rounded-r-lg left-0 bottom-1 md:-bottom-6 border-[1px] border-l-0
@@ -546,6 +548,7 @@ const SideBar = ({
         </div>
       </div>
     </div>
+    </>
   );
 };
 

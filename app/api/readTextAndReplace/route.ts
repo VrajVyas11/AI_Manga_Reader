@@ -1,33 +1,151 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextResponse, NextRequest } from "next/server";
 import path from "path";
 import fs from "fs";
 import sharp from "sharp";
 import EasyOCRWrapper from "easyocr-js";
 
-// Global OCR instance to avoid repeated initialization
+// Types
+interface OCRResult {
+  bbox: number[][];
+  text: string;
+  confidence: number;
+}
+
+interface OCRResponse {
+  data: OCRResult[];
+}
+
+interface ProcessedImage {
+  buffer: Buffer;
+  path: string;
+  metadata: {
+    originalSize: number;
+    processedSize: number;
+    dimensions: { width: number; height: number };
+    processingTime: number;
+    compressionRatio: number;
+  };
+}
+
+interface MemoryUsage {
+  heapUsed: number;
+  heapTotal: number;
+  external: number;
+  rss: number;
+}
+
+// Global state with proper typing
 let globalOCR: EasyOCRWrapper | null = null;
-let isInitializing = false;
+let isInitializing: boolean = false;
 let initPromise: Promise<void> | null = null;
-
-// Memory management settings
+let lastUsed: number = Date.now();
+// Ultra-aggressive settings for 512MB RAM
 const MEMORY_SETTINGS = {
-  maxImageSize: 5 * 1024 * 1024, // 5MB max input
-  maxProcessedWidth: 2048,
-  maxProcessedHeight: 2048,
-  jpegQuality: 85,
-  pngCompressionLevel: 6
-};
+  maxImageSize: 1.5 * 1024 * 1024, // 1.5MB max
+  maxProcessedWidth: 800,           // Very small resolution
+  maxProcessedHeight: 800,          // Very small resolution
+  jpegQuality: 60,                  // Lower quality
+  pngCompressionLevel: 9,           // Max compression
+  maxConcurrent: 1,                 // Single processing
+  ocrTimeout: 30000,                // 30 second timeout
+  cleanupInterval: 60000,           // Cleanup every minute
+  memoryCheckThreshold: 400,        // Much lower threshold - 300MB //hello when done locally change its value to 1500 or something for it to work --- Vraj Vyas 
+  forceCleanupThreshold: 250        // Force cleanup at 250MB
+} as const;
 
-// Initialize OCR instance once and reuse it
-async function getOCRInstance(): Promise<EasyOCRWrapper> {
+// Memory monitoring with proper typing
+function getMemoryUsage(): MemoryUsage {
+  const usage = process.memoryUsage();
+  return {
+    heapUsed: Math.round(usage.heapUsed / 1024 / 1024),
+    heapTotal: Math.round(usage.heapTotal / 1024 / 1024),
+    external: Math.round(usage.external / 1024 / 1024),
+    rss: Math.round(usage.rss / 1024 / 1024)
+  };
+}
+
+// Aggressive memory cleanup
+function forceMemoryCleanup(): void {
+  try {
+    const memBefore = getMemoryUsage();
+    
+    // Multiple garbage collections
+    if (global.gc) {
+      for (let i = 0; i < 5; i++) {
+        global.gc();
+      }
+    }
+    
+    const memAfter = getMemoryUsage();
+    const saved = memBefore.rss - memAfter.rss;
+    if (saved > 0) {
+      console.log(`Memory freed: ${saved}MB (${memAfter.rss}MB remaining)`);
+    }
+  } catch (error) {
+    console.warn("Memory cleanup warning:", (error as Error).message);
+  }
+}
+
+// Ultra-conservative memory pressure check
+function checkMemoryPressure(): boolean {
+  const memUsage = getMemoryUsage();
+  
+  // Much more aggressive thresholds
+  if (memUsage.rss > MEMORY_SETTINGS.memoryCheckThreshold) {
+    console.warn(`Memory pressure: ${memUsage.rss}MB RSS (limit: ${MEMORY_SETTINGS.memoryCheckThreshold}MB)`);
+    forceMemoryCleanup();
+    
+    const memAfterCleanup = getMemoryUsage();
+    if (memAfterCleanup.rss > MEMORY_SETTINGS.forceCleanupThreshold) {
+      console.warn("Forcing OCR instance closure due to memory pressure");
+      closeOCRInstance();
+      return true;
+    }
+  }
+  
+  return false;
+}
+
+// Close OCR instance
+function closeOCRInstance(): void {
   if (globalOCR) {
+    try {
+      // Don't await here to avoid blocking
+      globalOCR.close().catch((err) => 
+        console.error("OCR close error:", (err as Error).message)
+      );
+      console.log("OCR instance closed");
+    } catch (error) {
+      console.error("Error closing OCR:", (error as Error).message);
+    }
+    globalOCR = null;
+  }
+  isInitializing = false;
+  initPromise = null;
+  
+  // Force cleanup after closing
+  forceMemoryCleanup();
+}
+
+// Initialize OCR with memory checks
+async function getOCRInstance(): Promise<EasyOCRWrapper> {
+  // Pre-check memory
+  if (checkMemoryPressure()) {
+    throw new Error("Insufficient memory for OCR initialization");
+  }
+  
+  if (globalOCR) {
+    lastUsed = Date.now();
     return globalOCR;
   }
 
   if (isInitializing && initPromise) {
     await initPromise;
-    if (globalOCR) return globalOCR;
+    if (globalOCR) {
+      lastUsed = Date.now();
+      return globalOCR;
+    }
   }
 
   if (!isInitializing) {
@@ -38,101 +156,117 @@ async function getOCRInstance(): Promise<EasyOCRWrapper> {
   }
 
   if (!globalOCR) {
-    throw new Error("Failed to initialize OCR instance");
+    throw new Error("OCR initialization failed - memory constraints");
   }
 
+  lastUsed = Date.now();
   return globalOCR;
 }
 
 async function initializeOCR(): Promise<void> {
   try {
-    console.log("Initializing OCR instance...");
+    console.log("Initializing OCR...");
     const startTime = Date.now();
+    const memBefore = getMemoryUsage();
+    
+    // Cleanup before init
+    forceMemoryCleanup();
     
     globalOCR = new EasyOCRWrapper();
     await globalOCR.init("en");
     
     const duration = Date.now() - startTime;
-    console.log(`OCR initialized successfully in ${duration}ms`);
-  } catch (error: any) {
-    console.error("OCR initialization failed:", error.message);
+    const memAfter = getMemoryUsage();
+    console.log(`OCR ready in ${duration}ms - Memory: ${memBefore.rss}MB -> ${memAfter.rss}MB`);
+    
+  } catch (error) {
+    console.error("OCR init failed:", (error as Error).message);
     globalOCR = null;
     throw error;
   }
 }
 
-// Image preprocessing with Sharp for memory optimization
-async function preprocessImage(inputBuffer: Buffer, originalName: string): Promise<{
-  buffer: Buffer;
-  path: string;
-  metadata: any;
-}> {
+// Ultra-aggressive image preprocessing
+async function preprocessImage(inputBuffer: Buffer, originalName: string): Promise<ProcessedImage> {
   try {
     const startTime = Date.now();
-    console.log(`Preprocessing image: ${originalName} (${inputBuffer.length} bytes)`);
+    console.log(`Processing: ${originalName} (${Math.round(inputBuffer.length / 1024)}KB)`);
     
-    // Get image metadata first
-    const metadata = await sharp(inputBuffer).metadata() as {height:number,width:number,format:string};
-    console.log(`Original image: ${metadata.width}x${metadata.height}, format: ${metadata.format}`);
+    // Check memory before processing
+    if (checkMemoryPressure()) {
+      throw new Error("Insufficient memory for image processing");
+    }
     
-    // Calculate optimal dimensions while preserving aspect ratio
+    // Get minimal metadata
+    const metadata = await sharp(inputBuffer, {
+      limitInputPixels: 4194304, // Much smaller limit (2048x2048)
+      sequentialRead: true,
+      density: 72
+    }).metadata();
+    
+    if (!metadata.width || !metadata.height) {
+      throw new Error("Invalid image metadata");
+    }
+    
+    console.log(`Original: ${metadata.width}x${metadata.height}`);
+    
+    // Ultra-aggressive resizing
     let { width, height } = metadata;
-    const aspectRatio = width / height;
+    const maxDim = Math.min(MEMORY_SETTINGS.maxProcessedWidth, MEMORY_SETTINGS.maxProcessedHeight);
     
-    if (width > MEMORY_SETTINGS.maxProcessedWidth || height > MEMORY_SETTINGS.maxProcessedHeight) {
-      if (width > height) {
-        width = MEMORY_SETTINGS.maxProcessedWidth;
-        height = Math.round(width / aspectRatio);
-      } else {
-        height = MEMORY_SETTINGS.maxProcessedHeight;
-        width = Math.round(height * aspectRatio);
-      }
-      console.log(`Resizing to: ${width}x${height}`);
+    // Force downscale regardless of original size
+    const scaleFactor = Math.min(
+      maxDim / width,
+      maxDim / height,
+      0.5 // Never exceed 50% of original
+    );
+    
+    width = Math.floor(width * scaleFactor);
+    height = Math.floor(height * scaleFactor);
+    
+    // Ensure minimum readable size
+    if (width < 200 || height < 200) {
+      width = Math.max(width, 200);
+      height = Math.max(height, 200);
     }
     
-    // Process image with Sharp for OCR optimization
-    let sharpInstance = sharp(inputBuffer, {
-      limitInputPixels: 268402689, // ~16384x16384 limit
+    console.log(`Resizing to: ${width}x${height}`);
+    
+    // Process with minimal settings
+    const processedBuffer = await sharp(inputBuffer, {
+      limitInputPixels: 4194304,
       sequentialRead: true
-    });
+    })
+    .resize(width, height, {
+      kernel: sharp.kernel.nearest, // Fastest kernel
+      withoutEnlargement: true
+    })
+    // Minimal processing for speed and memory
+    .normalize()
+    .jpeg({
+      quality: MEMORY_SETTINGS.jpegQuality,
+      progressive: false,
+      mozjpeg: false, // Disable for speed
+      chromaSubsampling: '4:2:0' // Reduce file size
+    })
+    .toBuffer();
     
-    // Apply preprocessing optimizations
-    sharpInstance = sharpInstance
-      .resize(width, height, {
-        kernel: sharp.kernel.lanczos3,
-        withoutEnlargement: true
-      })
-      // Enhance text clarity
-      .normalize()
-      .sharpen({ sigma: 1, m1: 0.5, m2: 2 })
-      // Convert to optimal format for OCR
-      .jpeg({
-        quality: MEMORY_SETTINGS.jpegQuality,
-        progressive: false,
-        mozjpeg: true
-      });
+    // Immediate cleanup
+    forceMemoryCleanup();
     
-    const processedBuffer = await sharpInstance.toBuffer();
-    
-    // Save processed image
-    const uploadDir = path.join(process.cwd(), "public", "uploads");
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-    
+    // Save to temp
+    const uploadDir = "/tmp";
     const imagePath = path.join(
       uploadDir, 
-      `ocr_${Date.now()}_${Math.random().toString(36).substring(7)}.jpg`
+      `ocr_${Date.now()}.jpg`
     );
     
     fs.writeFileSync(imagePath, processedBuffer);
     
     const processingTime = Date.now() - startTime;
-    console.log(
-      `Image preprocessed in ${processingTime}ms: ` +
-      `${inputBuffer.length} → ${processedBuffer.length} bytes ` +
-      `(${Math.round((1 - processedBuffer.length/inputBuffer.length) * 100)}% reduction)`
-    );
+    const compressionRatio = Math.round((1 - processedBuffer.length / inputBuffer.length) * 100);
+    
+    console.log(`Processed in ${processingTime}ms: ${compressionRatio}% smaller`);
     
     return {
       buffer: processedBuffer,
@@ -141,50 +275,95 @@ async function preprocessImage(inputBuffer: Buffer, originalName: string): Promi
         originalSize: inputBuffer.length,
         processedSize: processedBuffer.length,
         dimensions: { width, height },
-        processingTime
+        processingTime,
+        compressionRatio
       }
     };
     
-  } catch (error: any) {
-    console.error("Image preprocessing failed:", error.message);
-    throw new Error(`Image preprocessing failed: ${error.message}`);
+  } catch (error) {
+    forceMemoryCleanup();
+    throw new Error(`Image processing failed: ${(error as Error).message}`);
   }
 }
 
-// Memory cleanup utility
-function forceGarbageCollection() {
-  if (global.gc) {
-    global.gc();
-    console.log("Forced garbage collection");
-  }
-}
+// Auto-cleanup with shorter intervals
+// eslint-disable-next-line no-undef
+let cleanupTimer: NodeJS.Timeout;
 
-// Clean up function for graceful shutdown
-process.on("SIGTERM", async () => {
-  console.log("Shutting down OCR instance...");
-  if (globalOCR) {
-    try {
-      await globalOCR.close();
-      console.log("OCR instance closed successfully");
-    } catch (error: any) {
-      console.error("Error closing OCR instance:", error.message);
+function startCleanupTimer(): void {
+  if (cleanupTimer) {
+    clearInterval(cleanupTimer);
+  }
+  
+  cleanupTimer = setInterval(() => {
+    const timeSinceLastUse = Date.now() - lastUsed;
+    const memUsage = getMemoryUsage();
+    
+    // Much more aggressive cleanup
+    if (timeSinceLastUse > MEMORY_SETTINGS.cleanupInterval || memUsage.rss > MEMORY_SETTINGS.forceCleanupThreshold) {
+      console.log("Auto-cleanup triggered");
+      closeOCRInstance();
+      forceMemoryCleanup();
+      
+      // Clean temp files
+      try {
+        const tempFiles = fs.readdirSync("/tmp").filter(f => f.startsWith("ocr_"));
+        tempFiles.forEach(file => {
+          const filePath = path.join("/tmp", file);
+          fs.unlinkSync(filePath);
+        });
+        if (tempFiles.length > 0) {
+          console.log(`Cleaned ${tempFiles.length} temp files`);
+        }
+      } catch (error:unknown) {
+        // Ignore cleanup errors
+      }
     }
-  }
+  }, 30000); // Check every 30 seconds
+}
+
+startCleanupTimer();
+
+// Graceful shutdown
+process.on("SIGTERM", () => {
+  console.log("Shutting down...");
+  if (cleanupTimer) clearInterval(cleanupTimer);
+  closeOCRInstance();
   process.exit(0);
 });
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest): Promise<NextResponse> {
+  const requestId = Math.random().toString(36).substring(7);
   const startTime = Date.now();
   let imagePath: string | null = null;
-  const memoryBefore = process.memoryUsage();
   
   try {
-    console.log(`Memory before request: ${Math.round(memoryBefore.heapUsed / 1024 / 1024)}MB`);
+    console.log(`[${requestId}] OCR request started`);
+    const memoryBefore = getMemoryUsage();
+    console.log(`[${requestId}] Memory: ${memoryBefore.rss}MB RSS`);
     
-    // Parse form data with size limits
-    const formData = await req.formData();
+    // Immediate memory check - fail fast if over limit
+    if (memoryBefore.rss > MEMORY_SETTINGS.forceCleanupThreshold) {
+      console.log(`[${requestId}] Memory limit exceeded before processing`);
+      return NextResponse.json({ 
+        status: "error",
+        error: "Server memory limit exceeded. Please try again in a few minutes.",
+        code: "MEMORY_LIMIT_EXCEEDED",
+        text: { data: [] }
+      }, { status: 503 });
+    }
+    
+    // Parse form with timeout
+    const formData = await Promise.race([
+      req.formData(),
+      new Promise<never>((_, reject) => 
+        setTimeout(() => reject(new Error("Form parsing timeout")), 10000)
+      )
+    ]);
+    
     const file = formData.get("file") as File | null;
 
+    // Quick validations
     if (!file) {
       return NextResponse.json({ 
         status: "error",
@@ -197,13 +376,12 @@ export async function POST(req: NextRequest) {
     if (!file.type.startsWith("image/")) {
       return NextResponse.json({ 
         status: "error",
-        error: "Invalid file type. Please upload an image.",
+        error: "Please upload an image file",
         code: "INVALID_FILE_TYPE",
         text: { data: [] }
       }, { status: 400 });
     }
 
-    // Validate file size
     if (file.size > MEMORY_SETTINGS.maxImageSize) {
       return NextResponse.json({ 
         status: "error",
@@ -222,124 +400,141 @@ export async function POST(req: NextRequest) {
       }, { status: 400 });
     }
 
-    // Convert file to buffer
+    // Convert to buffer with memory check
     const buffer = Buffer.from(await file.arrayBuffer());
-    console.log(`File received: ${file.name} (${buffer.length} bytes, type: ${file.type})`);
+    const memoryAfterLoad = getMemoryUsage();
+    
+    if (memoryAfterLoad.rss > MEMORY_SETTINGS.memoryCheckThreshold) {
+      return NextResponse.json({ 
+        status: "error",
+        error: "Insufficient memory after file load",
+        code: "MEMORY_INSUFFICIENT",
+        text: { data: [] }
+      }, { status: 503 });
+    }
 
-    // Preprocess image with Sharp
-    let processedImage;
+    console.log(`[${requestId}] File loaded: ${Math.round(buffer.length / 1024)}KB`);
+
+    // Preprocess image
+    let processedImage: ProcessedImage;
     try {
       processedImage = await preprocessImage(buffer, file.name);
       imagePath = processedImage.path;
-    } catch (preprocessError: any) {
-      console.error("Image preprocessing failed:", preprocessError.message);
+    } catch (preprocessError) {
+      console.error(`[${requestId}] Preprocessing failed:`, (preprocessError as Error).message);
       return NextResponse.json({ 
         status: "error",
-        error: "Failed to process image. The image might be corrupted or in an unsupported format.",
+        error: "Failed to process image. Try a smaller image.",
         code: "PREPROCESSING_FAILED",
-        text: { data: [] },
-        details: preprocessError.message
+        text: { data: [] }
       }, { status: 500 });
     }
 
-    // Force garbage collection after image processing
-    forceGarbageCollection();
+    // Force cleanup before OCR
+    forceMemoryCleanup();
     
-    const memoryAfterPreprocessing = process.memoryUsage();
-    console.log(`Memory after preprocessing: ${Math.round(memoryAfterPreprocessing.heapUsed / 1024 / 1024)}MB`);
+    const memoryBeforeOCR = getMemoryUsage();
+    console.log(`[${requestId}] Memory before OCR: ${memoryBeforeOCR.rss}MB`);
 
-    // Get OCR instance and process image
+    // Final memory check before OCR
+    if (memoryBeforeOCR.rss > MEMORY_SETTINGS.memoryCheckThreshold) {
+      return NextResponse.json({ 
+        status: "error",
+        error: "Insufficient memory for OCR processing",
+        code: "OCR_MEMORY_INSUFFICIENT",
+        text: { data: [] }
+      }, { status: 503 });
+    }
+
+    // OCR processing with aggressive timeout
     try {
+      console.log(`[${requestId}] Starting OCR...`);
       const ocr = await getOCRInstance();
-      console.log("Starting OCR processing...");
+      
+      const ocrPromise = ocr.readText(imagePath);
+      const timeoutPromise = new Promise<never>((_, reject) => 
+        setTimeout(() => reject(new Error("OCR timeout")), MEMORY_SETTINGS.ocrTimeout)
+      );
       
       const ocrStartTime = Date.now();
-      const result = await ocr.readText(imagePath) as unknown as {data:string};
+      const result = await Promise.race([ocrPromise, timeoutPromise]) as unknown as OCRResponse;
       const ocrDuration = Date.now() - ocrStartTime;
       
-      console.log(`OCR completed in ${ocrDuration}ms`);
+      console.log(`[${requestId}] OCR completed in ${ocrDuration}ms`);
       
-      // Force cleanup after OCR
-      forceGarbageCollection();
+      // Immediate cleanup after OCR
+      forceMemoryCleanup();
       
-      const memoryAfterOCR = process.memoryUsage();
-      console.log(`Memory after OCR: ${Math.round(memoryAfterOCR.heapUsed / 1024 / 1024)}MB`);
+      const memoryAfterOCR = getMemoryUsage();
+      console.log(`[${requestId}] Memory after OCR: ${memoryAfterOCR.rss}MB`);
       
-      // Validate OCR result structure
-      if (!result || !result.data || !Array.isArray(result.data)) {
-        console.warn("Invalid OCR result structure:", result);
-        return NextResponse.json({
-          status: "error",
-          error: "OCR processing returned invalid data",
-          code: "INVALID_OCR_RESULT",
-          text: { data: [] }
-        }, { status: 500 });
-      }
-      
-      // Check if any text was found
-      const hasText = result.data.length > 0 && 
-        result.data.some(item => item.text && item.text.trim().length > 0);
-      
-      if (!hasText) {
-        console.log("No text detected in image");
+      // Validate results
+      if (!result?.data || !Array.isArray(result.data)) {
         return NextResponse.json({
           status: "success",
           text: { data: [] },
-          message: "No text found in the image",
+          message: "No text found in image",
           metadata: {
             processingTime: Date.now() - startTime,
             ocrTime: ocrDuration,
-            imageProcessing: processedImage.metadata
+            requestId
           }
-        }, { status: 200 });
+        });
+      }
+      
+      // Filter valid results
+      const validResults = result.data.filter((item): item is OCRResult => 
+        Boolean(item?.text && typeof item.text === 'string' && item.text.trim().length > 0)
+      );
+      
+      if (validResults.length === 0) {
+        return NextResponse.json({
+          status: "success",
+          text: { data: [] },
+          message: "No readable text found",
+          metadata: {
+            processingTime: Date.now() - startTime,
+            ocrTime: ocrDuration,
+            imageProcessing: processedImage.metadata,
+            requestId
+          }
+        });
       }
 
       const totalDuration = Date.now() - startTime;
-      const memoryFinal = process.memoryUsage();
-      
-      console.log(`Total processing completed in ${totalDuration}ms`);
-      console.log(`Text found: ${result.data.length} items`);
-      console.log(`Memory final: ${Math.round(memoryFinal.heapUsed / 1024 / 1024)}MB`);
+      console.log(`[${requestId}] Success: ${validResults.length} text items in ${totalDuration}ms`);
 
       return NextResponse.json({
         status: "success",
-        text: result,
+        text: { data: validResults },
         metadata: {
           processingTime: totalDuration,
           ocrTime: ocrDuration,
           imageProcessing: processedImage.metadata,
           memoryUsage: {
-            before: Math.round(memoryBefore.heapUsed / 1024 / 1024),
-            afterPreprocessing: Math.round(memoryAfterPreprocessing.heapUsed / 1024 / 1024),
-            afterOCR: Math.round(memoryAfterOCR.heapUsed / 1024 / 1024),
-            final: Math.round(memoryFinal.heapUsed / 1024 / 1024)
-          }
+            before: memoryBefore.rss,
+            beforeOCR: memoryBeforeOCR.rss,
+            afterOCR: memoryAfterOCR.rss
+          },
+          requestId,
+          textCount: validResults.length
         }
-      }, { status: 200 });
+      });
 
-    } catch (ocrError: any) {
-      console.error("OCR processing failed:", ocrError.message);
-      console.error("OCR error stack:", ocrError.stack);
-      
-      // Reset OCR instance on critical errors
-      if (ocrError.message.includes("Reader not initialized") || 
-          ocrError.message.includes("CUDA") ||
-          ocrError.message.includes("memory")) {
-        console.log("Resetting OCR instance due to critical error");
-        globalOCR = null;
-        isInitializing = false;
-        initPromise = null;
-      }
+    } catch (ocrError) {
+      console.error(`[${requestId}] OCR error:`, (ocrError as Error).message);
       
       let errorCode = "OCR_FAILED";
-      let userMessage = "Failed to extract text from image";
+      let userMessage = "OCR processing failed";
       
-      if (ocrError.message.includes("memory")) {
-        errorCode = "OCR_MEMORY_ERROR";
-        userMessage = "Not enough memory to process this image. Try a smaller image.";
-      } else if (ocrError.message.includes("timeout")) {
+      if ((ocrError as Error).message.includes("timeout")) {
         errorCode = "OCR_TIMEOUT";
-        userMessage = "OCR processing timed out. Try again with a smaller image.";
+        userMessage = "OCR timed out. Try a smaller/clearer image.";
+        closeOCRInstance(); // Reset on timeout
+      } else if ((ocrError as Error).message.includes("memory")) {
+        errorCode = "OCR_MEMORY_ERROR";
+        userMessage = "OCR memory error. Try a much smaller image.";
+        closeOCRInstance(); // Reset on memory error
       }
       
       return NextResponse.json({ 
@@ -347,23 +542,22 @@ export async function POST(req: NextRequest) {
         error: userMessage,
         code: errorCode,
         text: { data: [] },
-        details: process.env.NODE_ENV === 'development' ? ocrError.message : undefined
+        requestId
       }, { status: 500 });
     }
 
-  } catch (error: any) {
-    console.error("Server error:", error.message);
-    console.error("Server error stack:", error.stack);
+  } catch (error) {
+    console.error(`[${requestId}] Server error:`, (error as Error).message);
     
     let errorCode = "SERVER_ERROR";
-    let userMessage = "Internal server error occurred";
+    let userMessage = "Server error occurred";
     
-    if (error.message.includes("out of memory")) {
+    if ((error as Error).message.includes("memory")) {
       errorCode = "MEMORY_ERROR";
-      userMessage = "Server is low on memory. Please try again later.";
-    } else if (error.message.includes("timeout")) {
-      errorCode = "TIMEOUT_ERROR";
-      userMessage = "Request timed out. Please try again.";
+      userMessage = "Server memory exceeded. Try again later.";
+    } else if ((error as Error).message.includes("timeout")) {
+      errorCode = "TIMEOUT_ERROR";  
+      userMessage = "Request timed out.";
     }
     
     return NextResponse.json({ 
@@ -371,25 +565,31 @@ export async function POST(req: NextRequest) {
       error: userMessage,
       code: errorCode,
       text: { data: [] },
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      requestId
     }, { status: 500 });
+    
   } finally {
-    // Clean up uploaded image
+    // Cleanup temp file
     if (imagePath && fs.existsSync(imagePath)) {
       try {
         fs.unlinkSync(imagePath);
-        console.log(`Cleaned up temporary image: ${imagePath}`);
-      } catch (unlinkError: any) {
-        console.error("Failed to cleanup image:", unlinkError.message);
+        console.log(`[${requestId}] Cleaned up temp file`);
+      } catch (error) {
+        console.error(`[${requestId}] Cleanup failed:`, (error as Error).message);
       }
     }
     
-    // Final cleanup
-    forceGarbageCollection();
+    // Force final cleanup
+    forceMemoryCleanup();
     
-    const totalDuration = Date.now() - startTime;
-    const memoryFinal = process.memoryUsage();
-    console.log(`Request completed in ${totalDuration}ms`);
-    console.log(`Final memory: ${Math.round(memoryFinal.heapUsed / 1024 / 1024)}MB`);
+    const totalTime = Date.now() - startTime;
+    const finalMemory = getMemoryUsage();
+    console.log(`[${requestId}] Completed in ${totalTime}ms - Final memory: ${finalMemory.rss}MB`);
+    
+    // If memory is still high after cleanup, close OCR
+    if (finalMemory.rss > MEMORY_SETTINGS.memoryCheckThreshold) {
+      console.log(`[${requestId}] High memory detected, closing OCR instance`);
+      closeOCRInstance();
+    }
   }
 }

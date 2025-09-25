@@ -1,4 +1,4 @@
-# Base image with Node.js 20 and Debian slim
+# Multi-stage build optimized for low memory usage
 FROM node:20-bookworm-slim AS base
 
 # Set up a reliable Debian mirror
@@ -6,7 +6,7 @@ RUN echo "deb http://httpredir.debian.org/debian bookworm main" > /etc/apt/sourc
     echo "deb http://httpredir.debian.org/debian bookworm-updates main" >> /etc/apt/sources.list && \
     echo "deb http://security.debian.org/debian-security bookworm-security main" >> /etc/apt/sources.list
 
-# Install system dependencies in one layer for better caching
+# Install only essential system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     python3 \
     python3-pip \
@@ -60,34 +60,44 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
-# Stage for Python dependencies and EasyOCR model pre-download
+# Stage for Python dependencies with memory optimization
 FROM base AS py-deps
 
 WORKDIR /app
 
-# Create virtual environment and install Python packages
+# Create virtual environment and install Python packages with memory constraints
 RUN python3 -m venv /venv
 ENV PATH="/venv/bin:$PATH"
 
-# Install Python dependencies with increased timeout and retry
+# Set memory-constrained pip options
+ENV PIP_NO_CACHE_DIR=1
+ENV PIP_DISABLE_PIP_VERSION_CHECK=1
+
+# Install minimal PyTorch CPU with reduced memory footprint
 RUN pip install --upgrade pip --timeout=600 --retries=5 && \
     pip install --timeout=600 --retries=5 --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu && \
     pip install --timeout=600 --retries=5 --no-cache-dir opencv-python-headless numpy && \
     pip install --timeout=600 --retries=5 --no-cache-dir easyocr
 
-# Pre-download EasyOCR models during build to avoid runtime downloads
+# Pre-download only English model to save memory
 RUN mkdir -p /root/.EasyOCR && \
     python3 - <<'PY'
 import os
 import easyocr
+import gc
 
 # Ensure EasyOCR will write models to this path
 os.environ["EASYOCR_MODULE_PATH"] = "/root/.EasyOCR"
-print("Downloading EasyOCR models...")
+print("Downloading minimal EasyOCR model...")
 try:
-    reader = easyocr.Reader(["en"], gpu=False, download_enabled=True)
-    print("✅ EasyOCR English models downloaded successfully")
-    print("✅ EasyOCR reader test passed")
+    # Only download English model to minimize memory usage
+    reader = easyocr.Reader(["en"], gpu=False, download_enabled=True, verbose=False)
+    print("✅ EasyOCR English model downloaded successfully")
+    
+    # Force cleanup
+    del reader
+    gc.collect()
+    print("✅ Memory cleanup completed")
 except Exception as e:
     print("❌ EasyOCR setup failed:", str(e))
     raise
@@ -112,7 +122,6 @@ WORKDIR /app
 COPY package.json package-lock.json* ./
 RUN npm ci --ignore-scripts
 
-# Install Chrome for Puppeteer
 RUN npx puppeteer browsers install chrome
 
 # Copy the rest of the application code
@@ -120,7 +129,7 @@ COPY . .
 # Build the Next.js app with standalone output
 RUN npm run build
 
-# Runtime stage for production
+# Runtime stage for production with memory optimization
 FROM base AS runtime
 
 WORKDIR /app
@@ -128,12 +137,22 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV PATH="/venv/bin:$PATH"
 
-# Critical environment variables for EasyOCR performance
+# Critical environment variables for memory optimization
 ENV PYTHONUNBUFFERED=1
 ENV EASYOCR_MODULE_PATH=/root/.EasyOCR
 ENV OMP_NUM_THREADS=1
 ENV MKL_NUM_THREADS=1
+ENV OPENBLAS_NUM_THREADS=1
 ENV NUMBA_CACHE_DIR=/tmp/numba_cache
+ENV TORCH_NUM_THREADS=1
+ENV PYTORCH_TRANSFORMERS_CACHE=/tmp/transformers
+
+# Memory optimization for Node.js
+ENV NODE_OPTIONS="--max-old-space-size=200"
+
+# Python memory optimization
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV MALLOC_TRIM_THRESHOLD_=10000
 
 # Copy Python virtual environment with pre-downloaded models
 COPY --from=py-deps /venv /venv
@@ -152,18 +171,18 @@ COPY --from=builder /app/tsconfig.json ./tsconfig.json
 
 # Copy the Puppeteer Chrome installation
 COPY --from=builder /root/.cache/puppeteer /root/.cache/puppeteer
-
-# Create temp directories for better performance
-RUN mkdir -p /tmp/numba_cache && chmod 777 /tmp/numba_cache
+# Create optimized temp directories
+RUN mkdir -p /tmp/numba_cache /tmp/transformers /tmp/ocr_temp && \
+    chmod 777 /tmp/numba_cache /tmp/transformers /tmp/ocr_temp
 
 # Expose the port
 ENV HOSTNAME=0.0.0.0
 ENV PORT=8080
 EXPOSE 8080
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=30s --start-period=120s --retries=3 \
-    CMD curl -f http://localhost:3000/api/health || exit 1
+# Health check with memory awareness
+HEALTHCHECK --interval=60s --timeout=30s --start-period=120s --retries=2 \
+    CMD curl -f http://localhost:8080/api/health || exit 1
 
 # Run the Next.js standalone server
 CMD ["node", "server.js"]

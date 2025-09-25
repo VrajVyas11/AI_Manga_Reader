@@ -23,7 +23,7 @@ export default function ReadChapter() {
   const { theme } = useTheme();
   const isDark = theme == "dark";
   const router = useRouter();
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true);
   const [settingsOpen, setSettingsOpen] = useState(true);
   const [layout, setLayout] = useState('horizontal');
   const [panels, setPanels] = useState(1);
@@ -251,7 +251,7 @@ export default function ReadChapter() {
           setSelectedLanguage={setSelectedLanguage}
         />
         <div
-          className="tracking-wider flex flex-col flex-grow min-w-0 h-full w-full max-w-full  scrollbar-thin scrollbar-thumb-purple-600 scrollbar-track-gray-900"
+          className="tracking-wider  flex flex-col flex-grow min-w-0 h-full w-full max-w-full  scrollbar-thin scrollbar-thumb-purple-600 scrollbar-track-gray-900"
         >
           {settingsOpen && <TopRightOptions
             isDark={isDark}
@@ -285,7 +285,7 @@ export default function ReadChapter() {
               scrollbarWidth: "none",
               scrollbarColor: "rgba(155, 89, 182, 0.6) rgba(0, 0, 0, 0.1)",
             }}
-            className={`flex-grow mt-1 scroll overflow-y-auto min-w-0 max-w-full scrollbar-thin scrollbar-thumb-purple-600 scrollbar-track-gray-900`}>
+            className={`flex items-center justify-center    my-auto h-full  overflow-y-auto min-w-0 max-w-full `}>
             {currentIndex == (quality === "low" ? pages?.chapter?.dataSaver?.length - 1 : pages?.chapter?.data?.length - 1) && <GOTONextChapterPopUpAtLastPage
               isDark={isDark}
               onNext={goToNextChapter}
@@ -293,6 +293,7 @@ export default function ReadChapter() {
             />
             }
             <MiddleImageAndOptions
+            setCurrentIndex={setCurrentIndex}
               isDark={isDark}
               layout={layout}
               isLoading={isLoading}

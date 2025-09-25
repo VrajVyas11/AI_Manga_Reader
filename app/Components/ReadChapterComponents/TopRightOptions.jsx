@@ -81,7 +81,7 @@ function TopRightOptions({
     )
 
     return (
-        <div className="fixed top-24 right-5 z-50">
+        <div className="fixed scale-75 sm:scale-100 top-16 right-0 sm:top-24 sm:right-5 z-50">
             {/* Floating Controls */}
             <div className="flex gap-3 mb-4">
                 <button
