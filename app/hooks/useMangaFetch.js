@@ -7,35 +7,60 @@ import {
   saveToStorage,
   markAsFailed,
   clearFailure,
+  // also export helper to get TTL map
+  TYPE_TTL_SECONDS,
 } from '../util/MangaList/cache';
 
 const buildCacheKey = (type, page) => `manga_${type}_${page}`;
 
+// small in-memory session cache to avoid repeated JSON.parse()
+const memoryCache = new Map();
+
 export const fetchMangaType = async (type, page) => {
   const cacheKey = buildCacheKey(type, page);
+  const ttlSeconds = TYPE_TTL_SECONDS[type] ?? TYPE_TTL_SECONDS.default;
+  const ttlMs = ttlSeconds * 1000;
 
-  // Quick-return if cached and ok
-  const cached = getFromStorage(cacheKey);
-  if (cached) return cached;
+  // Quick return from in-memory session cache
+  if (memoryCache.has(cacheKey)) {
+    return memoryCache.get(cacheKey);
+  }
 
-  // If raw exists but ok === false, we'll still fetch and overwrite
-  // Do the network request
+  // Quick-return if localStorage cache is fresh & ok
+  const cached = getFromStorage(cacheKey, ttlMs);
+  if (cached) {
+    memoryCache.set(cacheKey, cached);
+    return cached;
+  }
+
+  // Prepare abort controller to avoid hanging fetches
+  const controller = new AbortController();
+  const signal = controller.signal;
+  const revalidateSecs = ['favourite', 'latestArrivals', 'rating'].includes(type) ? 24 * 3600 : 60;
+
   try {
-    // fetch(`/api/manga/${type}?page=${page}`, { next: { revalidate: 60 } })
-    const res = await fetch(`/api/manga/${type}?page=${page}`, { next: { revalidate: 60 } });
+    const res = await fetch(`/api/manga/${type}?page=${page}`, {
+      next: { revalidate: revalidateSecs },
+      signal,
+    });
+
     if (!res.ok) {
       const errText = await res.text().catch(() => res.statusText);
-      // mark as failed so subsequent calls won't read cached data
       markAsFailed(cacheKey, `HTTP ${res.status}: ${errText}`);
       throw new Error(`Failed to fetch ${type} page ${page}: ${res.status}`);
     }
+
     const data = await res.json();
+    // save to localStorage and update in-memory cache
     saveToStorage(cacheKey, data);
+    memoryCache.set(cacheKey, data);
     return data;
   } catch (err) {
-    // Network / other error: mark tainted and rethrow
+    // mark tainted and rethrow
     markAsFailed(cacheKey, err);
     throw err;
+  } finally {
+    // if consumer ever wants to abort, they can; here we just cleanup controller reference
   }
 };
 
@@ -43,22 +68,25 @@ export const useMangaFetch = (type, page) => {
   const queryClient = useQueryClient();
   const cacheKey = buildCacheKey(type, page);
 
+  // choose TTL per type (seconds)
+  const ttlSeconds = TYPE_TTL_SECONDS[type] ?? TYPE_TTL_SECONDS.default;
+  const staleTime = ttlSeconds * 1000; // ms
+  const cacheTime = Math.max(staleTime * 2, 1000 * 60 * 60); // at least 1h or double staleTime
+
   const q = useQuery({
     queryKey: ['manga', type, page],
     queryFn: () => fetchMangaType(type, page),
-    staleTime: 60 * 60 * 1000,
-    gcTime: 2 * 60 * 60 * 1000,
-    refetchOnMount: true, // Changed from 'always' to true (default behavior: refetch only if stale)
+    staleTime,
+    cacheTime,
+    refetchOnMount: false, // don't refetch automatically on every mount; rely on staleTime
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     retry: 2,
     suspense: false,
     onError: (err) => {
-      // Ensure storage is marked failed (defensive)
       markAsFailed(cacheKey, err);
     },
     onSuccess: (data) => {
-      // Save latest and clear any failure state
       clearFailure(cacheKey, data);
     },
   });
@@ -69,8 +97,7 @@ export const useMangaFetch = (type, page) => {
     if (raw && raw.ok === false) {
       queryClient.invalidateQueries(['manga', type, page]);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [type, page, queryClient]);
+  }, [type, page, queryClient, cacheKey]);
 
   return q;
 };

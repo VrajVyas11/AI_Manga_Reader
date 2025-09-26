@@ -9,7 +9,7 @@ import { MetadataRoute } from "next";
  * - Uses BASE_URL env var (fall back to your deploy URL)
  */
 
-const BASE_URL = process.env.BASE_URL || "https://ai-manga-reader.onrender.com";
+const BASE_URL = process.env.BASE_URL || "https://aimangareader-production.up.railway.app/";
 const POPULAR_LIMIT = 50; // lower limit to avoid large sitemaps / rate limits
 const RECENT_LIMIT = 30;
 const CHAPTERS_PER_MANGA = 8; // limit chapters fetched per manga

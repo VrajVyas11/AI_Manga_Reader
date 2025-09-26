@@ -8,6 +8,6 @@ export default function robots(): MetadataRoute.Robots {
         allow: "/",
       },
     ],
-    sitemap: `https://ai-manga-reader.onrender.com/sitemap.xml`,
+    sitemap: `https://aimangareader-production.up.railway.app/sitemap.xml`,
   };
 }

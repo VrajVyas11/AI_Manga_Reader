@@ -88,7 +88,7 @@ const MangaCard = React.memo(() => {
                             </p>
                             {filterStats.hasFilters && (
                                 <span
-                                    className={`text-xs px-2 py-1 rounded-full ${isDark ? "bg-purple-600/20 text-purple-300" : "bg-purple-100 text-purple-700"
+                                    className={`text-xs text-purple-300 px-2 py-1 rounded-full ${isDark ? "bg-purple-600/20" : "bg-purple-100 text-purple-700"
                                         }`}
                                 >
                                     {filterStats.filteredCount} of {filterStats.originalCount} shown
@@ -111,6 +111,7 @@ const MangaCard = React.memo(() => {
                                 manga={manga}
                                 handleMangaClicked={handleMangaClicked}
                                 key={`${manga.id}-${currentPage}-${index}`}
+                                priority={index < 6} // Prioritize first 6 for initial load (adjust based on visible count)
                             />
                         ))}
                     </div>
@@ -142,14 +143,12 @@ const MangaCard = React.memo(() => {
 });
 
 MangaCard.displayName = 'MangaCard';
-
-export default MangaCard;
-
-// Optimized Card component with sizes reduced by ~8% (no CSS scale used)
-const Card = React.memo(({ manga, handleMangaClicked, isDark }) => {
+export default MangaCard
+// Optimized Card component
+const Card = React.memo(({ manga, handleMangaClicked, isDark, priority = false }) => {
     const [ref, inView] = useInView(0.1);
 
-    // Memoize expensive calculations only
+    // Memoize expensive calculations
     const memoizedData = useMemo(
         () => ({
             rating: manga?.rating?.rating?.bayesian?.toFixed(2) ?? 'N/A',
@@ -165,9 +164,18 @@ const Card = React.memo(({ manga, handleMangaClicked, isDark }) => {
                 const minutes = Math.floor((new Date() - new Date(manga.updatedAt)) / 60000);
                 return `${Math.floor(minutes / 60)}h ${minutes % 60}m ago`;
             })(),
-            truncatedTitle: manga.title.length > 40 ? `${manga.title.slice(0, 40)}...` : manga.title
+            truncatedTitle: manga.title.length > 40 ? `${manga.title.slice(0, 40)}...` : manga.title,
+            statusColor: manga.status === 'completed'
+                ? isDark ? 'fill-[#00c8f58b] text-[#00c9f5]' : 'text-[#00a3cc]'
+                : manga.status === 'ongoing'
+                ? isDark ? 'text-[#04d000]' : 'text-[#03a300]'
+                : manga.status === 'hiatus'
+                ? isDark ? 'text-[#da7500]' : 'text-[#b35f00]'
+                : isDark ? 'text-[#da0000]' : 'text-[#b30000]',
+            ratingBg: getRatingColor(manga.contentRating) ?? getRatingColor('default'),
+            ratingBorder: getRatingColor(manga.contentRating.toString() + 'Border') ?? getRatingColor('default')
         }),
-        [manga]
+        [manga, isDark]
     );
 
     // Memoize click handler
@@ -201,14 +209,16 @@ const Card = React.memo(({ manga, handleMangaClicked, isDark }) => {
   `}
                 >
                     <Image
-                        src={manga.coverImageUrl ?? "./placeholder.jpg"}
+                        src={manga.coverImageUrl ?? "/placeholder.jpg"}
                         alt={manga.title}
                         fill
                         className="absolute inset-0 mt-6 sm:mt-9 w-full h-full object-fill"
                         placeholder="blur"
-                        blurDataURL="data:..."
-                        priority={false}
-                        loading="lazy"
+                        blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z/CfBwADhQHj8Z8qJwAAAABJRU5ErkJggg==" // Low-res placeholder
+                        priority={priority} // Eager load for initial visible cards
+                        loading={priority ? 'eager' : 'lazy'} // Eager for priority, lazy otherwise
+                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw" // Responsive based on grid cols
+                        fetchPriority={priority ? 'high' : 'auto'} // Browser hint for initial
                     />
 
                     {/* bottom gradient + title */}
@@ -227,13 +237,7 @@ const Card = React.memo(({ manga, handleMangaClicked, isDark }) => {
                     <div className="absolute top-0 flex h-[30px] w-full justify-between">
                         <div className="h-full flex flex-row justify-center items-center aspect-square">
                             <span className={`absolute gap-2 md:gap-3 top-[3px] sm:top-[7px] left-4 z-30 text-[9px] sm:text-[11px] sm:tracking-widest rounded-full pr-2 sm:min-w-24 flex items-center justify-center font-bold ${isDark ? "text-white" : "text-gray-900"}`}>
-                                <Activity strokeWidth={3.5} className={` size-2.5 sm:size-4 ${manga.status === 'completed'
-                                    ? isDark ? 'fill-[#00c8f58b] text-[#00c9f5]' : 'text-[#00a3cc]'
-                                    : manga.status === 'ongoing'
-                                        ? isDark ? 'text-[#04d000]' : 'text-[#03a300]'
-                                        : manga.status === 'hiatus'
-                                            ? isDark ? 'text-[#da7500]' : 'text-[#b35f00]'
-                                            : isDark ? 'text-[#da0000]' : 'text-[#b30000]'}`} />
+                                <Activity strokeWidth={3.5} className={` size-2.5 sm:size-4 ${memoizedData.statusColor}`} />
                                 <span className=''>{manga.status.charAt(0).toUpperCase() + manga.status.slice(1).toLowerCase()}</span>
                             </span>
                         </div>
@@ -244,7 +248,7 @@ const Card = React.memo(({ manga, handleMangaClicked, isDark }) => {
                                     : manga.contentRating.toUpperCase() === 'EROTICA'
                                         ? 'pr-5'
                                         : 'pr-3'
-                                    } z-10 tracking-widest mt-[1.5px] top-0 right-0  flex items-center justify-end text-center border-2 w-full  absolute py-[5px] sm:py-[7px] min-w-36 text-[6px] sm:text-[10px] font-semibold rounded-lg md:rounded-xl ${isDark ? "text-white" : "text-gray-100"} bg-opacity-70 ${getRatingColor(manga.contentRating.toString() + 'Border') ?? getRatingColor('default')} backdrop-blur-lg ${getRatingColor(manga.contentRating) ?? getRatingColor('default')}`}
+                                    } z-10 tracking-widest mt-[1.5px] top-0 right-0  flex items-center justify-end text-center border-2 w-full  absolute py-[5px] sm:py-[7px] min-w-36 text-[6px] sm:text-[10px] font-semibold rounded-lg md:rounded-xl ${isDark ? "text-white" : "text-gray-100"} bg-opacity-70 ${memoizedData.ratingBorder} backdrop-blur-lg ${memoizedData.ratingBg}`}
                             >
                                 {manga.contentRating.toUpperCase()}
                             </span>
