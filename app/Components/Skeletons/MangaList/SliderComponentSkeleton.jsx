@@ -1,7 +1,7 @@
 'use client';
-import React from 'react';
+
+import { useTheme } from '@/app/providers/ThemeContext';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { useTheme } from "@/app/providers/ThemeContext";
 
 const SkeletonShimmer = ({ className = '' }) => {
   const { theme } = useTheme();
@@ -11,279 +11,157 @@ const SkeletonShimmer = ({ className = '' }) => {
       className={`bg-gradient-to-r ${
         isDark
           ? 'from-gray-800 via-gray-700 to-gray-800'
-          : 'from-gray-400/70 via-gray-400/70 to-gray-300/50'
+          : 'from-gray-400/70 via-gray-400/50 to-gray-400/70'
       } bg-[length:200%_100%] animate-pulse ${className}`}
     />
   );
 };
 
-const SliderComponentSkeleton = () => {
+export default function SliderComponentSkeleton() {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
-  const thumbnailCount = 8;
-
-  if(!theme) return null
 
   return (
     <div
-      className={`relative w-full min-h-[59vh] sm:h-[60vh] border-b-[16px] overflow-hidden select-none ${
-        isDark ? 'border-black/10 bg-black/60' : 'border-gray-300/10 bg-gray-100/80'
-      }`}
+      className={`relative w-full min-h-[50vh] sm:h-[60vh] border-b-[16px] ${isDark ? 'border-black bg-black/60' : 'border-white bg-white/60'} overflow-hidden`}
     >
-      {/* Background noise texture */}
-      <div
-        className={`absolute inset-0 opacity-20 bg-[url('data:image/svg+xml,%3Csvg%20viewBox%3D%270%200%20200%20200%27%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%3E%3Cfilter%20id%3D%27noiseFilter%27%3E%3CfeTurbulence%20type%3D%27fractalNoise%27%20baseFrequency%3D%270.65%27%20numOctaves%3D%273%27%20stitchTiles%3D%27stitch%27%2F%3E%3C%2Ffilter%3E%3Crect%20width%3D%27100%25%27%20height%3D%27100%25%27%20filter%3D%27url%28%23noiseFilter%29%27%2F%3E%3C%2Fsvg%3E')] ${
-          isDark ? 'opacity-20' : 'opacity-30'
-        }`}
-      ></div>
-
-      {/* Progress Timeline */}
-      <div
-        className={`absolute top-0 left-0 right-0 h-1 z-50 ${
-          isDark ? 'bg-gray-800' : 'bg-gray-200'
-        }`}
-      >
+      <div className="absolute top-0 left-0 right-0 h-1 z-50 bg-gray-800">
         <SkeletonShimmer className="h-full w-full" />
       </div>
 
-      {/* Main Content Area */}
-      <div className="absolute inset-0 flex flex-col md:flex-row">
-        {/* Left Panel - Feature Display */}
-        <div className="relative w-full md:w-[73%] h-full overflow-hidden">
-          {/* Blurred background skeleton */}
-          <SkeletonShimmer className="absolute inset-0 blur-md opacity-30" />
-          {/* Gradient overlay */}
-          <div
-            className={`absolute inset-0 z-10 ${
-              isDark
-                ? 'bg-gradient-to-r from-black via-black/80 to-black/60 sm:to-transparent'
-                : 'bg-gradient-to-r from-gray-100/80 via-gray-100/60 to-gray-100/40 sm:to-transparent'
-            }`}
-          />
+      <div className="absolute inset-0 flex flex-col lg:flex-row">
+        <div className="relative w-full lg:w-[73%] h-full overflow-hidden">
+          <SkeletonShimmer className="absolute inset-0 bg-cover bg-center filter blur-lg opacity-30" />
 
-          {/* Mobile Navigation Controls */}
-          <div className="absolute bottom-4 left-0 right-0 flex items-center justify-center z-40 md:hidden">
-            <div
-              className={`flex space-x-3 items-center px-4 py-2 rounded-full backdrop-blur-sm ${
-                isDark ? 'bg-black/40' : 'bg-gray-200/40'
-              }`}
-            >
-              <button
-                disabled
-                className={`w-8 h-8 rounded-full flex items-center justify-center text-white cursor-not-allowed ${
-                  isDark ? 'bg-black/50 border-white/10' : 'bg-gray-300/50 border-gray-300/50'
-                } border`}
+          {isDark && (
+            <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-black/60 sm:to-transparent z-10" />
+          )}
+
+          <div className="absolute bottom-1 left-0 right-0 flex items-center justify-center z-40 lg:hidden">
+            <div className="flex space-x-3 items-center px-4 py-2 rounded-full">
+              <div
+                className={`w-8 h-8 ${isDark ? 'bg-white/10' : 'bg-black/10'} border ${isDark ? 'border-white/10' : 'border-black/10'} rounded-full flex items-center justify-center ${isDark ? 'text-white' : 'text-black'} mr-2`}
               >
                 <ChevronLeft size={16} />
-              </button>
+              </div>
               <div className="flex space-x-2 items-center">
-                {Array.from({ length: thumbnailCount }).map((_, i) => (
-                  <SkeletonShimmer
-                    key={i}
-                    className={`rounded-full ${i === 0 ? 'w-3 h-3' : 'w-2 h-2'}`}
+                {Array.from({ length: 8 }).map((_, index) => (
+                  <div
+                    key={index}
+                    className={`w-2 h-2 rounded-full ${index === 0 ? 'bg-white w-3' : isDark ? 'bg-white/40' : 'bg-black/40'} transition-all duration-300`}
                   />
                 ))}
               </div>
-              <button
-                disabled
-                className={`w-8 h-8 rounded-full flex items-center justify-center text-white cursor-not-allowed ${
-                  isDark ? 'bg-black/50 border-white/10' : 'bg-gray-300/50 border-gray-300/50'
-                } border`}
+              <div
+                className={`w-8 h-8 ${isDark ? 'bg-white/10' : 'bg-black/10'} border ${isDark ? 'border-white/10' : 'border-black/10'} rounded-full flex items-center justify-center ${isDark ? 'text-white' : 'text-black'} ml-2`}
               >
                 <ChevronRight size={16} />
-              </button>
+              </div>
             </div>
           </div>
 
-          {/* Content Container */}
-          <div className="relative h-full z-20 flex items-center justify-between">
-            <div className="w-[75%] md:w-4/5 px-6 md:px-16 md:pl-24 pt-12 pb-32 sm:py-12">
-              {/* Language badge */}
+          <div className="relative h-full mt-3 md:-mt-5 z-20 md:px-7 lg:px-0 flex items-center justify-between">
+            <div className="w-[75%] lg:w-4/5 px-8 pl-6 lg:px-16 lg:pl-24 pt-12 pb-32 sm:py-12">
               <div
-                className={`inline-flex items-center px-3 py-1 mb-4 md:mb-6 rounded-full border backdrop-blur-sm ${
-                  isDark ? 'border-purple-600/30 bg-black/30' : 'border-purple-500/30 bg-gray-200/30'
-                }`}
+                className={`inline-flex items-center px-3 py-2 mb-4 lg:mb-6 rounded-full border bg-black/5 backdrop-blur-sm ${isDark ? 'border-white/30' : 'border-black/30'}`}
               >
-                <SkeletonShimmer className="w-6 h-6 rounded-full mr-2" />
-                <SkeletonShimmer className="h-4 w-16 rounded" />
+                <SkeletonShimmer className="h-5 w-5 rounded-full ml-2"/>
+                <SkeletonShimmer className="h-3 w-16 rounded ml-2" />
               </div>
-
-              {/* Title */}
-              <div className="mb-4 md:mb-6">
-                <SkeletonShimmer className="h-10 sm:h-14 md:h-20 w-full max-w-[600px] rounded" />
-              </div>
-
-              {/* Description */}
-              <div className="mb-6 md:mb-8 max-w-xl md:max-w-2xl">
-                <SkeletonShimmer className="h-4 sm:h-6 rounded mb-2 w-full" />
-                <SkeletonShimmer className="h-4 sm:h-6 rounded mb-2 w-[90%]" />
-                <SkeletonShimmer className="h-4 sm:h-6 rounded w-[80%]" />
-              </div>
-
-              {/* Buttons */}
-              <div className="flex flex-wrap gap-3 md:gap-4">
-                <SkeletonShimmer className="h-10 md:h-12 w-28 md:w-40 rounded" />
-                <SkeletonShimmer className="h-10 md:h-12 w-36 rounded" />
-              </div>
-            </div>
-
-            {/* Mobile cover image */}
-            <div
-              className="absolute top-[70px] right-3 w-24 h-44 md:hidden z-30 rounded-sm overflow-hidden"
-              style={{
-                boxShadow: isDark
-                  ? '0 20px 40px rgba(0,0,0,0.5), 0 0 30px rgba(0,0,0,0.3)'
-                  : '0 20px 40px rgba(0,0,0,0.2), 0 0 30px rgba(0,0,0,0.1)',
-              }}
-            >
-              <SkeletonShimmer className="w-full h-full rounded-sm" />
-              <div
-                className={`absolute inset-0 rounded-sm ${
-                  isDark
-                    ? 'bg-gradient-to-r from-transparent via-white to-transparent opacity-20'
-                    : 'bg-gradient-to-r from-transparent via-gray-300 to-transparent opacity-30'
-                }`}
-              />
-            </div>
-
-            {/* Desktop cover image */}
-            <div className="hidden md:block md:w-2/5 h-full relative">
-              <div
-                className="absolute top-1/2 -translate-y-1/2 right-16 w-64 h-[360px] z-30 rounded-sm overflow-hidden"
-                style={{
-                  boxShadow: isDark
-                    ? '0 20px 40px rgba(0,0,0,0.5), 0 0 30px rgba(0,0,0,0.3)'
-                    : '0 20px 40px rgba(0,0,0,0.2), 0 0 30px rgba(0,0,0,0.1)',
-                }}
+              <h1
+                className={`text-xl sm:text-3xl lg:text-5xl font-bold mb-4 lg:mb-6 leading-tight transition-all duration-0 ${isDark ? 'text-white' : 'text-black'}`}
               >
-                <SkeletonShimmer className="w-full h-full rounded-sm" />
-                <div
-                  className={`absolute inset-0 rounded-sm ${
-                    isDark
-                      ? 'bg-gradient-to-tr from-transparent via-white to-transparent opacity-20'
-                      : 'bg-gradient-to-tr from-transparent via-gray-300 to-transparent opacity-30'
-                  }`}
+                <span className="block relative">
+                  <SkeletonShimmer className="h-8 sm:h-12 lg:h-16 w-full max-w-md rounded relative line-clamp-1 xl:line-clamp-none z-10" />
+                  <div className="absolute -bottom-2 lg:-bottom-3 left-0 h-2 lg:h-3 w-16 lg:w-24 bg-purple-800 z-0" />
+                </span>
+              </h1>
+              <div className={`text-[11px] line-clamp-3 sm:text-sm lg:text-base mb-6 lg:mb-8 max-w-xl lg:max-w-2xl transition-all duration-0 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                <SkeletonShimmer className="h-4 w-full rounded mb-2" />
+                <SkeletonShimmer className="h-4 w-4/5 rounded mb-2" />
+                <SkeletonShimmer className="h-4 w-3/4 rounded" />
+              </div>
+              <div className="flex flex-wrap gap-3 lg:gap-4">
+                <SkeletonShimmer
+                  className={`px-3 lg:px-6 py-2 lg:py-3 w-32  font-medium rounded-sm transition-colors duration-0 text-[11px] sm:text-sm lg:text-base inline-block `}
                 />
+
+
+                <SkeletonShimmer
+                  className={`px-3 lg:px-6 py-2 lg:py-3 w-44 h-9 rounded-sm transition-colors duration-0 text-[11px] sm:text-sm lg:text-base `}
+                />
+
+              </div>
+            </div>
+            <div className="absolute top-[55px] right-6 md:top-[85px] md:right-10 lg:right-3 w-[100px] h-40 md:h-60 md:w-[170px] lg:hidden z-30 transition-all duration-500 block">
+              <div className={`relative w-full h-full overflow-hidden rounded-sm`}>
+                <SkeletonShimmer className="w-full object-fill h-full block" />
+                <div className="absolute z-50 inset-0 bg-gradient-to-r [box-shadow:inset_0_0_20px_10px_rgba(20,20,20,1)] pointer-events-none" />
+              </div>
+            </div>
+            <div className="hidden lg:block lg:w-2/5 h-full relative">
+              <div className="absolute top-1/2 -translate-y-[44%] right-10 w-48 h-[280px] xl:right-16 xl:w-64 xl:h-[360px] z-30 transition-all duration-500 block">
+                <div className={`relative w-full h-full overflow-hidden rounded-sm`}>
+                  <SkeletonShimmer className="w-full h-full object-cover rounded-sm block" />
+                  <div className="absolute inset-0 rounded-sm bg-gradient-to-tr from-transparent via-white to-transparent opacity-20 pointer-events-none" />
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Right Panel - Navigation & Thumbnails */}
-        <div
-          className={`relative w-full md:w-[27%] h-full backdrop-blur-sm hidden md:flex flex-col ${
-            isDark ? 'bg-black/80' : 'bg-gray-100/80'
-          }`}
-        >
-          {/* Top navigation */}
-          <div
-            className={`h-24 py-3 flex items-center justify-between px-8 ${
-              isDark ? 'border-b border-white/10' : 'border-b border-gray-300/50'
-            }`}
-          >
-            <button
-              disabled
-              className={`flex items-center gap-3 cursor-not-allowed ${
-                isDark ? 'text-white/30' : 'text-gray-600/50'
-              }`}
+        <div className={`relative w-full lg:w-[27%] h-full backdrop-blur-sm hidden lg:flex flex-col ${isDark ? 'bg-black/80' : 'bg-white/80'}`}>
+          <div className={`h-24 border-b py-3 px-8 flex items-center justify-between ${isDark ? 'border-gray-700/0' : 'border-gray-300/50'}`}>
+            <div
+              className={`flex items-center gap-3 transition-colors duration-0 ${isDark ? 'text-white/70' : 'text-black/70'}`}
             >
-              <span
-                className={`w-8 h-8 flex items-center justify-center border rounded-full ${
-                  isDark ? 'border-white/10' : 'border-gray-300/50'
-                }`}
-              >
+              <span className={`w-8 h-8 flex items-center justify-center rounded-full border transition-colors duration-0 ${isDark ? 'border-white/30 bg-black/50' : 'border-black/30 bg-white/50'}`}>
                 <ChevronLeft size={18} />
               </span>
-              <span className="hidden sm:block uppercase text-[11px] tracking-widest">
-                Prev
-              </span>
-            </button>
-            <div className="text-center">
-              <SkeletonShimmer className="h-4 w-12 rounded mx-auto mb-1" />
-              <SkeletonShimmer className="h-3 w-20 rounded mx-auto" />
+              <span className="hidden sm:block uppercase text-[11px] tracking-widest">Prev</span>
             </div>
-            <button
-              disabled
-              className={`flex items-center gap-3 cursor-not-allowed ${
-                isDark ? 'text-white/30' : 'text-gray-600/50'
-              }`}
+            <div className="text-center flex flex-col">
+              <SkeletonShimmer className={`h-3 w-8 rounded mx-auto mb-1 ${isDark ? "text-white/50" : "text-black/50"}`} />
+              <SkeletonShimmer className={`h-3 w-24 rounded mx-auto ${isDark ? "text-white/30" : "text-black/30"}`} />
+            </div>
+            <div
+              className={`flex items-center gap-3 transition-colors duration-0 ${isDark ? 'text-white/70' : 'text-black/70'}`}
             >
-              <span className="hidden sm:block uppercase text-[11px] tracking-widest">
-                Next
-              </span>
-              <span
-                className={`w-8 h-8 flex items-center justify-center border rounded-full ${
-                  isDark ? 'border-white/10' : 'border-gray-300/50'
-                }`}
-              >
+              <span className="hidden sm:block uppercase text-[11px] tracking-widest">Next</span>
+              <span className={`w-8 h-8 flex items-center justify-center rounded-full border transition-colors duration-0 ${isDark ? 'border-white/30 bg-black/50' : 'border-black/30 bg-white/50'}`}>
                 <ChevronRight size={18} />
               </span>
-            </button>
+            </div>
           </div>
 
-          {/* Thumbnails scroll area */}
-          <div
-            className="flex-grow p-6 pt-3 overflow-y-auto"
-            style={{
-              scrollbarWidth: 'thin',
-              scrollbarColor: isDark
-                ? 'rgba(155, 89, 182, 0.6) rgba(0, 0, 0, 0.1)'
-                : 'rgba(139, 92, 246, 0.6) rgba(0, 0, 0, 0.05)',
-            }}
-          >
-            <h3
-              className={`uppercase text-xs tracking-widest mb-3 ${
-                isDark ? 'text-white/50' : 'text-gray-600/50'
-              }`}
-            >
-              Discover More
-            </h3>
+          <div className="flex-grow p-6 pt-3 overflow-y-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(0,0,0,0.6) rgba(0,0,0,0.1)' }}>
+            <SkeletonShimmer className={`h-4 w-32 rounded uppercase text-xs tracking-widest mb-3 ${isDark ? "text-white/50" : "text-black/50"}`} />
             <div className="grid grid-cols-2 gap-4">
-              {Array.from({ length: thumbnailCount }).map((_, index) => (
+              {Array.from({ length: 8 }).map((_, index) => (
                 <div
                   key={index}
-                  className={`relative cursor-default transition-all duration-300 ${
-                    index === 0
-                      ? isDark
-                        ? 'ring-2 ring-purple-600'
-                        : 'ring-2 ring-purple-500'
-                      : 'opacity-70 hover:opacity-100'
-                  }`}
+                  className={`relative cursor-pointer transition-all duration-150 ${index === 0 ? 'ring-2 ring-black' : isDark ? 'opacity-70' : ''}`}
                 >
-                  <div
-                    className={`w-full aspect-[2/3] overflow-hidden rounded-sm ${
-                      isDark ? 'bg-gray-700' : 'bg-gray-200'
-                    }`}
-                  >
-                    <SkeletonShimmer className="w-full h-full object-cover" />
+                  <div className="w-full aspect-[2/3] overflow-hidden rounded-sm">
                     <div
-                      className={`absolute inset-0 ${
-                        isDark
-                          ? 'bg-gradient-to-t from-black via-black/30 to-transparent'
-                          : 'bg-gradient-to-t from-gray-100 via-gray-100/30 to-transparent'
-                      }`}
-                    />
+                      className={`relative w-full h-full overflow-hidden rounded-sm will-change-transform`}
+                    >
+                      <SkeletonShimmer className="w-full h-full object-cover block" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent pointer-events-none" />
+                    </div>
                   </div>
 
                   <div className="absolute bottom-0 left-0 right-0 p-3">
-                    <div className="flex items-center mb-1 space-x-2">
-                      <SkeletonShimmer className="w-5 h-5 rounded-full" />
-                      <SkeletonShimmer className="h-3 w-10 rounded" />
+                    <div className="flex items-center mb-1">
+                      <SkeletonShimmer className="h-5 w-5 rounded-full ml-2" />
+                      <SkeletonShimmer className="h-3 w-8 rounded ml-2" />
                     </div>
-                    <SkeletonShimmer className="h-4 w-24 rounded" />
+                    <SkeletonShimmer className={`h-4 w-24 rounded ${isDark ? 'text-white' : 'text-black'}`} />
                   </div>
 
                   {index === 0 && (
-                    <div
-                      className={`absolute top-2 right-2 w-4 h-4 rounded-full flex items-center justify-center ${
-                        isDark ? 'bg-purple-600' : 'bg-purple-500'
-                      }`}
-                    >
-                      <div
-                        className={`w-2 h-2 rounded-full ${
-                          isDark ? 'bg-gray-300' : 'bg-gray-400'
-                        }`}
-                      />
+                    <div className="absolute top-2 right-2 w-4 h-4 bg-black rounded-full flex items-center justify-center">
+                      <div className="w-2 h-2 bg-white rounded-full" />
                     </div>
                   )}
                 </div>
@@ -293,26 +171,16 @@ const SliderComponentSkeleton = () => {
         </div>
       </div>
 
-      {/* Navigation Side Indicators */}
-      <div className="absolute top-1/2 left-4 transform -translate-y-1/2 z-40 hidden md:block">
-        <button
-          disabled
-          className={`w-12 h-12 mb-3 rounded-full flex items-center justify-center text-white cursor-not-allowed ${
-            isDark ? 'bg-black/50 border-white/10' : 'bg-gray-200/50 border-gray-300/50'
-          } backdrop-blur-sm border`}
+      <div className="absolute top-1/2 left-4 transform -translate-y-1/2 z-40 hidden lg:block">
+        <div
+          className={`w-12 h-12 mb-3 rounded-full flex items-center justify-center transition-colors duration-0 border hover:bg-white hover:text-black hover:border-white ${isDark ? 'bg-black/50 border-white/10 text-white' : 'bg-white/50 border-black/10 text-black'}`}
         >
           <ChevronLeft size={20} />
-        </button>
-        <div
-          className={`relative w-1 h-40 rounded-full overflow-hidden ${
-            isDark ? 'bg-white/20' : 'bg-gray-300/30'
-          }`}
-        >
-          <SkeletonShimmer className="absolute top-0 left-0 right-0 h-full" />
+        </div>
+        <div className="relative w-1 h-40 bg-white/20 rounded-full overflow-hidden">
+          <SkeletonShimmer className="absolute top-0 left-0 right-0 bg-black h-1/4" />
         </div>
       </div>
     </div>
   );
-};
-
-export default React.memo(SliderComponentSkeleton);
+}

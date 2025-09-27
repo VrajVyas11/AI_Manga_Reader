@@ -150,33 +150,26 @@ function AsideComponent() {
       <section
         suppressHydrationWarning
         aria-label="Manga list"
-        className="w-full max-w-md mx-auto mb-9"
+        className="w-full  mb-9"
       >
-        <div className="flex items-center justify-between px-3 md:px-8 mb-6">
-          <div className="flex items-center gap-3">
-            <div
-              className={`relative ${isDark ? "bg-white/10" : "bg-gray-200/50"} p-2.5 rounded-lg`}
-              aria-hidden
+         <div className="flex  mb-7 sm:mb-8 items-center gap-3">
+          <div className={`${isDark ? "bg-white/10" : "bg-gray-200/50"} p-2.5  min-w-fit rounded-lg`}>
+            <TitleIcon
+              className={`w-6 h-6  xl:w-7 xl:h-7 ${statConfig[selectedCategory].color}  drop-shadow-md`}
+            />
+          </div>
+          <div className="flex-1">
+            <h2
+              className={`text-base xl:text-2xl font-bold ${isDark ? "text-white" : "text-gray-900"
+                }  tracking-wide`}
             >
-              <TitleIcon
-                className={`w-6 h-6 ${statConfig[selectedCategory].color}`}
-              />
-            </div>
-            <div>
-              <h2
-                className={`text-base font-semibold ${
-                  isDark ? "text-white" : "text-gray-900"
-                }`}
-              >
-                {statConfig[selectedCategory].title}
-              </h2>
-              <p
-                className={`text-[11px] uppercase tracking-wide ${
-                  isDark ? "text-gray-400" : "text-gray-600"
-                }`}
-              >
+              {statConfig[selectedCategory].title}
+            </h2>
+            <div className="flex items-center gap-3">
+              <p className={`text-[11px] xl:text-xs ${isDark ? "text-gray-400" : "text-gray-600"} uppercase tracking-wide`}>
                 {statConfig[selectedCategory].subtitle}
               </p>
+
             </div>
           </div>
         </div>
@@ -187,8 +180,9 @@ function AsideComponent() {
             return (
               <button
                 key={key}
+                aria-label={label}
                 onClick={() => setSelectedCategory(key)}
-                className={`flex min-w-24 sm:min-w-28 justify-center items-center gap-2 px-4 py-3 rounded-lg text-sm font-semibold transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500
+                className={`flex min-w-24 sm:min-w-28 md:min-w-[32%] justify-center items-center gap-2 px-4 py-3 rounded-lg text-sm font-semibold transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500
                  ${
                    active
                      ? `${isDark ? "bg-[rgba(255,255,255,0.08)]" : "bg-gray-200/50"} ${accent}`
@@ -198,20 +192,20 @@ function AsideComponent() {
                 type="button"
               >
                 <Icon
-                  className={`w-5 h-5 ${active ? accent : isDark ? "text-gray-500" : "text-gray-400"}`}
+                  className={`w-5 h-5 min-w-fit ${active ? accent : isDark ? "text-gray-500" : "text-gray-400"}`}
                   aria-hidden="true"
                 />
-                <span>{label}</span>
+                <span className=" md:hidden xl:block">{label}</span>
               </button>
             );
           })}
         </nav>
 
-        <ul className="grid grid-cols-3 ml-2 sm:ml-0 md:block gap-x-0 gap-y-3 sm:gap-3 px-2 md:px-4">
+        <ul className="grid grid-cols-3  ml-2 sm:ml-0 md:block gap-x-0 gap-y-3 lg:gap-3 ">
           {mangaToDisplay.slice(0, 9).map((manga, idx) => (
             <Link
               key={manga.id}
-              prefetch
+              prefetch={true}
               href={`/manga/${manga.id}/chapters`}
               onClick={() => handleMangaClicked(manga)}
               onKeyDown={(e) => {
@@ -219,11 +213,11 @@ function AsideComponent() {
                   handleMangaClicked(manga);
                 }
               }}
-              className={`flex  items-center gap-1 md:gap-4 cursor-pointer rounded-md px-3 py-2 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500
+              className={`flex  items-center gap-1 lg:gap-4 cursor-pointer rounded-md px-3 md:px-0 py-2 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500
                 ${isDark ? "hover:bg-gray-800/40" : "hover:bg-gray-200/40"}`}
               aria-label={`${manga.title} - ${statConfig[selectedCategory].label}: ${statConfig[selectedCategory].getValue(manga)}`}
             >
-              <div className="hidden sm:flex -mr-2 ml-2 w-6 md:w-7 text-center">
+              <div className="hidden sm:flex w-6 md:w-7 text-center">
                 <span
                   className={`text-3xl md:text-5xl font-extrabold bg-clip-text text-transparent ${
                     isDark

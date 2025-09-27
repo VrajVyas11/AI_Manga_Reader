@@ -278,6 +278,8 @@ const TopNavbar = () => {
         {/* Hamburger Menu - Mobile */}
         {!shouldShowBreadCrumbs && <button
           onClick={toggleMenu}
+          type="button"
+          title={isMenuOpen ? "Close menu" : "Open menu"}
           aria-label={isMenuOpen ? "Close menu" : "Open menu"}
           className={`transition-colors duration-0 lg:hidden ${isDark ? "text-white" : "text-gray-900"
             }`}

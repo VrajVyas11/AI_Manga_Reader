@@ -29,20 +29,18 @@ const MangaThumbnail = React.memo(function MangaThumbnail({
 
   return (
     <div
-      className={`relative cursor-pointer transition-all duration-150 ${
-        index === activeIndex ? 'ring-2 ring-black' : isDark ? 'opacity-70 hover:opacity-100' : ''
-      }`}
+      className={`relative cursor-pointer transition-all duration-150 ${index === activeIndex ? 'ring-2 ring-black' : isDark ? 'opacity-70 hover:opacity-100' : ''
+        }`}
       onClick={() => handleThumbnailClick(index)}
       role="button"
       aria-label={`Show ${manga.title}`}
     >
       <div className="w-full aspect-[2/3] overflow-hidden rounded-sm">
         <div
-          className={`relative w-full h-full overflow-hidden rounded-sm will-change-transform ${
-            manga?.isCoverImageBlurred
-              ? "before:content-[''] before:absolute before:inset-0 before:bg-black/20 before:backdrop-blur-md before:transition-opacity before:duration-300 hover:before:opacity-0 before:z-10"
+          className={`relative w-full h-full overflow-hidden rounded-sm will-change-transform ${manga?.isCoverImageBlurred
+              ? "before:content-[''] before:absolute before:inset-0 before:bg-black/20 before:backdrop-blur-lg before:transition-opacity before:duration-300 hover:before:opacity-0 before:z-10"
               : ''
-          }`}
+            }`}
         >
           <Image
             src={manga.coverImageUrl}
@@ -222,14 +220,13 @@ const SliderComponent = React.memo(function SliderComponent() {
   if (mangas.length === 0 || !activeManga) {
     return <div className={isDark ? 'text-white' : 'text-black'}>No mangas available</div>;
   }
-console.log(mangas)
+
   return (
     <Suspense fallback={<SliderComponentSkeleton isDark={isDark} />}>
       <div
         ref={showcaseRef}
-        className={`relative w-full ${isDark ? 'shadow-[5px_5px_50px_rgba(0,0,0,1)] shadow-black' : ''} min-h-[50vh] sm:h-[60vh] border-b-[16px] ${
-          isDark ? 'border-black bg-black/60' : 'border-white bg-white/60'
-        } overflow-hidden`}
+        className={`relative w-full ${isDark ? 'shadow-[5px_5px_50px_rgba(0,0,0,1)] shadow-black' : ''} min-h-[50vh] sm:h-[60vh] border-b-[16px] ${isDark ? 'border-black bg-black/60' : 'border-white bg-white/60'
+          } overflow-hidden`}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
@@ -241,10 +238,10 @@ console.log(mangas)
           <div ref={progressRef} className="h-full bg-purple-700" />
         </div>
 
-        <div className="absolute inset-0 flex flex-col md:flex-row">
-          <div className="relative w-full md:w-[73%] h-full overflow-hidden">
+        <div className="absolute inset-0 flex flex-col lg:flex-row">
+          <div className="relative w-full lg:w-[73%] h-full overflow-hidden">
             <div
-              className="absolute inset-0 bg-cover bg-center filter blur-md opacity-30 transition-opacity duration-500"
+              className="absolute inset-0 bg-cover bg-center filter blur-lg opacity-30 transition-opacity duration-500"
               style={{ backgroundImage: `url(${activeManga.coverImageUrl})` }}
               role="img"
               aria-label={`${activeManga.title} background`}
@@ -254,14 +251,13 @@ console.log(mangas)
               <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-black/60 sm:to-transparent z-10" />
             )}
 
-            <div className="absolute bottom-1 left-0 right-0 flex items-center justify-center z-40 md:hidden">
+            <div className="absolute bottom-1 left-0 right-0 flex items-center justify-center z-40 lg:hidden">
               <div className="flex space-x-3 items-center px-4 py-2 rounded-full">
                 <button
                   type="button"
                   onClick={handlePrev}
-                  className={`w-8 h-8 ${isDark ? 'bg-white/10' : 'bg-black/10'} border ${
-                    isDark ? 'border-white/10' : 'border-black/10'
-                  } rounded-full flex items-center justify-center ${isDark ? 'text-white' : 'text-black'} mr-2`}
+                  className={`w-8 h-8 ${isDark ? 'bg-white/10' : 'bg-black/10'} border ${isDark ? 'border-white/10' : 'border-black/10'
+                    } rounded-full flex items-center justify-center ${isDark ? 'text-white' : 'text-black'} mr-2`}
                   aria-label="Previous"
                 >
                   <ChevronLeft size={16} />
@@ -270,9 +266,8 @@ console.log(mangas)
                   {mangas.map((_, index) => (
                     <div
                       key={index}
-                      className={`w-2 h-2 rounded-full cursor-pointer ${
-                        index === activeIndex ? 'bg-white w-3' : isDark ? 'bg-white/40' : 'bg-black/40'
-                      } transition-all duration-300`}
+                      className={`w-2 h-2 rounded-full cursor-pointer ${index === activeIndex ? 'bg-white w-3' : isDark ? 'bg-white/40' : 'bg-black/40'
+                        } transition-all duration-300`}
                       onClick={() => handleThumbnailClick(index)}
                       role="button"
                       aria-label={`Go to ${index + 1}`}
@@ -282,9 +277,8 @@ console.log(mangas)
                 <button
                   type="button"
                   onClick={handleNext}
-                  className={`w-8 h-8 ${isDark ? 'bg-white/10' : 'bg-black/10'} border ${
-                    isDark ? 'border-white/10' : 'border-black/10'
-                  } rounded-full flex items-center justify-center ${isDark ? 'text-white' : 'text-black'} ml-2`}
+                  className={`w-8 h-8 ${isDark ? 'bg-white/10' : 'bg-black/10'} border ${isDark ? 'border-white/10' : 'border-black/10'
+                    } rounded-full flex items-center justify-center ${isDark ? 'text-white' : 'text-black'} ml-2`}
                   aria-label="Next"
                 >
                   <ChevronRight size={16} />
@@ -292,12 +286,11 @@ console.log(mangas)
               </div>
             </div>
 
-            <div className="relative h-full mt-3 z-20 flex items-center justify-between">
-              <div className="w-[75%] md:w-4/5 px-8 pl-6 md:px-16 md:pl-24 pt-12 pb-32 sm:py-12">
+            <div className="relative h-full mt-3 md:-mt-5 z-20 md:px-7 lg:px-0 flex items-center justify-between">
+              <div className="w-[75%] lg:w-4/5 px-8 pl-6 lg:px-16 lg:pl-24 pt-12 pb-32 sm:py-12">
                 <div
-                  className={`inline-flex items-center px-3 py-1 mb-4 md:mb-6 rounded-full border bg-black/5 backdrop-blur-sm ${
-                    isDark ? 'border-white/30' : 'border-black/30'
-                  }`}
+                  className={`inline-flex items-center px-3 py-1 mb-4 lg:mb-6 rounded-full border bg-black/5 backdrop-blur-sm ${isDark ? 'border-white/30' : 'border-black/30'
+                    }`}
                 >
                   <StableFlag code={activeManga.originalLanguage ?? 'UN'} />
                   <span className={`text-xs uppercase tracking-widest ${isDark ? 'text-white' : 'text-black'}`}>
@@ -305,28 +298,26 @@ console.log(mangas)
                   </span>
                 </div>
                 <h1
-                  className={`text-xl sm:text-3xl md:text-5xl font-bold mb-4 md:mb-6 leading-tight transition-all duration-0 ${
-                    isDark ? 'text-white' : 'text-black'
-                  }`}
+                  className={`text-xl sm:text-3xl lg:text-5xl font-bold mb-4 lg:mb-6 leading-tight transition-all duration-0 ${isDark ? 'text-white' : 'text-black'
+                    }`}
                 >
                   <span className="block relative">
-                    <span className="relative line-clamp-1 md:line-clamp-none z-10">
+                    <span className="relative line-clamp-1 xl:line-clamp-none z-10">
                       {activeManga.title.length > 40 ? `${activeManga.title.slice(0, 40)}...` : activeManga.title}
                     </span>
-                    <span className="absolute -bottom-2 md:-bottom-3 left-0 h-2 md:h-3 w-16 md:w-24 bg-purple-800 z-0" />
+                    <span className="absolute -bottom-2 lg:-bottom-3 left-0 h-2 lg:h-3 w-16 lg:w-24 bg-purple-800 z-0" />
                   </span>
                 </h1>
-                <p className={`text-[11px] line-clamp-3 sm:text-sm md:text-base mb-6 md:mb-8 max-w-xl md:max-w-2xl transition-all duration-0 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                <p className={`text-[11px] line-clamp-3 sm:text-sm lg:text-base mb-6 lg:mb-8 max-w-xl lg:max-w-2xl transition-all duration-0 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                   {activeManga.description}
                 </p>
-                <div className="flex flex-wrap gap-3 md:gap-4">
+                <div className="flex flex-wrap gap-3 lg:gap-4">
                   <Link
                     href={`/manga/${activeManga.id}/chapters`}
                     prefetch={true}
                     onClick={() => handleMangaClicked(activeManga)}
-                    className={`px-3 md:px-6 py-2 md:py-3 font-medium rounded-sm transition-colors duration-0 text-[11px] sm:text-sm md:text-base inline-block ${
-                      isDark ? 'bg-white text-black hover:bg-gray-200' : 'bg-black text-white hover:bg-gray-800'
-                    }`}
+                    className={`px-3 lg:px-6 py-2 lg:py-3 font-medium rounded-sm transition-colors duration-0 text-[11px] sm:text-sm lg:text-base inline-block ${isDark ? 'bg-white text-black hover:bg-gray-200' : 'bg-black text-white hover:bg-gray-800'
+                      }`}
                   >
                     Read Now
                   </Link>
@@ -334,29 +325,28 @@ console.log(mangas)
                   <button
                     type="button"
                     onClick={() => handleAddToCollectionClicked(activeManga)}
-                    className={`px-3 md:px-6 py-2 md:py-3 border rounded-sm transition-colors duration-0 text-[11px] sm:text-sm md:text-base ${
-                      bookMarks.some((m) => m.manga.id === activeManga.id)
+                    className={`px-3 lg:px-6 py-2 lg:py-3 border rounded-sm transition-colors duration-0 text-[11px] sm:text-sm lg:text-base ${bookMarks.some((m) => m.manga.id === activeManga.id)
                         ? isDark
                           ? 'border-white/50 text-white shadow-[inset_0_0_13px_rgba(200,200,200,0.5)] hover:bg-white/10'
                           : 'border-black text-black shadow-[inset_0_0_13px_rgba(0,0,0,0.5)] hover:bg-black/10'
                         : isDark
-                        ? 'border-white text-white hover:bg-white/10'
-                        : 'border-black text-black hover:bg-black/10'
-                    }`}
+                          ? 'border-white text-white hover:bg-white/10'
+                          : 'border-black text-black hover:bg-black/10'
+                      }`}
                   >
                     {bookMarks.some((m) => m.manga.id === activeManga.id) ? '✓ Added To Collection' : ' Add to Collection'}
                   </button>
                 </div>
               </div>
-
+              {/* Mobile Image and stuff */}
               <Link
                 href={`/manga/${activeManga.id}/chapters`}
                 prefetch={true}
                 onClick={() => handleMangaClicked(activeManga)}
-                className="absolute top-[40px] right-6 md:right-3 w-[100px] h-40 md:hidden z-30 transition-all duration-500 block"
+                className="absolute top-[55px] right-6 md:top-[85px] md:right-10 lg:right-3 w-[100px] h-40 md:h-60 md:w-[170px] lg:hidden z-30 transition-all duration-500 block"
                 style={{ boxShadow: '0 20px 40px rgba(0,0,0,0.5), 0 0 30px rgba(0,0,0,0.3)' }}
               >
-                <div className={`relative w-full h-full overflow-hidden rounded-sm will-change-transform ${activeManga.isCoverImageBlurred ? "before:content-[''] before:absolute before:inset-0 before:bg-black/20 before:backdrop-blur-md before:transition-opacity before:duration-300 hover:before:opacity-0 before:z-10" : ""}`}>
+                <div className={`relative w-full h-full overflow-hidden rounded-sm will-change-transform ${activeManga.isCoverImageBlurred ? "before:content-[''] before:absolute before:inset-0 before:bg-black/20 before:backdrop-blur-lg before:transition-opacity before:duration-300 hover:before:opacity-0 before:z-10" : ""}`}>
                   <Image
                     src={activeManga.coverImageUrl}
                     alt={activeManga.title}
@@ -366,21 +356,21 @@ console.log(mangas)
                     loading="eager"
                     sizes="100px"
                     decoding="async"
-                    className="w-full object-cover h-full block"
+                    className="w-full object-fill h-full block"
                   />
                   <div className="absolute z-50 inset-0 bg-gradient-to-r [box-shadow:inset_0_0_20px_10px_rgba(20,20,20,1)] pointer-events-none" />
                 </div>
               </Link>
-
-              <div className="hidden md:block md:w-2/5 h-full relative">
+{/* Laptop view Image  */}
+              <div className="hidden lg:block lg:w-2/5 h-full relative">
                 <Link
                   href={`/manga/${activeManga.id}/chapters`}
                   prefetch={true}
                   onClick={() => handleMangaClicked(activeManga)}
-                  className="absolute top-1/2 -translate-y-1/2 right-16 w-64 h-[360px] z-30 transition-all duration-500 block"
+                  className="absolute top-1/2 -translate-y-[44%] right-10 w-48  h-[280px] xl:right-16 xl:w-64 xl:h-[360px] z-30 transition-all duration-500 block"
                   style={{ boxShadow: '0 20px 40px rgba(0,0,0,0.5), 0 0 30px rgba(0,0,0,0.3)' }}
                 >
-                  <div className={`relative w-full h-full overflow-hidden rounded-sm will-change-transform ${activeManga.isCoverImageBlurred ? "before:content-[''] before:absolute before:inset-0 before:bg-black/20 before:backdrop-blur-md before:transition-opacity before:duration-300 hover:before:opacity-0 before:z-10" : ""}`}>
+                  <div className={`relative w-full h-full overflow-hidden rounded-sm will-change-transform ${activeManga.isCoverImageBlurred ? "before:content-[''] before:absolute before:inset-0 before:bg-black/20 before:backdrop-blur-lg before:transition-opacity before:duration-300 hover:before:opacity-0 before:z-10" : ""}`}>
                     <Image
                       src={activeManga.coverImageUrl}
                       alt={activeManga.title}
@@ -399,7 +389,7 @@ console.log(mangas)
             </div>
           </div>
 
-          <div className={`relative w-full md:w-[27%] h-full backdrop-blur-sm hidden md:flex flex-col ${isDark ? 'bg-black/80' : 'bg-white/80'}`}>
+          <div className={`relative w-full lg:w-[27%] h-full backdrop-blur-sm hidden lg:flex flex-col ${isDark ? 'bg-black/80' : 'bg-white/80'}`}>
             <div className={`h-24 border-b py-3 px-8 flex items-center justify-between ${isDark ? 'border-white/10' : 'border-black/10'}`}>
               <button
                 type="button"
@@ -444,7 +434,7 @@ console.log(mangas)
           </div>
         </div>
 
-        <div className="absolute top-1/2 left-4 transform -translate-y-1/2 z-40 hidden md:block">
+        <div className="absolute top-1/2 left-4 transform -translate-y-1/2 z-40 hidden lg:block">
           <button
             type="button"
             onClick={handlePrev}

@@ -67,23 +67,23 @@ const MangaCard = React.memo(() => {
 
     return (
         <Suspense fallback={<MangaCardSkeleton isDark={isDark} />}>
-            <div className="w-full flex px-1 sm:px-0 flex-col">
-                <div className="flex mx-2 sm:mx-5 xl:mx-16 mb-7 sm:mb-8 items-center gap-3">
-                    <div className={`${isDark ? "bg-white/10" : "bg-gray-200/50"} p-3 rounded-lg`}>
+            <div className="w-full flex flex-col">
+                <div className="flex  mb-7 sm:mb-8 items-center gap-3">
+                    <div className={`${isDark ? "bg-white/10" : "bg-gray-200/50"} p-2.5 lg:p-3 rounded-lg`}>
                         <Flame
-                            className={`w-6 h-6 md:w-7 md:h-7 ${isDark ? "text-yellow-300" : "text-yellow-600"
+                            className={`w-6 h-6 lg:w-7 lg:h-7 ${isDark ? "text-yellow-300" : "text-yellow-600"
                                 } drop-shadow-md`}
                         />
                     </div>
                     <div className="flex-1">
                         <h2
-                            className={`text-xl md:text-2xl font-bold ${isDark ? "text-white" : "text-gray-900"
+                            className={`text-base lg:text-2xl font-bold ${isDark ? "text-white" : "text-gray-900"
                                 } uppercase tracking-wide`}
                         >
                             Latest Releases
                         </h2>
                         <div className="flex items-center gap-3">
-                            <p className={`text-xs ${isDark ? "text-gray-400" : "text-gray-600"} uppercase tracking-wide`}>
+                            <p className={`text-[11px] lg:text-xs ${isDark ? "text-gray-400" : "text-gray-600"} uppercase tracking-wide`}>
                                 Fresh Manga Updates
                             </p>
                             {filterStats.hasFilters && (
@@ -104,7 +104,7 @@ const MangaCard = React.memo(() => {
                         <div className="text-sm">Try adjusting your preferences to see more content</div>
                     </div>
                 ) : (
-                    <div className="grid w-[95%] gap-2 sm:gap-4 mx-auto md:mx-5 xl:ml-16 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ">
+                    <div className="grid w-full gap-2 sm:gap-4  grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ">
                         {currentMangas.map((manga, index) => (
                             <Card
                                 isDark={isDark}
@@ -189,7 +189,7 @@ const Card = React.memo(({ manga, handleMangaClicked, isDark, priority = false }
             href={`/manga/${manga.id}/chapters`}
             prefetch={true}
             onClick={handleClick}
-            className={`manga-card group transform transition-all duration-[400ms] ease-in-out cursor-pointer w-full flex justify-center items-start will-change-transform ${inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+            className={`manga-card group -mt-2 lg:mt-0 transform transition-all duration-[400ms] ease-in-out cursor-pointer w-full flex justify-center items-start will-change-transform ${inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
                 }`}
         >
             <div

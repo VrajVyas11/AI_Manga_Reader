@@ -8,9 +8,9 @@ import {
     ChevronUp,
     TrendingUp,
     Eye,
-    BookOpenCheck,
     ArrowBigRightDash,
     Activity,
+    Layers,
 } from 'lucide-react';
 import Image from 'next/image';
 import MangaReadHistorySkeleton from '../Skeletons/MangaList/MangaReadHistorySkeleton';
@@ -109,61 +109,47 @@ function MangaReadHistory() {
     if (!mounted) return <MangaReadHistorySkeleton isDark={isDark} />;
     if (readHistory.length === 0) return null;
 
-    // === Adjustments for ~8% reduction ===
-    // original sizes (approx) -> multiplied by 0.92
-    // 64px -> 59px, 96px -> 88px, max-h 350 -> 322px, w-24 (96px) -> ~88px
-    // font sizes slightly reduced where explicit
-
     return (
-        <div className="w-[100% -12px] mx-2 md:ml-2 md:px-6 mb-6">
+        <div className="w-[100% -12px] mb-9 xl:mb-6">
 
-            <div className="flex items-center justify-between px-2 mb-3 sm:mb-6">
-                <div className="flex items-center gap-3">
-                    <div
-                        className={`relative ${isDark ? "bg-white/10" : "bg-gray-200/50"} p-2.5 rounded-lg`}
-                        aria-hidden
-                    >
-                        <BookOpenCheck
-                            className={`w-6 h-6 ${isDark ? 'text-cyan-300' : 'text-cyan-600'}`}
+            <div className="flex items-center justify-between  mb-3 sm:mb-6">
+                <div className="flex  items-center gap-3">
+                    <div className={`${isDark ? "bg-white/10" : "bg-gray-200/50"} p-2.5 xl:p-3 rounded-lg`}>
+                        <Layers
+                            className={`w-6 h-6 xl:w-7 xl:h-7 ${isDark ? "text-purple-400" : "text-purple-600"
+                                } drop-shadow-md`}
                         />
                     </div>
-                    <div>
+                    <div className="flex-1">
                         <h2
-                            className={`text-base font-semibold ${isDark ? "text-white" : "text-gray-900"
-                                }`}
+                            className={`text-base xl:text-2xl font-bold ${isDark ? "text-white" : "text-gray-900"
+                                } uppercase tracking-wide`}
                         >
-                            READ HISTORY
+                            Read History
                         </h2>
-                        <p
-                            className={`text-[11px] uppercase tracking-wide ${isDark ? "text-gray-400" : "text-gray-600"
-                                }`}
-                        >
-                            {readHistory.length > 0 && (
-                                <span
-                                    className={`text-[10.2px] md:text-[10px] ${isDark ? 'text-gray-400' : 'text-gray-600'
-                                        } uppercase tracking-wide`}
-                                >
-                                    {readHistory.length} Mangas in your history
-                                </span>
-                            )}
-                        </p>
+                        {readHistory.length > 0 && (<div className="flex items-center gap-3">
+                            <p className={`text-[11px] line-clamp-1 xl:text-xs ${isDark ? "text-gray-400" : "text-gray-600"} uppercase tracking-wide`}>
+                                {readHistory.length} Mangas in your history
+                            </p>
+                        </div>)}
                     </div>
                 </div>
+
                 <Link
                     href={'/library'}
                     onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                    className={`flex items-center gap-1.5 px-3.5 py-3 rounded-2xl text-sm ${isDark
+                    className={`flex items-center md:hidden lg:flex min-w-fit gap-1.5 sm:gap-1 px-3 xl:px-3.5 py-3.5 rounded-2xl lg:text-sm text-[11px] ${isDark
                         ? 'text-gray-300 hover:text-white hover:bg-gray-800/50 border-gray-700/0  shadow-[inset_0_0_7px_rgba(200,200,200,0.16)]'
                         : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200/50 border-gray-300/50'
                         } transition-all duration-200 border`}
                 >
                     View All
-                    <ArrowBigRightDash className="w-5 h-5" />
+                    <ArrowBigRightDash className="w-4 h-4" />
                 </Link>
             </div>
 
 
-            <div className="space-y-4">
+            <div className="lg:space-y-4 ">
                 {readHistory.length === 0 ? (
                     <div
                         className={`rounded-xl p-6 text-center ${isDark
@@ -190,18 +176,20 @@ function MangaReadHistory() {
                                 scrollbarWidth: 'thin',
                                 scrollbarColor: `${isDark ? 'rgba(147, 51, 234, 0.6) rgba(0, 0, 0, 0.1)' : 'rgba(147, 51, 234, 0.6) rgba(0, 0, 0, 0.1)'}`,
                             }}
-                            className="space-y-3 overflow-y-auto px-0.5 max-h-[322px]"
+                            className="space-y-3 overflow-y-auto mt-8 max-h-[322px]"
                         >
                             {sortedReadHistory.slice(0, shownMangasInHistory).map((item, index) => {
                                 const progress = calculateProgress(item);
                                 return (
                                     <div
                                         key={`${item.manga.id}-${index}`}
-                                        className={`relative hidden sm:block rounded-[30px] pl-2 pr-4 ${isDark
+                                        className={`relative hidden  xl:block rounded-[30px] pl-2 pr-4 ${isDark
                                             ? 'bg-gray-900/10 border-gray-700/30 hover:border hover:border-gray-400/20 !shadow-[inset_0_0_10px_rgba(200,200,200,0.1)]'
                                             : 'bg-white border-gray-200/10 hover:border hover:border-gray-400/20 shadow-black/20 hover:shadow-md'
                                             } border shadow-sm transform -translate-y-0.5 hover:-translate-y-1 transition-all duration-0 overflow-hidden`}
-                                        style={{ animation: `slideIn ${0.2 + index * 0.1}s ease-out` }}
+                                        style={{
+                                            animation: `slideIn ${0.2 + index * 0.1}s ease-out`,
+                                        }}
                                     >
                                         <div
                                             className={`absolute inset-0 ${isDark
@@ -219,7 +207,7 @@ function MangaReadHistory() {
                                                 <div className={`relative w-[70px] h-[70px] rounded-full overflow-hidden shadow-sm group`}>
                                                     <Image
                                                         width={59}
-                                                        height={88}
+                                                        height={300}
                                                         src={item.manga.coverImageUrl}
                                                         alt={item.manga.title}
                                                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
@@ -297,11 +285,11 @@ function MangaReadHistory() {
                         </div>
 
                         <div
-                        style={{
+                            style={{
                                 scrollbarWidth: 'thin',
-                                scrollbarColor: `${isDark ? 'rgba(147, 51, 234, 0.6) rgba(0, 0, 0, 0.1)' : 'rgba(147, 51, 234, 0.6) rgba(0, 0, 0, 0.1)'}`,
+                                scrollbarColor: `${isDark ? 'rgba(147, 51, 234, 0.1) rgba(0, 0, 0, 0.1)' : 'rgba(147, 51, 234, 0.1) rgba(0, 0, 0, 0.1)'}`,
                             }}
-                            className={`mobile-scroll-area  overflow-x-auto sm:hidden flex gap-3 pb-3 -ml-1 px-4 ${isDark ? 'text-white' : 'text-gray-900'
+                            className={`mobile-scroll-area  select-none overflow-x-auto xl:hidden flex gap-3 pb-3  ${isDark ? 'text-white' : 'text-gray-900'
                                 }`}
                             role="region"
                             aria-label="Recently read manga"
@@ -317,8 +305,8 @@ function MangaReadHistory() {
                                 >
                                     <div
                                         className={`relative  aspect-[3/4] rounded-xl overflow-hidden border transition-shadow duration-300 ${isDark
-                                                ? 'border-gray-700/60 shadow-[0_6px_18px_rgba(147,51,234,0.08)]'
-                                                : 'border-gray-200/60 shadow-[0_6px_18px_rgba(147,51,234,0.12)]'
+                                            ? 'border-gray-700/60 shadow-[0_6px_18px_rgba(147,51,234,0.08)]'
+                                            : 'border-gray-200/60 shadow-[0_6px_18px_rgba(147,51,234,0.12)]'
                                             } hover:shadow-md`}
                                     >
                                         <Image
@@ -345,7 +333,7 @@ function MangaReadHistory() {
                         {readHistory.length > 2 && (
                             <button
                                 onClick={handleToggleExpand}
-                                className={`w-full sm:flex hidden items-center justify-center gap-1.5 py-2 rounded-md text-sm font-medium ${isDark ? 'bg-gray-800/10 text-gray-300 hover:bg-gray-800/60 hover:text-white' : 'bg-gray-100/10 text-gray-700 hover:bg-gray-100/60 hover:text-gray-900'
+                                className={`w-full xl:flex hidden items-center justify-center gap-1.5 py-2 rounded-md text-sm font-medium ${isDark ? 'bg-gray-800/10 text-gray-300 hover:bg-gray-800/60 hover:text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-100/60 hover:text-gray-900'
                                     } transition-all duration-200 shadow-sm hover:shadow-md`}
                             >
                                 {isExpanded ? (

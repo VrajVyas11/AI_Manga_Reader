@@ -282,10 +282,10 @@ const LatestComments = () => {
 
     return (
         <div className="max-h-screen w-full  relative overflow-hidden">
-            <div className="relative p-5 w-full">
-                <div className="max-w-[95%] mx-auto">
+            <div className="relative py-5 w-full">
+                <div className="">
                     <div className="flex mb-6 items-center justify-between">
-                        <div className="flex mx-2  items-center gap-3">
+                        <div className="flex  items-center gap-3">
                             <div className={`relative ${isDark ? "bg-white/10" : "bg-gray-200/50"} p-3 rounded-lg`}>
                                 <MessageCircle
                                     className={`w-6 h-6 md:w-7 md:h-7 ${isDark ? "text-sky-300" : "text-sky-600"
@@ -356,7 +356,7 @@ const LatestComments = () => {
                         </div>
                     )}
                     {comments.length > 0 ? (
-                        <div className="relative">
+                        <div className="relative scale-95 -mt-3 xl:mt-0 xl:scale-100">
                             <div
                                 id="comments-container"
                                 ref={scrollContainerRef}
