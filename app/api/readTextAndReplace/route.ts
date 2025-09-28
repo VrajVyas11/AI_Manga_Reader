@@ -50,8 +50,8 @@ const MEMORY_SETTINGS = {
   maxConcurrent: 1,                 // Single processing
   ocrTimeout: 30000,                // 30 second timeout
   cleanupInterval: 60000,           // Cleanup every minute
-  memoryCheckThreshold: 400,        // Much lower threshold - 300MB //hello when done locally change its value to 1500 or something for it to work --- Vraj Vyas 
-  forceCleanupThreshold: 250        // Force cleanup at 250MB
+  memoryCheckThreshold: 250,        // Reduced from 200
+  forceCleanupThreshold: 250       // Force cleanup at 250MB
 } as const;
 
 // Memory monitoring with proper typing
@@ -69,14 +69,14 @@ function getMemoryUsage(): MemoryUsage {
 function forceMemoryCleanup(): void {
   try {
     const memBefore = getMemoryUsage();
-    
+
     // Multiple garbage collections
     if (global.gc) {
       for (let i = 0; i < 5; i++) {
         global.gc();
       }
     }
-    
+
     const memAfter = getMemoryUsage();
     const saved = memBefore.rss - memAfter.rss;
     if (saved > 0) {
@@ -90,12 +90,12 @@ function forceMemoryCleanup(): void {
 // Ultra-conservative memory pressure check
 function checkMemoryPressure(): boolean {
   const memUsage = getMemoryUsage();
-  
+
   // Much more aggressive thresholds
   if (memUsage.rss > MEMORY_SETTINGS.memoryCheckThreshold) {
     console.warn(`Memory pressure: ${memUsage.rss}MB RSS (limit: ${MEMORY_SETTINGS.memoryCheckThreshold}MB)`);
     forceMemoryCleanup();
-    
+
     const memAfterCleanup = getMemoryUsage();
     if (memAfterCleanup.rss > MEMORY_SETTINGS.forceCleanupThreshold) {
       console.warn("Forcing OCR instance closure due to memory pressure");
@@ -103,7 +103,7 @@ function checkMemoryPressure(): boolean {
       return true;
     }
   }
-  
+
   return false;
 }
 
@@ -112,7 +112,7 @@ function closeOCRInstance(): void {
   if (globalOCR) {
     try {
       // Don't await here to avoid blocking
-      globalOCR.close().catch((err) => 
+      globalOCR.close().catch((err) =>
         console.error("OCR close error:", (err as Error).message)
       );
       console.log("OCR instance closed");
@@ -123,7 +123,7 @@ function closeOCRInstance(): void {
   }
   isInitializing = false;
   initPromise = null;
-  
+
   // Force cleanup after closing
   forceMemoryCleanup();
 }
@@ -134,7 +134,7 @@ async function getOCRInstance(): Promise<EasyOCRWrapper> {
   if (checkMemoryPressure()) {
     throw new Error("Insufficient memory for OCR initialization");
   }
-  
+
   if (globalOCR) {
     lastUsed = Date.now();
     return globalOCR;
@@ -168,17 +168,17 @@ async function initializeOCR(): Promise<void> {
     console.log("Initializing OCR...");
     const startTime = Date.now();
     const memBefore = getMemoryUsage();
-    
+
     // Cleanup before init
     forceMemoryCleanup();
-    
+
     globalOCR = new EasyOCRWrapper();
     await globalOCR.init("en");
-    
+
     const duration = Date.now() - startTime;
     const memAfter = getMemoryUsage();
     console.log(`OCR ready in ${duration}ms - Memory: ${memBefore.rss}MB -> ${memAfter.rss}MB`);
-    
+
   } catch (error) {
     console.error("OCR init failed:", (error as Error).message);
     globalOCR = null;
@@ -191,83 +191,83 @@ async function preprocessImage(inputBuffer: Buffer, originalName: string): Promi
   try {
     const startTime = Date.now();
     console.log(`Processing: ${originalName} (${Math.round(inputBuffer.length / 1024)}KB)`);
-    
+
     // Check memory before processing
     if (checkMemoryPressure()) {
       throw new Error("Insufficient memory for image processing");
     }
-    
+
     // Get minimal metadata
     const metadata = await sharp(inputBuffer, {
       limitInputPixels: 4194304, // Much smaller limit (2048x2048)
       sequentialRead: true,
       density: 72
     }).metadata();
-    
+
     if (!metadata.width || !metadata.height) {
       throw new Error("Invalid image metadata");
     }
-    
+
     console.log(`Original: ${metadata.width}x${metadata.height}`);
-    
+
     // Ultra-aggressive resizing
     let { width, height } = metadata;
     const maxDim = Math.min(MEMORY_SETTINGS.maxProcessedWidth, MEMORY_SETTINGS.maxProcessedHeight);
-    
+
     // Force downscale regardless of original size
     const scaleFactor = Math.min(
       maxDim / width,
       maxDim / height,
       0.5 // Never exceed 50% of original
     );
-    
+
     width = Math.floor(width * scaleFactor);
     height = Math.floor(height * scaleFactor);
-    
+
     // Ensure minimum readable size
     if (width < 200 || height < 200) {
       width = Math.max(width, 200);
       height = Math.max(height, 200);
     }
-    
+
     console.log(`Resizing to: ${width}x${height}`);
-    
+
     // Process with minimal settings
     const processedBuffer = await sharp(inputBuffer, {
       limitInputPixels: 4194304,
       sequentialRead: true
     })
-    .resize(width, height, {
-      kernel: sharp.kernel.nearest, // Fastest kernel
-      withoutEnlargement: true
-    })
-    // Minimal processing for speed and memory
-    .normalize()
-    .jpeg({
-      quality: MEMORY_SETTINGS.jpegQuality,
-      progressive: false,
-      mozjpeg: false, // Disable for speed
-      chromaSubsampling: '4:2:0' // Reduce file size
-    })
-    .toBuffer();
-    
+      .resize(width, height, {
+        kernel: sharp.kernel.nearest, // Fastest kernel
+        withoutEnlargement: true
+      })
+      // Minimal processing for speed and memory
+      .normalize()
+      .jpeg({
+        quality: MEMORY_SETTINGS.jpegQuality,
+        progressive: false,
+        mozjpeg: false, // Disable for speed
+        chromaSubsampling: '4:2:0' // Reduce file size
+      })
+      .toBuffer();
+
     // Immediate cleanup
     forceMemoryCleanup();
-    
+
     // Save to temp
     const uploadDir = "/tmp";
     const imagePath = path.join(
-      uploadDir, 
+      uploadDir,
       `ocr_${Date.now()}.jpg`
     );
-    
+
     fs.writeFileSync(imagePath, processedBuffer);
-    
+
     const processingTime = Date.now() - startTime;
     const compressionRatio = Math.round((1 - processedBuffer.length / inputBuffer.length) * 100);
-    
+
     console.log(`Processed in ${processingTime}ms: ${compressionRatio}% smaller`);
-    
+
     return {
       buffer: processedBuffer,
       path: imagePath,
@@ -279,7 +279,7 @@ async function preprocessImage(inputBuffer: Buffer, originalName: string): Promi
         compressionRatio
       }
     };
-    
+
   } catch (error) {
     forceMemoryCleanup();
     throw new Error(`Image processing failed: ${(error as Error).message}`);
@@ -294,17 +294,17 @@ function startCleanupTimer(): void {
   if (cleanupTimer) {
     clearInterval(cleanupTimer);
   }
-  
+
   cleanupTimer = setInterval(() => {
     const timeSinceLastUse = Date.now() - lastUsed;
     const memUsage = getMemoryUsage();
-    
+
     // Much more aggressive cleanup
     if (timeSinceLastUse > MEMORY_SETTINGS.cleanupInterval || memUsage.rss > MEMORY_SETTINGS.forceCleanupThreshold) {
       console.log("Auto-cleanup triggered");
       closeOCRInstance();
       forceMemoryCleanup();
-      
+
       // Clean temp files
       try {
         const tempFiles = fs.readdirSync("/tmp").filter(f => f.startsWith("ocr_"));
@@ -315,7 +315,7 @@ function startCleanupTimer(): void {
         if (tempFiles.length > 0) {
           console.log(`Cleaned ${tempFiles.length} temp files`);
         }
-      } catch (error:unknown) {
+      } catch (error: unknown) {
         // Ignore cleanup errors
       }
     }
@@ -336,36 +336,36 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   const requestId = Math.random().toString(36).substring(7);
   const startTime = Date.now();
   let imagePath: string | null = null;
-  
+
   try {
     console.log(`[${requestId}] OCR request started`);
     const memoryBefore = getMemoryUsage();
     console.log(`[${requestId}] Memory: ${memoryBefore.rss}MB RSS`);
-    
+
     // Immediate memory check - fail fast if over limit
     if (memoryBefore.rss > MEMORY_SETTINGS.forceCleanupThreshold) {
       console.log(`[${requestId}] Memory limit exceeded before processing`);
-      return NextResponse.json({ 
+      return NextResponse.json({
         status: "error",
         error: "Server memory limit exceeded. Please try again in a few minutes.",
         code: "MEMORY_LIMIT_EXCEEDED",
         text: { data: [] }
       }, { status: 503 });
     }
-    
+
     // Parse form with timeout
     const formData = await Promise.race([
       req.formData(),
-      new Promise<never>((_, reject) => 
+      new Promise<never>((_, reject) =>
         setTimeout(() => reject(new Error("Form parsing timeout")), 10000)
       )
     ]);
-    
+
     const file = formData.get("file") as File | null;
 
     // Quick validations
     if (!file) {
-      return NextResponse.json({ 
+      return NextResponse.json({
         status: "error",
         error: "No file provided",
         code: "NO_FILE",
@@ -374,7 +374,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     }
 
     if (!file.type.startsWith("image/")) {
-      return NextResponse.json({ 
+      return NextResponse.json({
         status: "error",
         error: "Please upload an image file",
         code: "INVALID_FILE_TYPE",
@@ -383,7 +383,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     }
 
     if (file.size > MEMORY_SETTINGS.maxImageSize) {
-      return NextResponse.json({ 
+      return NextResponse.json({
         status: "error",
         error: `File too large. Maximum size is ${Math.round(MEMORY_SETTINGS.maxImageSize / 1024 / 1024)}MB`,
         code: "FILE_TOO_LARGE",
@@ -392,7 +392,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     }
 
     if (file.size === 0) {
-      return NextResponse.json({ 
+      return NextResponse.json({
         status: "error",
         error: "Empty file provided",
         code: "EMPTY_FILE",
@@ -403,9 +403,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     // Convert to buffer with memory check
     const buffer = Buffer.from(await file.arrayBuffer());
     const memoryAfterLoad = getMemoryUsage();
-    
+
     if (memoryAfterLoad.rss > MEMORY_SETTINGS.memoryCheckThreshold) {
-      return NextResponse.json({ 
+      return NextResponse.json({
         status: "error",
         error: "Insufficient memory after file load",
         code: "MEMORY_INSUFFICIENT",
@@ -422,7 +422,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       imagePath = processedImage.path;
     } catch (preprocessError) {
       console.error(`[${requestId}] Preprocessing failed:`, (preprocessError as Error).message);
-      return NextResponse.json({ 
+      return NextResponse.json({
         status: "error",
         error: "Failed to process image. Try a smaller image.",
         code: "PREPROCESSING_FAILED",
@@ -432,13 +432,13 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     // Force cleanup before OCR
     forceMemoryCleanup();
-    
+
     const memoryBeforeOCR = getMemoryUsage();
     console.log(`[${requestId}] Memory before OCR: ${memoryBeforeOCR.rss}MB`);
 
     // Final memory check before OCR
     if (memoryBeforeOCR.rss > MEMORY_SETTINGS.memoryCheckThreshold) {
-      return NextResponse.json({ 
+      return NextResponse.json({
         status: "error",
         error: "Insufficient memory for OCR processing",
         code: "OCR_MEMORY_INSUFFICIENT",
@@ -450,24 +450,24 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     try {
       console.log(`[${requestId}] Starting OCR...`);
       const ocr = await getOCRInstance();
-      
+
       const ocrPromise = ocr.readText(imagePath);
-      const timeoutPromise = new Promise<never>((_, reject) => 
+      const timeoutPromise = new Promise<never>((_, reject) =>
         setTimeout(() => reject(new Error("OCR timeout")), MEMORY_SETTINGS.ocrTimeout)
       );
-      
+
       const ocrStartTime = Date.now();
       const result = await Promise.race([ocrPromise, timeoutPromise]) as unknown as OCRResponse;
       const ocrDuration = Date.now() - ocrStartTime;
-      
+
       console.log(`[${requestId}] OCR completed in ${ocrDuration}ms`);
-      
+
       // Immediate cleanup after OCR
       forceMemoryCleanup();
-      
+
       const memoryAfterOCR = getMemoryUsage();
       console.log(`[${requestId}] Memory after OCR: ${memoryAfterOCR.rss}MB`);
-      
+
       // Validate results
       if (!result?.data || !Array.isArray(result.data)) {
         return NextResponse.json({
@@ -481,12 +481,12 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           }
         });
       }
-      
+
       // Filter valid results
-      const validResults = result.data.filter((item): item is OCRResult => 
+      const validResults = result.data.filter((item): item is OCRResult =>
         Boolean(item?.text && typeof item.text === 'string' && item.text.trim().length > 0)
       );
-      
+
       if (validResults.length === 0) {
         return NextResponse.json({
           status: "success",
@@ -523,10 +523,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     } catch (ocrError) {
       console.error(`[${requestId}] OCR error:`, (ocrError as Error).message);
-      
+
       let errorCode = "OCR_FAILED";
       let userMessage = "OCR processing failed";
-      
+
       if ((ocrError as Error).message.includes("timeout")) {
         errorCode = "OCR_TIMEOUT";
         userMessage = "OCR timed out. Try a smaller/clearer image.";
@@ -536,8 +536,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         userMessage = "OCR memory error. Try a much smaller image.";
         closeOCRInstance(); // Reset on memory error
       }
-      
-      return NextResponse.json({ 
+
+      return NextResponse.json({
         status: "error",
         error: userMessage,
         code: errorCode,
@@ -548,26 +548,26 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
   } catch (error) {
     console.error(`[${requestId}] Server error:`, (error as Error).message);
-    
+
     let errorCode = "SERVER_ERROR";
     let userMessage = "Server error occurred";
-    
+
     if ((error as Error).message.includes("memory")) {
       errorCode = "MEMORY_ERROR";
       userMessage = "Server memory exceeded. Try again later.";
     } else if ((error as Error).message.includes("timeout")) {
-      errorCode = "TIMEOUT_ERROR";  
+      errorCode = "TIMEOUT_ERROR";
       userMessage = "Request timed out.";
     }
-    
-    return NextResponse.json({ 
+
+    return NextResponse.json({
       status: "error",
       error: userMessage,
       code: errorCode,
       text: { data: [] },
       requestId
     }, { status: 500 });
-    
+
   } finally {
     // Cleanup temp file
     if (imagePath && fs.existsSync(imagePath)) {
@@ -578,14 +578,14 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         console.error(`[${requestId}] Cleanup failed:`, (error as Error).message);
       }
     }
-    
+
     // Force final cleanup
     forceMemoryCleanup();
-    
+
     const totalTime = Date.now() - startTime;
     const finalMemory = getMemoryUsage();
     console.log(`[${requestId}] Completed in ${totalTime}ms - Final memory: ${finalMemory.rss}MB`);
-    
+
     // If memory is still high after cleanup, close OCR
     if (finalMemory.rss > MEMORY_SETTINGS.memoryCheckThreshold) {
       console.log(`[${requestId}] High memory detected, closing OCR instance`);
