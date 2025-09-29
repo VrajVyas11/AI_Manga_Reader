@@ -17,7 +17,6 @@
     "babel-plugin-react-compiler": "^19.0.0-beta-ebf51a3-20250411",
     "cheerio": "^1.0.0",
     "critters": "^0.0.23",
-    "easyocr-js": "^1.2.0",
     "framer-motion": "^12.4.4",
     "gtts": "^0.2.1",
     "lucide-react": "^0.509.0",

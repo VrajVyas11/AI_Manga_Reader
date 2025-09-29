@@ -50,7 +50,7 @@ function MiddleImageAndOptions({
     const [translatedTexts, setTranslatedTexts] = useState({});
     const [overlayLoading, setOverlayLoading] = useState(false);
     const imageRef = useRef(null);
-
+    const [fullOCRCompleteData, setFullOCRCompleteData] = useState()
     // stable showToast function from hook (won't change across renders)
     const { showToast } = useToast();
 
@@ -166,19 +166,29 @@ function MiddleImageAndOptions({
                 }
 
                 const result = await apiResponse.json();
-
+                console.log(result)
                 // unify results
                 let ocrResult = [];
                 let processedText = "";
                 let hasValidText = false;
 
-                if (result.text && result.text.data && Array.isArray(result.text.data)) {
-                    ocrResult = result.text.data;
+                if (result.paragraphs && result.paragraphs && Array.isArray(result.paragraphs)) {
+                    ocrResult = result.paragraphs;
                     processedText = ocrResult
                         .filter((i) => i && i.text && i.text.trim())
                         .map((i) => i.text.trim())
                         .join(" ");
                     hasValidText = processedText.length > 0;
+                    setFullOCRCompleteData(result)
+                }
+                else if (result.data && result.data && Array.isArray(result.data)) {
+                    ocrResult = result.data;
+                    processedText = ocrResult
+                        .filter((i) => i && i.text && i.text.trim())
+                        .map((i) => i.text.trim())
+                        .join(" ");
+                    hasValidText = processedText.length > 0;
+                    setFullOCRCompleteData(result)
                 } else if (Array.isArray(result.text)) {
                     ocrResult = result.text.map((item) => ({
                         text: typeof item === "string" ? item : item.text || String(item || ""),
@@ -321,12 +331,12 @@ function MiddleImageAndOptions({
                 const imgEl = getDomImageElement(imageRef);
                 if (imgEl && typeof imgEl.getBoundingClientRect === "function") {
                     const rect = imgEl.getBoundingClientRect();
-                                const isMobile = window.innerWidth < 768;
+                    const isMobile = window.innerWidth < 768;
 
                     if (rect.width > 6 && rect.height > 6) {
                         // const padding = Math.min(120, rect.width * 0.08); // same padding approach
-                        const bandStart = rect.left - isMobile?-30:150;
-                        const bandEnd = rect.right + isMobile?-30:150;
+                        const bandStart = rect.left - isMobile ? -30 : 150;
+                        const bandEnd = rect.right + isMobile ? -30 : 150;
                         if (mouseX < bandStart || mouseX > bandEnd) return "";
                         const center = rect.left + rect.width / 2;
                         return mouseX < center ? "left" : "right";
@@ -436,6 +446,7 @@ function MiddleImageAndOptions({
 
 
     if (!(chapterInfo && pages)) return null;
+console.log(fullOCRCompleteData);
 
     return (
         <Suspense
@@ -450,8 +461,8 @@ function MiddleImageAndOptions({
 
             <div
                 className={`flex  ${layout == "horizontal" ? cursorClass : ""} px-3 md:px-0 flex-1 ${layout === "horizontal"
-                        ? "flex-row space-x-4 overflow-hidden justify-center mt-5 items-start"
-                        : "flex-col space-y-4 mt-5 justify-end items-center"
+                    ? "flex-row space-x-4 overflow-hidden justify-center mt-5 items-start"
+                    : "flex-col space-y-4 mt-5 justify-end items-center"
                     } my-1`}
             >
                 {isLoading ? (
