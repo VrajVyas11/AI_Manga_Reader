@@ -271,6 +271,9 @@ COPY --from=builder /app/next.config.ts ./
 COPY --from=builder /app/package.json ./
 COPY --from=builder /app/tsconfig.json ./
 
+#Copy the Puppeteer Chrome installation
+COPY --from=builder /root/.cache/puppeteer /root/.cache/puppeteer
+
 # Create optimized temp directories
 RUN mkdir -p /tmp/numba_cache /tmp/ocr_temp && \
     chmod 777 /tmp/numba_cache /tmp/ocr_temp
