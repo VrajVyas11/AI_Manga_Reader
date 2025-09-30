@@ -78,7 +78,7 @@ class RapidOCRWrapper {
     return new Promise((resolve, reject) => {
       const timeout = setTimeout(() => {
         reject(new Error(`Command timeout: ${command} ${args}`));
-      }, 60000);
+      }, 180000);
 
       const fullCommand = `${command} ${args}\n`;
       console.log(`[JS] Sending command: ${fullCommand.trim()}`);
