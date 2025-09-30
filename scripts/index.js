@@ -78,7 +78,7 @@ class RapidOCRWrapper {
     return new Promise((resolve, reject) => {
       const timeout = setTimeout(() => {
         reject(new Error(`Command timeout: ${command} ${args}`));
-      }, 180000);
+      }, 600000);//10 min timeout limit (i know its excessive but what can i do)
 
       const fullCommand = `${command} ${args}\n`;
       console.log(`[JS] Sending command: ${fullCommand.trim()}`);
