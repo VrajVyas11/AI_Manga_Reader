@@ -3,7 +3,7 @@ import gc
 import psutil
 import math
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageEnhance
 import io
 import json
 import sys
@@ -21,6 +21,7 @@ except ImportError:
 
 # Global OCR instance
 _reader = None
+_current_language = "en"
 
 def log_memory_usage(stage: str = ""):
     if stage:
@@ -32,42 +33,98 @@ def log_memory_usage(stage: str = ""):
         print(f"[MEMORY] Could not get memory info", file=sys.stderr)
 
 def get_reader(languages="en"):
-    global _reader
-    if _reader is None:
+    global _reader, _current_language
+    if _reader is None or _current_language != languages:
         log_memory_usage("Creating Reader")
         try:
             from rapidocr_onnxruntime import RapidOCR
-            import wordninja
-        except ImportError:
-            print("[WARNING] wordninja not available, using basic splitting", file=sys.stderr)
-            wordninja = None
+        except ImportError as e:
+            print(f"[ERROR] Failed to import RapidOCR: {e}", file=sys.stderr)
+            raise
 
-        _reader = {
-            "ocr": RapidOCR(),
-            "splitter": wordninja
-        }
+        try:
+            print(f"[INFO] Initializing RapidOCR for language: {languages}", file=sys.stderr)
+            
+            # Memory-efficient OCR initialization
+            ocr = RapidOCR(
+                det_db_thresh=0.3,
+                det_db_box_thresh=0.4,
+                det_db_unclip_ratio=1.6,
+                use_dilation=False,
+                rec_image_height=32,
+            )
+            
+            _reader = {
+                "ocr": ocr,
+                "language": languages
+            }
+            _current_language = languages
+            
+            print(f"[SUCCESS] RapidOCR initialized for {languages}", file=sys.stderr)
+            
+        except Exception as e:
+            print(f"[ERROR] Failed to initialize RapidOCR: {e}", file=sys.stderr)
+            raise
+
         log_memory_usage("Reader Created")
     return _reader
 
-def process_image_bytes(image_path):
-    """Convert image file to numpy array for RapidOCR"""
+def optimize_image_for_ocr(pil_image):
+    """Optimize image for OCR while keeping memory low"""
     try:
-        # Normalize path for cross-platform compatibility
+        if pil_image.mode != 'RGB':
+            pil_image = pil_image.convert('RGB')
+        
+        width, height = pil_image.size
+        print(f"[INFO] Original: {width}x{height}", file=sys.stderr)
+        
+        # Memory-efficient resizing
+        max_dimension = 1200
+        if width > max_dimension or height > max_dimension:
+            ratio = min(max_dimension / width, max_dimension / height)
+            new_width = int(width * ratio)
+            new_height = int(height * ratio)
+            pil_image = pil_image.resize((new_width, new_height), Image.Resampling.LANCZOS)
+            print(f"[INFO] Resized to: {new_width}x{new_height}", file=sys.stderr)
+        
+        # Basic enhancement for all languages
+        enhancer = ImageEnhance.Contrast(pil_image)
+        pil_image = enhancer.enhance(1.3)
+        
+        enhancer = ImageEnhance.Sharpness(pil_image)
+        pil_image = enhancer.enhance(1.4)
+        
+        print(f"[INFO] Image optimization completed", file=sys.stderr)
+        return pil_image
+        
+    except Exception as e:
+        print(f"[WARNING] Image optimization failed: {str(e)}", file=sys.stderr)
+        return pil_image
+
+def process_image_bytes(image_path):
+    """Convert image file to numpy array with memory optimization"""
+    try:
         image_path = str(Path(image_path))
         if not os.path.exists(image_path):
             raise ValueError(f"Image file does not exist: {image_path}")
         
+        print(f"[INFO] Loading image: {image_path}", file=sys.stderr)
+        
         with open(image_path, "rb") as f:
             image_bytes = f.read()
+        
         pil_image = Image.open(io.BytesIO(image_bytes))
+        optimized_image = optimize_image_for_ocr(pil_image)
         
-        if pil_image.mode != 'RGB':
-            pil_image = pil_image.convert('RGB')
+        numpy_image = np.array(optimized_image)
+        del optimized_image, pil_image
+        gc.collect()
         
-        numpy_image = np.array(pil_image)
         bgr_image = numpy_image[:, :, ::-1]
         
+        print(f"[INFO] Image processed: {numpy_image.shape[1]}x{numpy_image.shape[0]}", file=sys.stderr)
         return bgr_image
+        
     except Exception as e:
         raise ValueError(f"Failed to process image: {str(e)}")
 
@@ -278,7 +335,7 @@ def group_paragraphs(results, max_distance_factor=2.0):
     return paragraphs
 
 def init_reader(languages="en"):
-    global _reader
+    global _reader, _current_language
     start_time = time.time()
     try:
         log_memory_usage("Before Init")
@@ -288,9 +345,9 @@ def init_reader(languages="en"):
         log_memory_usage("After Init")
         return json.dumps({
             "status": "success",
-            "message": "RapidOCR initialized",
+            "message": f"RapidOCR initialized for {languages}",
             "langs": languages,
-            "note": "Enhanced grouping for manga dialogue bubbles."
+            "memory_usage": f"~{psutil.Process().memory_info().rss / 1024 / 1024:.0f}MB"
         })
     except Exception as e:
         log_memory_usage("Init Failed")
@@ -299,9 +356,8 @@ def init_reader(languages="en"):
 def read_text(image_path, languages="en"):
     global _reader
     if _reader is None:
-        return json.dumps({"status": "error", "message": "Reader not initialized"})
+        get_reader(languages)
     
-    # Normalize path for cross-platform compatibility
     image_path = str(Path(image_path))
     if not os.path.exists(image_path):
         return json.dumps({"status": "error", "message": f"Image not found: {image_path}"})
@@ -310,61 +366,81 @@ def read_text(image_path, languages="en"):
         log_memory_usage("Before Processing")
         start_time = time.time()
         gc.collect()
-        reader = get_reader()
-        ocr, splitter = reader["ocr"], reader["splitter"]
+        
+        reader = get_reader(languages)
+        ocr = reader["ocr"]
 
-        print(f"[INFO] Processing image: {image_path}", file=sys.stderr)
+        print(f"[INFO] Processing image with language: {languages}", file=sys.stderr)
+        print(f"[INFO] Image path: {image_path}", file=sys.stderr)
+        
         numpy_image = process_image_bytes(image_path)
-        results, _ = ocr(numpy_image)
+        
+        print(f"[INFO] Running OCR...", file=sys.stderr)
+        results, elapse = ocr(numpy_image)
+        
+        # Handle elapse if it's a list or tuple (e.g., breakdown of times)
+        if isinstance(elapse, (list, tuple)):
+            elapse = sum(elapse)
+        
+        del numpy_image
+        gc.collect()
+        
+        print(f"[INFO] OCR completed in {elapse:.3f}s", file=sys.stderr)
 
         if not results:
             return json.dumps({
                 "status": "success",
-                "data": [],  # Changed to match EasyOCRWrapper expectation
+                "data": [],
                 "paragraphs": [],
                 "message": "No text detected in image"
             })
 
         fixed_results = []
+        total_confidence = 0
+        
         for box, text, score in results:
-            if splitter and " " not in text:
-                text = " ".join(splitter.split(text))
-            fixed_results.append({
-                "bbox": box,
-                "text": text,
-                "confidence": float(score)  # Changed to match EasyOCRWrapper expectation
-            })
+            cleaned_text = text.strip()
+            if cleaned_text and score >= 0.1:
+                fixed_results.append({
+                    "bbox": box,
+                    "text": cleaned_text,
+                    "confidence": float(score)
+                })
+                total_confidence += float(score)
 
         grouped_paragraphs = group_paragraphs(
-            [(res["bbox"], res["text"], res["confidence"]) for res in fixed_results],
-            max_distance_factor=2.0
+            [(res["bbox"], res["text"], res["confidence"]) for res in fixed_results]
         )
 
         total_time = time.time() - start_time
-        print(f"[TIME] Total read_text: {total_time:.3f}s", file=sys.stderr)
-        print(f"[INFO] Processed {len(fixed_results)} lines into {len(grouped_paragraphs)} paragraphs", file=sys.stderr)
+        avg_confidence = total_confidence / len(fixed_results) if fixed_results else 0
+        high_confidence = sum(1 for res in fixed_results if res["confidence"] > 0.7)
+
+        print(f"[SUCCESS] Found {len(fixed_results)} text elements in {total_time:.2f}s", file=sys.stderr)
+        print(f"[ACCURACY] Avg confidence: {avg_confidence:.3f}", file=sys.stderr)
 
         gc.collect()
         log_memory_usage("After Processing")
 
         return json.dumps({
             "status": "success",
-            "data": fixed_results,  # Changed to match EasyOCRWrapper expectation
+            "data": fixed_results,
             "paragraphs": grouped_paragraphs,
             "stats": {
                 "total_lines": len(fixed_results),
                 "total_paragraphs": len(grouped_paragraphs),
                 "processing_time": f"{total_time:.3f}s",
-                "image_size": os.path.getsize(image_path)
+                "image_size": os.path.getsize(image_path),
+                "average_confidence": f"{avg_confidence:.3f}",
+                "high_confidence_ratio": f"{high_confidence}/{len(fixed_results)}",
+                "language": languages
             },
             "memory_usage": f"~{psutil.Process().memory_info().rss / 1024 / 1024:.0f}MB"
         })
 
-    except ValueError as ve:
-        return json.dumps({"status": "error", "message": str(ve)})
     except Exception as e:
         log_memory_usage("Processing Failed")
-        return json.dumps({"status": "error", "message": f"Error reading text: {str(e)}"})
+        return json.dumps({"status": "error", "message": f"Error processing image: {str(e)}"})
     finally:
         gc.collect()
 
@@ -376,27 +452,37 @@ def close_reader():
         _reader = None
     gc.collect()
     log_memory_usage("After Close")
-    return json.dumps({"status": "success", "message": "Memory cleanup complete"})
+    return json.dumps({"status": "success", "message": "OCR cleaned up"})
 
 def process_command(command, args):
-    if command == "init":
-        return init_reader(args)
-    elif command == "read_text":
-        return read_text(args)
-    elif command == "close":
-        return close_reader()
-    else:
-        return json.dumps({"status": "error", "message": "Invalid command"})
+    try:
+        if command == "init":
+            return init_reader(args)
+        elif command == "read_text":
+            # Handle both path and language
+            parts = args.split(maxsplit=1)
+            image_path = parts[0].strip('"')
+            language = parts[1].strip('"') if len(parts) > 1 else "en"
+            return read_text(image_path, language)
+        elif command == "close":
+            return close_reader()
+        else:
+            return json.dumps({"status": "error", "message": "Invalid command"})
+    except Exception as e:
+        return json.dumps({"status": "error", "message": f"Command processing error: {str(e)}"})
 
 if __name__ == "__main__":
     import io
     import logging
+    
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
     sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8")
-
-    # Suppress RapidOCR logging if needed
+    
     logging.getLogger("rapidocr_onnxruntime").setLevel(logging.ERROR)
 
+    print("[INFO] Multi-language OCR Server ready (Memory Optimized)", file=sys.stderr)
+    print("[INFO] Supported commands: init <lang>, read_text <path> <lang>, close", file=sys.stderr)
+    
     while True:
         try:
             line = sys.stdin.readline()
@@ -405,14 +491,21 @@ if __name__ == "__main__":
             line = line.strip()
             if not line:
                 continue
+                
             parts = line.split(maxsplit=1)
             command = parts[0]
             args = parts[1] if len(parts) > 1 else ""
+            
+            print(f"[DEBUG] Processing: {command} {args}", file=sys.stderr)
             result = process_command(command, args)
+            
             sys.stdout.write(result + "\n")
             sys.stdout.flush()
+            
             if command == "close":
                 break
+                
         except Exception as e:
-            sys.stdout.write(json.dumps({"status": "error", "message": str(e)}) + "\n")
+            error_result = json.dumps({"status": "error", "message": str(e)})
+            sys.stdout.write(error_result + "\n")
             sys.stdout.flush()

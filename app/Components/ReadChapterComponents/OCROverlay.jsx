@@ -43,16 +43,18 @@ const OCROverlay = ({
 
           //  const scaledX = x1 * scaleX + offsetX;
           //  const scaledY = y1 * scaleY + offsetY - 60;
-
-          const scaledX = x1 * imageElement.naturalWidth / (imageElement.naturalHeight / imageElement.naturalWidth > 2 ? imageElement.naturalWidth * 3 : imageElement.naturalWidth * (layout == "vertical" ? 2 : 2.5)+200)
-          const scaledY = y1 * imageElement.naturalHeight / (imageElement.naturalHeight > 900 ? imageElement.naturalHeight * 4 : imageElement.naturalHeight * (layout == "vertical" ? 2 : 2.5) +200);
+          // const scaleX = imageElement.clientWidth / imageElement.naturalWidth;
+          const scaledX = x1 * imageElement.naturalWidth / (imageElement.naturalHeight / imageElement.naturalWidth > 2 ? imageElement.naturalWidth * 3 : imageElement.naturalWidth * (layout == "vertical" ? 2 : 2.5) + 200)
+          const scaledY = y1 * imageElement.naturalHeight / (imageElement.naturalHeight > 900 ? imageElement.naturalHeight * 4 : imageElement.naturalHeight * (layout == "vertical" ? 2 : 2.5) + 200);
+          // const scaledWidth = (item.bbox[1][0] - x1) * scaleX; // Approximate width for max-w
           return (
             <div
               key={i}
-              className="absolute leading-[10px] font-sans tracking-widest rounded-lg  shadow-md shadow-black/20 bg-white flex-wrap w-fit max-w-[180px] h-auto text-black font-bold text-[8px] flex justify-center items-center overflow-hidden p-0.5"
+              className="absolute leading-tight font-sans tracking-wide rounded-md shadow-sm shadow-black/30 bg-white/90 flex-wrap w-fit h-auto text-black text-[10px] md:text-[12px] flex justify-center items-center overflow-hidden p-[1px]"
               style={{
-                left: `${scaledX * item.confidence}px`,
+                left: `${scaledX}px`,
                 top: `${scaledY}px`,
+                margin: 22,
                 // fontSize: `12px`,
                 // lineHeight: `5px`,
                 // whiteSpace: 'nowrap',

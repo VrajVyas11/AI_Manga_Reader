@@ -14,6 +14,7 @@ const TextToSpeech = memo(lazy(() => import("./TextToSpeech")));
 const OCROverlay = memo(lazy(() => import("./OCROverlay")));
 import Placeholder from "./Placeholder";
 import handleTranslate from "../../util/ReadChapterUtils/handleTranslate";
+import ScanningOverlay from "./ScanningOverlay ";
 
 // Toast system
 import ToastsPortal, { useToast } from "../../Components/Toasts"; // adjust path if needed
@@ -46,10 +47,11 @@ function MiddleImageAndOptions({
     const [cursorClass, setCursorClass] = useState("");
     const [imageCache, setImageCache] = useState([]);
     const [imageKey, setImageKey] = useState(0);
-    const [isLoadingOCR, setIsLoadingOCR] = useState(false);
+    const [loadingPages, setLoadingPages] = useState({});
     const [translatedTexts, setTranslatedTexts] = useState({});
     const [overlayLoading, setOverlayLoading] = useState(false);
     const imageRef = useRef(null);
+    const clickRef = useRef(null)
     const [fullOCRCompleteData, setFullOCRCompleteData] = useState()
     // stable showToast function from hook (won't change across renders)
     const { showToast } = useToast();
@@ -123,10 +125,12 @@ function MiddleImageAndOptions({
                 });
             }
 
-            setIsLoadingOCR(true);
+            setLoadingPages((prev) => ({ ...prev, [imageUrl]: from }));
 
             try {
-                const response = await fetch(imageUrl);
+                // Force high quality URL to avoid watermarks
+                let highQualityUrl = imageUrl;
+                const response = await fetch(highQualityUrl);
                 if (!response.ok) {
                     const errText = await response.text().catch(() => null);
                     return showToast({
@@ -142,9 +146,15 @@ function MiddleImageAndOptions({
                 const formData = new FormData();
                 formData.append("file", file);
 
+                const language = chapterInfo?.translatedLanguage || "en";
                 const apiResponse = await fetch("/api/readTextAndReplace", {
                     method: "POST",
-                    body: formData,
+                    body: (() => {
+                        const formDataWithLang = new FormData();
+                        formDataWithLang.append("file", file);
+                        formDataWithLang.append("language", language);
+                        return formDataWithLang;
+                    })(),
                 });
 
                 if (!apiResponse.ok) {
@@ -280,19 +290,10 @@ function MiddleImageAndOptions({
                     details: (err && (err.stack || err.message)) || String(err),
                 });
             } finally {
-                setIsLoadingOCR(false);
+                setLoadingPages((prev) => ({ ...prev, [imageUrl]: null }));
             }
         },
-        [
-            memoizedHandleTranslate,
-            translateAll,
-            setPageTranslations,
-            setPageTTS,
-            setFullOCRResult,
-            setIsItTextToSpeech,
-            setShowMessage,
-            showToast,
-        ]
+        [showToast, chapterInfo?.translatedLanguage, setShowMessage, memoizedHandleTranslate, translateAll, setPageTranslations, setIsItTextToSpeech, setPageTTS, setFullOCRResult]
     );
 
     //
@@ -321,9 +322,10 @@ function MiddleImageAndOptions({
     // computeCursorSide returns "left" | "right" | "" for a given pointer coordinate
     const computeCursorSide = useCallback(
         (mouseX, mouseY) => {
+            if (!clickRef || !window) return;
             // vertical early-exit (same as before)
-            const screenWidth = window.innerWidth;
-            const screenHeight = window.innerHeight;
+            const screenWidth = clickRef?.current?.innerWidth ?? window?.innerWidth;
+            const screenHeight = clickRef?.current?.innerHeight ?? window?.innerHeight;
             if (mouseY < screenHeight / 5.5) return "";
 
             // Try image rect first (accurate)
@@ -331,12 +333,12 @@ function MiddleImageAndOptions({
                 const imgEl = getDomImageElement(imageRef);
                 if (imgEl && typeof imgEl.getBoundingClientRect === "function") {
                     const rect = imgEl.getBoundingClientRect();
-                    const isMobile = window.innerWidth < 768;
+                    const isMobile = clickRef?.current?.innerWidth < 768;
 
                     if (rect.width > 6 && rect.height > 6) {
-                        // const padding = Math.min(120, rect.width * 0.08); // same padding approach
-                        const bandStart = rect.left - isMobile ? -30 : 150;
-                        const bandEnd = rect.right + isMobile ? -30 : 150;
+                        const padding = isMobile ? 30 : 150;
+                        const bandStart = rect.left - padding;
+                        const bandEnd = rect.right + padding;
                         if (mouseX < bandStart || mouseX > bandEnd) return "";
                         const center = rect.left + rect.width / 2;
                         return mouseX < center ? "left" : "right";
@@ -348,7 +350,7 @@ function MiddleImageAndOptions({
             }
 
             // Fallback: use content area (account for sidebar)
-            const isMobile = window.innerWidth < 768;
+            const isMobile = clickRef?.current?.innerWidth < 768;
             const collapsedWidth = isMobile ? 56 : 70;
             const openWidth = 288; // md:w-72 -> 288px
             const leftSidebarWidth = isMobile ? collapsedWidth : (isCollapsed ? collapsedWidth : openWidth);
@@ -446,7 +448,7 @@ function MiddleImageAndOptions({
 
 
     if (!(chapterInfo && pages)) return null;
-console.log(fullOCRCompleteData);
+    console.log(fullOCRCompleteData);
 
     return (
         <Suspense
@@ -460,6 +462,7 @@ console.log(fullOCRCompleteData);
             <ToastsPortal isDark={isDark} />
 
             <div
+                ref={clickRef}
                 className={`flex  ${layout == "horizontal" ? cursorClass : ""} px-3 md:px-0 flex-1 ${layout === "horizontal"
                     ? "flex-row space-x-4 overflow-hidden justify-center mt-5 items-start"
                     : "flex-col space-y-4 mt-5 justify-end items-center"
@@ -491,7 +494,7 @@ console.log(fullOCRCompleteData);
                                         blurDataURL="./placeholder.jpg"
                                     />
 
-                                    {!isLoadingOCR && chapterInfo?.translatedLanguage?.trim() !== "en" && showTranslationTextOverlay ? (
+                                    {!loadingPages[page] && chapterInfo?.translatedLanguage?.trim() !== "en" && showTranslationTextOverlay ? (
                                         <OCROverlay
                                             fullOCRResult={fullOCRResult}
                                             translatedTexts={translatedTexts}
@@ -504,12 +507,25 @@ console.log(fullOCRCompleteData);
                                         ""
                                     )}
 
-                                    {!imageCache.includes(page) && <Placeholder isDark={isDark} />}
+                                    {!imageCache.includes(page) &&
+                                        <div
+                                            style={{ width: (imageRef?.current?.naturalWidth ?? 300) }}
+                                            className="w-full flex justify-center ">
+                                            <Placeholder isDark={isDark} />
+                                        </div>
+                                    }
+
+                                    {loadingPages[page] && (
+                                        <ScanningOverlay
+                                            isDark={isDark}
+                                            type={loadingPages[page] === "translate" ? "translate" : "else"}
+                                        />
+                                    )}
                                 </div>
 
                                 {showTranslationAndSpeakingOptions && panels != 2 && (
                                     <div className="tracking-wider fixed flex flex-col justify-end items-end bottom-32 right-7">
-                                        {!isLoadingOCR ? (
+                                        {!loadingPages[page] ? (
                                             <>
                                                 {chapterInfo?.translatedLanguage?.trim() !== "en" && (
                                                     <button
@@ -538,15 +554,7 @@ console.log(fullOCRCompleteData);
                                                     isDark={isDark}
                                                 />
                                             </>
-                                        ) : (
-                                            <div className={`tracking-wider h-fit w-full flex justify-center items-center rounded-lg shadow-lg ${isDark ? "bg-gray-900" : "bg-gray-100"}`}>
-                                                <div className="tracking-wider flex justify-center items-center w-full h-fit">
-                                                    <div className="tracking-wider text-center flex flex-col justify-center items-center">
-                                                        <div className={`tracking-wider spinner-border -mt-36 -ml-36 w-12 h-12 rounded-full animate-spin border-8 border-solid ${isDark ? "border-purple-500 border-t-transparent shadow-md" : "border-purple-700 border-t-transparent shadow-md"}`}></div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        )}
+                                        ) : null}
 
                                         {((pageTTS[page] && isItTextToSpeech) || pageTranslations[page]) && (pageTranslations[page] ? pageTranslations[page]?.textResult : pageTTS[page]?.textResult) && (
                                             <div>
@@ -590,7 +598,7 @@ console.log(fullOCRCompleteData);
                                             blurDataURL="./placeholder.jpg"
                                         />
 
-                                        {!isLoadingOCR && chapterInfo?.translatedLanguage?.trim() !== "en" && showTranslationTextOverlay ? (
+                                        {!loadingPages[page] && chapterInfo?.translatedLanguage?.trim() !== "en" && showTranslationTextOverlay ? (
                                             <OCROverlay
                                                 imageElement={imageRef.current}
                                                 loading={overlayLoading}
@@ -603,12 +611,19 @@ console.log(fullOCRCompleteData);
                                         ) : (
                                             ""
                                         )}
-                                        {!imageCache.includes(page) && <Placeholder isDark={isDark} />}
+                                        {!imageCache.includes(page) && <div style={{ width: imageRef?.current?.naturalWidth }} className=" rounded-lg px-3 md:px-0 w-full h-full"> <Placeholder isDark={isDark} /> </div>}
+
+                                        {loadingPages[page] && (
+                                            <ScanningOverlay
+                                                isDark={isDark}
+                                                type={loadingPages[page] === "translate" ? "translate" : "else"}
+                                            />
+                                        )}
                                     </div>
 
                                     {showTranslationAndSpeakingOptions && (
                                         <div className={`tracking-wider absolute top-[50%] transform space-y-4 flex flex-col justify-start items-end bottom-28 right-3`}>
-                                            {!isLoadingOCR ? (
+                                            {!loadingPages[page] ? (
                                                 <>
                                                     {chapterInfo?.translatedLanguage?.trim() !== "en" && (
                                                         <button disabled={panels === 2 || pageTranslations[page]} onClick={() => handleUpload(page, "translate")} className={`font-sans  ${(panels === 2 || pageTranslations[page]) ? "hidden" : ""} tracking-wider min-h-fit text-[11px] font-sans before:bg-opacity-60 min-w-[125px] sm:min-w-[189px] transition-colors flex gap-2 justify-start items-center mx-auto shadow-xl sm:text-lg backdrop-blur-md lg:font-semibold isolation-auto before:absolute before:w-full before:transition-all before:duration-700 before:hover:w-full before:-right-full before:hover:right-0 before:rounded-full before:-z-10 before:aspect-square before:hover:scale-200 before:hover:duration-300 relative z-10 px-2 py-1 sm:px-3 sm:py-2 ease-in-out overflow-hidden border-2 rounded-full group ${isDark ? "text-white bg-[#1a063e] backdrop-blur-md border-gray-50/50" : "text-gray-900 bg-yellow-200 border-yellow-300"} `} type="submit">
@@ -618,15 +633,7 @@ console.log(fullOCRCompleteData);
                                                     )}
                                                     <TextToSpeech page={page} handleUpload={handleUpload} ready={Boolean(pageTranslations[page] || pageTTS[page])} text={pageTranslations[page] ? pageTranslations[page]?.textResult : pageTTS[page]?.textResult} layout={layout} isDark={isDark} />
                                                 </>
-                                            ) : (
-                                                <div className={`tracking-wider h-fit w-full flex justify-center items-center rounded-lg shadow-lg ${isDark ? "bg-gray-900" : "bg-gray-100"}`}>
-                                                    <div className="tracking-wider flex justify-center items-center w-full h-fit">
-                                                        <div className="tracking-wider text-center flex flex-col justify-center items-center">
-                                                            <div className={`tracking-wider spinner-border -mt-36 -ml-36 w-12 h-12 rounded-full animate-spin border-8 border-solid ${isDark ? "border-purple-500 border-t-transparent shadow-md" : "border-purple-700 border-t-transparent shadow-md"}`}></div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            )}
+                                            ) : null}
 
                                             {((pageTTS[page] && isItTextToSpeech) || pageTranslations[page]) && (pageTranslations[page] ? pageTranslations[page]?.textResult : pageTTS[page]?.textResult) && (
                                                 <div>

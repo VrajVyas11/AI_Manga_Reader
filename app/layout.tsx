@@ -74,7 +74,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
 
         {/* Favicon & icons (place files in public/) */}
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/logo.svg" sizes="any" />
         <link rel="apple-touch-icon" sizes="180x180" href="/logo.svg`" />
         <link rel="manifest" href="/site.webmanifest" />
 

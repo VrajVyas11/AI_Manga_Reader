@@ -6,17 +6,30 @@ class RapidOCRWrapper {
   constructor() {
     this.pythonCommand = this.getPythonCommand();
     const ocrScriptPath = process.env.NODE_ENV === 'production' 
-      ? '/app/scripts/main.py'  // Docker path
-      : path.resolve(process.cwd(),"scripts", "main.py");  // Local path
+      ? '/app/scripts/main.py'
+      : path.resolve(process.cwd(), "scripts", "main.py");
+    
     console.log("OCR script path:", ocrScriptPath);
+    this.isProcessActive = false;
+    this.currentLanguage = "en";
+    
+    this.startPythonProcess();
+  }
 
-    this.pythonProcess = spawn(this.pythonCommand, [ocrScriptPath], {
+  getPythonCommand() {
+    return os.platform() === "win32" ? "python" : "python3";
+  }
+
+  startPythonProcess() {
+    this.pythonProcess = spawn(this.pythonCommand, [this.getScriptPath()], {
       stdio: ["pipe", "pipe", "pipe"],
       encoding: "utf-8",
     });
 
-    this.pythonProcess.stdout.setEncoding("utf-8");
     this.buffer = "";
+    this.isProcessActive = true;
+
+    this.pythonProcess.stdout.setEncoding("utf-8");
     this.pythonProcess.stdout.on("data", (data) => {
       this.buffer += data;
     });
@@ -25,58 +38,126 @@ class RapidOCRWrapper {
       const errorMsg = errData.toString().trim();
       if (errorMsg.includes("Neither CUDA nor MPS are available")) {
         console.warn("Warning:", errorMsg);
-      } else if (errorMsg.startsWith("[TIME]") || errorMsg.startsWith("[MEM]")) {
-        console.log(errorMsg);  // Log timing/memory info
-      } else {
-        // console.error(errorMsg);
+      } else if (errorMsg.startsWith("[TIME]") || errorMsg.startsWith("[MEMORY]")) {
+        console.log(errorMsg);
+      } else if (errorMsg && !errorMsg.includes("WARNING") && !errorMsg.includes("INFO")) {
+        console.error("Python Error:", errorMsg);
       }
     });
 
     this.pythonProcess.on("exit", (code) => {
+      this.isProcessActive = false;
       console.log(`Python process exited with code ${code}`);
+    });
+
+    this.pythonProcess.on("error", (error) => {
+      this.isProcessActive = false;
+      console.error("Python process error:", error);
     });
   }
 
-  getPythonCommand() {
-    return os.platform() === "win32" ? "python" : "python3";
+  getScriptPath() {
+    if (process.env.NODE_ENV === 'production') {
+      return '/app/scripts/main.py';
+    }
+    return path.resolve(process.cwd(), "scripts", "main.py");
+  }
+
+  async ensureProcessActive() {
+    if (!this.isProcessActive) {
+      console.log("Restarting Python process...");
+      this.startPythonProcess();
+      await new Promise(resolve => setTimeout(resolve, 2000));
+    }
   }
 
   async sendCommand(command, args = "") {
+    await this.ensureProcessActive();
+    
     const startTime = performance.now();
     return new Promise((resolve, reject) => {
-      this.pythonProcess.stdin.write(`${command} ${args}\n`);
+      const timeout = setTimeout(() => {
+        reject(new Error(`Command timeout: ${command} ${args}`));
+      }, 60000);
 
-      this.pythonProcess.stdout.once("data", (data) => {
+      const fullCommand = `${command} ${args}\n`;
+      console.log(`[JS] Sending command: ${fullCommand.trim()}`);
+      
+      if (!this.pythonProcess.stdin.writable) {
+        reject(new Error("Python process stdin is not writable"));
+        return;
+      }
+
+      let responseBuffer = "";
+      const dataHandler = (data) => {
+        responseBuffer += data.toString();
+        
+        // Check if we have a complete JSON response
         try {
-          const parsedData = JSON.parse(data.toString().trim());
-          if (parsedData.status === "error") {
-            reject(new Error(parsedData.message));
-          } else {
-            resolve(parsedData);
+          const lines = responseBuffer.split('\n').filter(line => line.trim());
+          for (let i = lines.length - 1; i >= 0; i--) {
+            try {
+              const jsonResponse = JSON.parse(lines[i]);
+              clearTimeout(timeout);
+              this.pythonProcess.stdout.removeListener('data', dataHandler);
+              
+              if (jsonResponse.status === "error") {
+                reject(new Error(jsonResponse.message));
+              } else {
+                const endTime = performance.now();
+                console.log(`[JS TIME] Command '${command}': ${(endTime - startTime) / 1000}s`);
+                resolve(jsonResponse);
+              }
+              return;
+            } catch {
+              // Continue to next line
+              continue;
+            }
           }
-        } catch (error) {
-          reject(new Error(`Invalid JSON response: ${data.toString()} ${error}`));
+        } catch  {
+          // Wait for more data
         }
-        const endTime = performance.now();
-        console.log(`[JS TIME] Command '${command} ${args}': ${(endTime - startTime) / 1000}s`);
-      });
+      };
+
+      this.pythonProcess.stdout.on('data', dataHandler);
+      this.pythonProcess.stdin.write(fullCommand);
+
+      // Error handler
+      const errorHandler = (error) => {
+        clearTimeout(timeout);
+        this.pythonProcess.stdout.removeListener('data', dataHandler);
+        reject(new Error(`Process error: ${error.message}`));
+      };
+
+      this.pythonProcess.once('error', errorHandler);
     });
   }
 
-  async init(languages) {
-    return this.sendCommand("init", languages);
+  async init(languages = "en") {
+    this.currentLanguage = languages;
+    const result = await this.sendCommand("init", `"${languages}"`);
+    console.log(`OCR initialized for language: ${languages}`);
+    return result;
   }
 
-  async readText(imagePath) {
-    return this.sendCommand("read_text", imagePath);
+  async readText(imagePath, language = "en") {
+    // Use provided language or fallback to current
+    const targetLanguage = language || this.currentLanguage;
+    const escapedPath = imagePath.replace(/"/g, '\\"');
+    return this.sendCommand("read_text", `"${escapedPath}" "${targetLanguage}"`);
   }
 
   async close() {
-    const response = await this.sendCommand("close").catch((err) => {
+    try {
+      const response = await this.sendCommand("close");
+      this.pythonProcess.stdin.end();
+      this.isProcessActive = false;
+      return response;
+    } catch (err) {
       console.error("Error while closing:", err.message);
-    });
-    this.pythonProcess.stdin.end();
-    return response;
+      this.pythonProcess.kill();
+      this.isProcessActive = false;
+    }
   }
 }
 
