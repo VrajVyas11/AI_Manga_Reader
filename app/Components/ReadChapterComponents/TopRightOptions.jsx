@@ -85,50 +85,66 @@ function TopRightOptions({
             {/* Floating Controls */}
             <div className="flex gap-3 mb-4">
                 <button
-                    onClick={toggleSettings}
-                    className={`border rounded-xl p-3 transition-all duration-200 hover:-translate-y-0.5 backdrop-blur-md ${
-                        isDark 
-                            ? "bg-purple-950/40 border-white/10 text-white hover:bg-black/70" 
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        e.nativeEvent?.stopImmediatePropagation();
+                        toggleSettings();
+                    }}
+                    className={`border rounded-xl p-3 transition-all duration-200 hover:-translate-y-0.5 backdrop-blur-md ${isDark
+                            ? "bg-purple-950/40 border-white/10 text-white hover:bg-black/70"
                             : "bg-blue-50/60 border-gray-300 text-gray-700 hover:bg-white/80"
-                    }`}
+                        }`}
                     title="Settings"
                 >
                     <Settings size={16} />
                 </button>
 
                 <button
-                    onClick={toggleChapters}
-                    className={`border rounded-xl p-3 transition-all duration-200 hover:-translate-y-0.5 backdrop-blur-md ${
-                        isDark 
-                            ? "bg-purple-950/40 border-white/10 text-white hover:bg-black/70" 
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        e.nativeEvent?.stopImmediatePropagation();
+                        toggleChapters();
+                    }}
+                    className={`border rounded-xl p-3 transition-all duration-200 hover:-translate-y-0.5 backdrop-blur-md ${isDark
+                            ? "bg-purple-950/40 border-white/10 text-white hover:bg-black/70"
                             : "bg-blue-50/60 border-gray-300 text-gray-700 hover:bg-white/80"
-                    }`}
+                        }`}
                     title="Chapters"
                 >
                     <BookOpen size={16} />
                 </button>
 
                 <button
-                    onClick={toggleFullscreen}
-                    className={`border rounded-xl p-3 transition-all duration-200 hover:-translate-y-0.5 backdrop-blur-md ${
-                        isDark 
-                            ? "bg-purple-950/40 border-white/10 text-white hover:bg-black/70" 
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        e.nativeEvent?.stopImmediatePropagation();
+                        toggleFullscreen();
+                    }}
+                    className={`border rounded-xl p-3 transition-all duration-200 hover:-translate-y-0.5 backdrop-blur-md ${isDark
+                            ? "bg-purple-950/40 border-white/10 text-white hover:bg-black/70"
                             : "bg-blue-50/60 border-gray-300 text-gray-700 hover:bg-white/80"
-                    }`}
+                        }`}
                     title="Fullscreen"
                 >
                     <Maximize2 size={16} />
                 </button>
 
                 <button
-                    onClick={toggleFavorite}
-                    className={`border rounded-xl p-3 transition-all duration-200 hover:-translate-y-0.5 backdrop-blur-md ${
-                        isFavorite
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        e.nativeEvent?.stopImmediatePropagation();
+                        toggleFavorite();
+                    }}
+                    className={`border rounded-xl p-3 transition-all duration-200 hover:-translate-y-0.5 backdrop-blur-md ${isFavorite
                             ? 'bg-red-500/80 text-white hover:bg-red-500/60 border-red-400'
-                            : isDark 
+                            : isDark
                                 ? 'bg-purple-950/40 text-white hover:bg-black/70 border-white/10'
                                 : 'bg-blue-50/60 text-gray-700 hover:bg-white/80 border-gray-300'
-                    }`}
+                        }`}
                     title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
                 >
                     <Heart size={16} fill={isFavorite ? 'currentColor' : 'none'} />
@@ -158,17 +174,17 @@ function TopRightOptions({
 
             {/* Chapter Selector */}
             {showChapters && (
-                <ChapterQuickSelect 
-                    chapterInfo={chapterInfo} 
-                    toggleChapters={toggleChapters} 
+                <ChapterQuickSelect
+                    chapterInfo={chapterInfo}
+                    toggleChapters={toggleChapters}
                     addToReadHistory={addToReadHistory}
-                    sortOrder={sortOrder} 
-                    searchQuery={searchQuery} 
+                    sortOrder={sortOrder}
+                    searchQuery={searchQuery}
                     mangaInfo={mangaInfo}
-                    goToFirstChapter={goToFirstChapter} 
-                    goToLastChapter={goToLastChapter} 
-                    filteredChapters={filteredChapters} 
-                    setSearchQuery={setSearchQuery} 
+                    goToFirstChapter={goToFirstChapter}
+                    goToLastChapter={goToLastChapter}
+                    filteredChapters={filteredChapters}
+                    setSearchQuery={setSearchQuery}
                     setSortOrder={setSortOrder}
                     isDark={isDark}
                 />

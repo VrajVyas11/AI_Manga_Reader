@@ -166,7 +166,12 @@ ${isVisible ? "backdrop-blur-md" : " opacity-0"}
                         </div>
 
                         <button
-                            onClick={handleSkip}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                e.nativeEvent?.stopImmediatePropagation();
+                                handleSkip();
+                            }}
                             className={`
                 px-3 py-1 text-xs font-medium rounded-lg transition-all
                 ${isDark
@@ -182,7 +187,12 @@ ${isVisible ? "backdrop-blur-md" : " opacity-0"}
                     {/* Action buttons - same row */}
                     <div className="flex gap-3">
                         <button
-                            onClick={handleClose}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                e.nativeEvent?.stopImmediatePropagation();
+                                handleClose();
+                            }}
                             className={`
                 flex-1 p-3 rounded-xl font-semibold transition-all duration-200
                 ${isDark
@@ -196,7 +206,12 @@ ${isVisible ? "backdrop-blur-md" : " opacity-0"}
                         </button>
 
                         <button
-                            onClick={handleNext}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                e.nativeEvent?.stopImmediatePropagation();
+                                handleNext();
+                            }}
                             className={`
                 flex-1 flex items-center justify-center gap-2 p-3 rounded-xl font-semibold
                 transition-all duration-200 group

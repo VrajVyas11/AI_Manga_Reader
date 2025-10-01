@@ -57,9 +57,12 @@ function ChaptersQuickSelect({
 
         <div className="flex gap-1">
           <button
-            onClick={() =>
-              setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'))
-            }
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              e.nativeEvent?.stopImmediatePropagation();
+              setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+            }}
             aria-label={`Sort chapters ${sortOrder === 'asc' ? 'descending' : 'ascending'
               }`}
             className={`
@@ -141,7 +144,8 @@ function ChaptersQuickSelect({
               <Link
                 href={`/manga/${mangaId}/chapter/${chapter.id}/read`}
                 prefetch={true}
-                onClick={() => {
+                onClick={(e) => {
+                  e.nativeEvent?.stopImmediatePropagation();
                   addToReadHistory(mangaInfo, chapter)
                   setChapterDropdownOpen(false);
                 }}

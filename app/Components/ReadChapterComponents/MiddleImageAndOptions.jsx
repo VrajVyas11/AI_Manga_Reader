@@ -33,26 +33,23 @@ function MiddleImageAndOptions({
     setPageTranslations,
     pageTTS,
     setPageTTS,
-    fullOCRResult,
-    setFullOCRResult,
     isItTextToSpeech,
     setIsItTextToSpeech,
-    setShowMessage,
-    showMessage,
     allAtOnce,
     isCollapsed,
     showTranslationTextOverlay,
     isDark = true,
 }) {
     const [cursorClass, setCursorClass] = useState("");
+    const [fullOCRResult, setFullOCRResult] = useState("");
     const [imageCache, setImageCache] = useState([]);
     const [imageKey, setImageKey] = useState(0);
     const [loadingPages, setLoadingPages] = useState({});
     const [translatedTexts, setTranslatedTexts] = useState({});
     const [overlayLoading, setOverlayLoading] = useState(false);
     const imageRef = useRef(null);
-    const clickRef = useRef(null)
     const [fullOCRCompleteData, setFullOCRCompleteData] = useState()
+    const [showMessage, setShowMessage] = useState(false);
     // stable showToast function from hook (won't change across renders)
     const { showToast } = useToast();
 
@@ -113,6 +110,24 @@ function MiddleImageAndOptions({
         [translatedTexts, memoizedHandleTranslate, showToast]
     );
 
+    // helper: try to resolve actual DOM img element (Next/Image wrapper handling)
+    const getDomImageElement = useCallback((maybeRef) => {
+        if (!maybeRef) return null;
+        const el = maybeRef.current;
+        if (!el) return null;
+        try {
+            if (el.tagName && el.tagName.toLowerCase() === "img") return el;
+            if (el.querySelector) {
+                const img = el.querySelector("img");
+                if (img) return img;
+            }
+        } catch (e) {
+            console.log(e);
+            // ignore
+        }
+        return el;
+    }, []);
+
     // handleUpload uses stable showToast but is itself memoized to avoid re-creation
     const handleUpload = useCallback(
         async (imageUrl, from) => {
@@ -125,24 +140,41 @@ function MiddleImageAndOptions({
                 });
             }
 
+            // Get the DOM img element (already loaded cleanly)
+            const imgEl = getDomImageElement(imageRef);
+            if (!imgEl || !imgEl.complete || !imgEl.naturalWidth) {
+                // Fallback: image not ready—retry after short delay or show error
+                return showToast({
+                    title: "Image not ready",
+                    message: "Image still loading. Please wait a moment and try again.",
+                    type: "warning",
+                });
+            }
+
             setLoadingPages((prev) => ({ ...prev, [imageUrl]: from }));
 
             try {
-                // Force high quality URL to avoid watermarks
-                let highQualityUrl = imageUrl;
-                const response = await fetch(highQualityUrl);
-                if (!response.ok) {
-                    const errText = await response.text().catch(() => null);
-                    return showToast({
-                        title: "Image load failed",
-                        message: "Could not fetch the image. It may be unavailable or blocked.",
-                        type: "error",
-                        details: `HTTP ${response.status} ${response.statusText}\n${errText || ""}`,
-                    });
+                // Capture clean image via canvas (no re-fetch!)
+                const canvas = document.createElement("canvas");
+                const ctx = canvas.getContext("2d");
+                canvas.width = imgEl.naturalWidth;
+                canvas.height = imgEl.naturalHeight;
+                ctx.drawImage(imgEl, 0, 0);
+
+                // Convert to blob (preserve original format/quality)
+                const blob = await new Promise((resolve) => {
+                    canvas.toBlob(
+                        (b) => resolve(b),
+                        imgEl.src.includes(".avif") ? "image/avif" : "image/jpeg", // Match original format
+                        0.95 // High quality
+                    );
+                });
+
+                if (!blob || blob.size === 0) {
+                    throw new Error("Failed to capture image data");
                 }
 
-                const blob = await response.blob();
-                const file = new File([blob], "image.jpg", { type: blob.type });
+                const file = new File([blob], "manga-panel.jpg", { type: blob.type }); // Use .jpg for broad compatibility
                 const formData = new FormData();
                 formData.append("file", file);
 
@@ -176,29 +208,29 @@ function MiddleImageAndOptions({
                 }
 
                 const result = await apiResponse.json();
-                console.log(result)
-                // unify results
+                console.log(result);
+
+                // Rest of your result processing logic remains unchanged...
                 let ocrResult = [];
                 let processedText = "";
                 let hasValidText = false;
 
-                if (result.paragraphs && result.paragraphs && Array.isArray(result.paragraphs)) {
+                if (result.paragraphs && Array.isArray(result.paragraphs)) {
                     ocrResult = result.paragraphs;
                     processedText = ocrResult
                         .filter((i) => i && i.text && i.text.trim())
                         .map((i) => i.text.trim())
                         .join(" ");
                     hasValidText = processedText.length > 0;
-                    setFullOCRCompleteData(result)
-                }
-                else if (result.data && result.data && Array.isArray(result.data)) {
+                    setFullOCRCompleteData(result);
+                } else if (result.data && Array.isArray(result.data)) {
                     ocrResult = result.data;
                     processedText = ocrResult
                         .filter((i) => i && i.text && i.text.trim())
                         .map((i) => i.text.trim())
                         .join(" ");
                     hasValidText = processedText.length > 0;
-                    setFullOCRCompleteData(result)
+                    setFullOCRCompleteData(result);
                 } else if (Array.isArray(result.text)) {
                     ocrResult = result.text.map((item) => ({
                         text: typeof item === "string" ? item : item.text || String(item || ""),
@@ -293,39 +325,20 @@ function MiddleImageAndOptions({
                 setLoadingPages((prev) => ({ ...prev, [imageUrl]: null }));
             }
         },
-        [showToast, chapterInfo?.translatedLanguage, setShowMessage, memoizedHandleTranslate, translateAll, setPageTranslations, setIsItTextToSpeech, setPageTTS, setFullOCRResult]
+        [showToast, chapterInfo?.translatedLanguage, setShowMessage, memoizedHandleTranslate, translateAll, setPageTranslations, setIsItTextToSpeech, setPageTTS, setFullOCRResult, getDomImageElement] // Add getDomImageElement to deps
     );
 
     //
     // Cursor + click alignment logic
     //
 
-    // helper: try to resolve actual DOM img element (Next/Image wrapper handling)
-    const getDomImageElement = useCallback((maybeRef) => {
-        if (!maybeRef) return null;
-        const el = maybeRef.current;
-        if (!el) return null;
-        try {
-            if (el.tagName && el.tagName.toLowerCase() === "img") return el;
-            if (el.querySelector) {
-                const img = el.querySelector("img");
-                if (img) return img;
-            }
-        } catch (e) {
-            console.log(e);
-
-            // ignore
-        }
-        return el;
-    }, []);
-
     // computeCursorSide returns "left" | "right" | "" for a given pointer coordinate
     const computeCursorSide = useCallback(
         (mouseX, mouseY) => {
-            if (!clickRef || !window) return;
+            if (!window) return;
             // vertical early-exit (same as before)
-            const screenWidth = clickRef?.current?.innerWidth ?? window?.innerWidth;
-            const screenHeight = clickRef?.current?.innerHeight ?? window?.innerHeight;
+            const screenWidth = window?.innerWidth;
+            const screenHeight = window?.innerHeight;
             if (mouseY < screenHeight / 5.5) return "";
 
             // Try image rect first (accurate)
@@ -333,7 +346,7 @@ function MiddleImageAndOptions({
                 const imgEl = getDomImageElement(imageRef);
                 if (imgEl && typeof imgEl.getBoundingClientRect === "function") {
                     const rect = imgEl.getBoundingClientRect();
-                    const isMobile = clickRef?.current?.innerWidth < 768;
+                    const isMobile = window.innerWidth < 768;
 
                     if (rect.width > 6 && rect.height > 6) {
                         const padding = isMobile ? 30 : 150;
@@ -350,7 +363,7 @@ function MiddleImageAndOptions({
             }
 
             // Fallback: use content area (account for sidebar)
-            const isMobile = clickRef?.current?.innerWidth < 768;
+            const isMobile = window.innerWidth < 768;
             const collapsedWidth = isMobile ? 56 : 70;
             const openWidth = 288; // md:w-72 -> 288px
             const leftSidebarWidth = isMobile ? collapsedWidth : (isCollapsed ? collapsedWidth : openWidth);
@@ -373,6 +386,72 @@ function MiddleImageAndOptions({
     // throttle mousemove via RAF using refs to avoid re-creating handlers / over-updating state
     const rafRef = useRef(0);
     const pendingRef = useRef(null);
+
+    // Create a wrapped version of handleUpload specifically for TextToSpeech
+    const handleUploadForTTS = useCallback((page, type) => {
+        // This will be called from TextToSpeech without event object
+        handleUpload(page, type);
+    }, [handleUpload]);
+
+    // NEW: Modified image click handler with better detection
+    // const handleImageClicked = useCallback((event) => {
+    //     console.log("=== IMAGE CLICK DEBUG ===");
+    //     console.log("Click target:", event.target);
+    //     console.log("Click target tag:", event.target.tagName);
+    //     console.log("Click target class:", event.target.className);
+
+    //     // IMMEDIATELY stop propagation and prevent default
+    //     event.stopPropagation();
+    //     event.preventDefault();
+
+    //     // Check if this is actually an image click
+    //     const isImage =
+    //         event.target.tagName?.toLowerCase() === 'img' ||
+    //         event.target.classList?.contains('image-click-area') ||
+    //         (imageRef.current && imageRef.current.contains(event.target));
+
+    //     console.log("Is image click:", isImage);
+
+    //     if (!isImage) {
+    //         console.log("NOT an image click - stopping completely");
+    //         return;
+    //     }
+
+    //     console.log("Proceeding with image navigation...");
+
+    //     // Only proceed with navigation for confirmed image clicks
+    //     const mouseX = event.clientX;
+    //     const mouseY = event.clientY;
+    //     const side = computeCursorSide(mouseX, mouseY);
+
+    //     console.log("Cursor side:", side);
+
+    //     if (!side) return; // outside interactive band -> no nav
+
+    //     const goPrev = side === "left";
+    //     const totalPages = (quality === "low" ? pages?.chapter?.dataSaver : pages?.chapter?.data) || pages || [];
+    //     const totalCount = totalPages.length || (pages?.length || 0);
+    //     if (!totalCount) return;
+
+    //     let newIndex = currentIndex || 0;
+
+    //     if (goPrev) {
+    //         if (panels === 2) {
+    //             newIndex = Math.max(0, newIndex - panels);
+    //         } else {
+    //             newIndex = newIndex === 0 ? Math.max(0, totalCount - panels) : Math.max(0, newIndex - panels);
+    //         }
+    //     } else {
+    //         newIndex = newIndex + panels >= totalCount ? 0 : newIndex + panels;
+    //     }
+
+    //     if (typeof setCurrentIndex === "function") {
+    //         setCurrentIndex(newIndex);
+    //     }
+
+    //     clickCooldownRef.current = true;
+    //     setTimeout(() => (clickCooldownRef.current = false), 300);
+    // }, [computeCursorSide, currentIndex, pages, panels, quality, setCurrentIndex]);
 
     useEffect(() => {
         if (layout === "vertical") {
@@ -446,6 +525,22 @@ function MiddleImageAndOptions({
     const clickCooldownRef = useRef(false);
 
 
+    useEffect(() => {
+        if (pages && pages?.chapter?.dataSaver?.length > 0 && pages?.chapter?.data?.length > 0) {
+            const currentPage = quality === "low" ? pages?.chapter?.dataSaver[currentIndex] : pages?.chapter?.data[currentIndex];
+            if (pageTranslations[currentPage]) {
+                setFullOCRResult(pageTranslations[currentPage].ocrResult);
+                setShowMessage(true);
+            } else if (!pageTranslations[currentPage] && pageTTS[currentPage]) {
+                setFullOCRResult(pageTTS[currentPage].ocrResult);
+                setShowMessage(true);
+            } else {
+                setFullOCRResult("");
+                setShowMessage(false);
+            }
+        }
+    }, [currentIndex, pages, pageTranslations, pageTTS, quality, setShowMessage]);
+
 
     if (!(chapterInfo && pages)) return null;
     console.log(fullOCRCompleteData);
@@ -462,10 +557,9 @@ function MiddleImageAndOptions({
             <ToastsPortal isDark={isDark} />
 
             <div
-                ref={clickRef}
                 className={`flex  ${layout == "horizontal" ? cursorClass : ""} px-3 md:px-0 flex-1 ${layout === "horizontal"
                     ? "flex-row space-x-4 overflow-hidden justify-center mt-5 items-start"
-                    : "flex-col space-y-4 mt-5 justify-end items-center"
+                    : "flex-col space-y-4 mt-32 h-screen"
                     } my-1`}
             >
                 {isLoading ? (
@@ -484,8 +578,7 @@ function MiddleImageAndOptions({
                                         alt={`Page ${currentIndex + index + 1}`}
                                         height={1680}
                                         width={1680}
-                                        className={`object-contain border rounded-lg w-full h-full shadow-xl transition-all ${imageCache.includes(page) ? (isDark ? "border-gray-600" : "border-gray-300") : "hidden"
-                                            }`}
+                                        className={`object-contain border rounded-lg w-full h-full shadow-xl transition-all  ${imageCache.includes(page) ? (isDark ? "border-gray-600" : "border-gray-300") : "hidden"}`}
                                         priority={index === 0}
                                         loading={index === 0 ? undefined : "eager"}
                                         onLoadingComplete={() => handleImageLoad(page)}
@@ -524,13 +617,18 @@ function MiddleImageAndOptions({
                                 </div>
 
                                 {showTranslationAndSpeakingOptions && panels != 2 && (
-                                    <div className="tracking-wider fixed flex flex-col justify-end items-end bottom-32 right-7">
+                                    <div className="tracking-wider h-full fixed flex flex-col justify-end py-[20%] md:py-[5%] items-end top-0 right-0 md:right-5">
                                         {!loadingPages[page] ? (
                                             <>
                                                 {chapterInfo?.translatedLanguage?.trim() !== "en" && (
                                                     <button
                                                         disabled={panels === 2 || pageTranslations[page]}
-                                                        onClick={() => handleUpload(page, "translate")}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            e.preventDefault();
+                                                            e.nativeEvent?.stopImmediatePropagation();
+                                                            handleUpload(page, "translate");
+                                                        }}
                                                         className={`group py-2   ${panels === 2 || pageTranslations[page] ? "hidden" : ""} sm:py-4 px-1 sm:px-2 mb-4 before:bg-opacity-60 flex items-center justify-start min-w-[36px] sm:min-w-[48px] h-12 sm:h-20 rounded-full cursor-pointer relative overflow-hidden transition-all duration-300  
     shadow-[0px_0px_10px_rgba(0,0,0,1)] shadow-yellow-500 ${isDark ? "bg-[#1a063e] bg-opacity-60" : "bg-yellow-200 bg-opacity-80"
                                                             } hover:min-w-[140px] sm:hover:min-w-[182px] hover:shadow-lg disabled:cursor-not-allowed 
@@ -547,7 +645,7 @@ function MiddleImageAndOptions({
 
                                                 <TextToSpeech
                                                     page={page}
-                                                    handleUpload={handleUpload}
+                                                    handleUpload={handleUploadForTTS}
                                                     ready={Boolean(pageTranslations[page] || pageTTS[page])}
                                                     text={pageTranslations[page] ? pageTranslations[page]?.textResult : pageTTS[page]?.textResult}
                                                     layout={layout}
@@ -559,15 +657,31 @@ function MiddleImageAndOptions({
                                         {((pageTTS[page] && isItTextToSpeech) || pageTranslations[page]) && (pageTranslations[page] ? pageTranslations[page]?.textResult : pageTTS[page]?.textResult) && (
                                             <div>
                                                 {showMessage ? (
-                                                    <div className={`absolute z-50 text-wrap w-fit min-w-72 max-w-72 -top-[21rem] border-gray-500/30 border right-12 ${isDark ? "bg-black/95 text-white" : "bg-white text-gray-900"} p-4 rounded-lg shadow-lg transition-opacity duration-300`}>
-                                                        <button className="absolute top-1 right-1 text-xs flex justify-center items-center text-white bg-purple-600/70 hover:bg-purple-700 rounded-full py-[7px] px-2.5" onClick={() => setShowMessage(false)}>✖</button>
-                                                        <p className="text-sm tracking-widest lowercase">
-                                                            {pageTranslations[page] ? pageTranslations[page]?.textResult : pageTTS[page]?.textResult || "No text Available"}
-                                                        </p>
+                                                    <div className={`absolute z-50 text-wrap w-fit md:min-w-72 min-w-44 md:max-w-72  top-28 md:top-36  border-gray-500/30 border right-2 md:right-0 ${isDark ? "bg-black/95 text-white" : "bg-white text-gray-900"} p-4 rounded-lg shadow-lg transition-opacity duration-300`}>
+                                                        <button
+                                                            className="absolute top-1 right-1 text-xs flex justify-center items-center text-white bg-purple-600/70 hover:bg-purple-700 rounded-full py-[7px] px-2.5"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                e.preventDefault();
+                                                                e.nativeEvent?.stopImmediatePropagation();
+                                                                setShowMessage(false);
+                                                            }}
+                                                        >
+                                                            ✖
+                                                        </button>
+                                                        <p className=" text-[10px] md:text-sm tracking-widest lowercase">{pageTranslations[page] ? pageTranslations[page]?.textResult : pageTTS[page]?.textResult || "No text Available"}</p>
                                                     </div>
                                                 ) : (
-                                                    <button onClick={() => setShowMessage((prev) => !prev)} className={`absolute z-50 text-wrap w-fit -top-[21rem] border-gray-500/30 border -right-2 ${isDark ? "bg-black/95 text-white" : "bg-white text-gray-900"} p-3 rounded-xl shadow-lg transition-opacity duration-300 text-xs flex flex-row justify-center items-center gap-3`}>
-                                                        <ScrollText className="w-4 h-4" />
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            e.preventDefault();
+                                                            e.nativeEvent?.stopImmediatePropagation();
+                                                            setShowMessage((prev) => !prev);
+                                                        }}
+                                                        className={`absolute z-50 text-wrap w-fit top-28 md:top-36  border-gray-500/30 border right-2 md:right-0 ${isDark ? "bg-black/95 text-white" : "bg-white text-gray-900"} p-2.5 md:p-3 rounded-xl shadow-lg transition-opacity duration-300 text-xs flex flex-row justify-center items-center gap-3`}
+                                                    >
+                                                        <ScrollText className="h-3 w-3 md:w-4 md:h-4" />
                                                     </button>
                                                 )}
                                             </div>
@@ -577,19 +691,18 @@ function MiddleImageAndOptions({
                             </div>
                         ))
                 ) : (
-                    <div className="w-full">
+                    <div className="w-full h-auto">
                         {pages &&
                             (quality === "low" ? pages?.chapter?.dataSaver : pages?.chapter?.data).map((page, index) => (
                                 <div key={index} className={`tracking-wider px-4 md:px-0 ${allAtOnce && (quality === "low" ? pages?.chapter?.dataSaver : pages?.chapter?.data).map((p) => { if (!imageCache.includes(p)) return false; }).includes(false) ? "hidden" : "block"} relative h-fit w-full flex justify-center items-center`}>
-                                    <div className="relative w-auto h-fit">
+                                    <div className="relative w-auto h-full">
                                         <Image
-                                            ref={imageRef}
                                             key={imageKey}
                                             src={page}
                                             alt={`Page ${index + 1}`}
                                             height={1680}
                                             width={1680}
-                                            className={`object-contain border rounded-lg w-full max-w-[1280px] h-auto shadow-xl transition-all ${imageCache.includes(page) ? (isDark ? "border-gray-600" : "border-gray-300") : "hidden"}`}
+                                            className={`object-contain border rounded-lg w-full max-w-[1280px] h-auto shadow-xl transition-all cursor-pointer image-click-area ${imageCache.includes(page) ? (isDark ? "border-gray-600" : "border-gray-300") : "hidden"}`}
                                             priority={index === 0}
                                             loading={index === 0 ? undefined : "eager"}
                                             onLoadingComplete={() => handleImageLoad(page)}
@@ -622,29 +735,64 @@ function MiddleImageAndOptions({
                                     </div>
 
                                     {showTranslationAndSpeakingOptions && (
-                                        <div className={`tracking-wider absolute top-[50%] transform space-y-4 flex flex-col justify-start items-end bottom-28 right-3`}>
+                                        <div className={`tracking-wider h-full absolute top-0 transform space-y-4 flex flex-col justify-center items-end bottom-28 right-3`}>
                                             {!loadingPages[page] ? (
                                                 <>
                                                     {chapterInfo?.translatedLanguage?.trim() !== "en" && (
-                                                        <button disabled={panels === 2 || pageTranslations[page]} onClick={() => handleUpload(page, "translate")} className={`font-sans  ${(panels === 2 || pageTranslations[page]) ? "hidden" : ""} tracking-wider min-h-fit text-[11px] font-sans before:bg-opacity-60 min-w-[125px] sm:min-w-[189px] transition-colors flex gap-2 justify-start items-center mx-auto shadow-xl sm:text-lg backdrop-blur-md lg:font-semibold isolation-auto before:absolute before:w-full before:transition-all before:duration-700 before:hover:w-full before:-right-full before:hover:right-0 before:rounded-full before:-z-10 before:aspect-square before:hover:scale-200 before:hover:duration-300 relative z-10 px-2 py-1 sm:px-3 sm:py-2 ease-in-out overflow-hidden border-2 rounded-full group ${isDark ? "text-white bg-[#1a063e] backdrop-blur-md border-gray-50/50" : "text-gray-900 bg-yellow-200 border-yellow-300"} `} type="submit">
+                                                        <button
+                                                            disabled={panels === 2 || pageTranslations[page]}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                e.preventDefault();
+                                                                e.nativeEvent?.stopImmediatePropagation();
+                                                                handleUpload(page, "translate");
+                                                            }}
+                                                            className={`font-sans  ${(panels === 2 || pageTranslations[page]) ? "hidden" : ""} tracking-wider min-h-fit text-[11px] font-sans before:bg-opacity-60 min-w-[125px] sm:min-w-[189px] transition-colors flex gap-2 justify-start items-center mx-auto shadow-xl sm:text-lg backdrop-blur-md lg:font-semibold isolation-auto before:absolute before:w-full before:transition-all before:duration-700 before:hover:w-full before:-right-full before:hover:right-0 before:rounded-full before:-z-10 before:aspect-square before:hover:scale-200 before:hover:duration-300 relative z-10 px-2 py-1 sm:px-3 sm:py-2 ease-in-out overflow-hidden border-2 rounded-full group ${isDark ? "text-white bg-[#1a063e] backdrop-blur-md border-gray-50/50" : "text-gray-900 bg-yellow-200 border-yellow-300"} `}
+                                                            type="submit"
+                                                        >
                                                             <Languages className={`tracking-wider w-8 h-8 sm:w-12 sm:h-12 group-hover:border-2 transition-all ease-in-out duration-300 rounded-full border p-2 sm:p-3 transform group-hover:rotate-[360deg] ${isDark ? "text-orange-400 bg-gray-50 border border-gray-700" : "text-yellow-600 bg-gray-100 border-yellow-700"}`} />
                                                             {pageTranslations[page] ? "Translated" : "Translate"}
                                                         </button>
                                                     )}
-                                                    <TextToSpeech page={page} handleUpload={handleUpload} ready={Boolean(pageTranslations[page] || pageTTS[page])} text={pageTranslations[page] ? pageTranslations[page]?.textResult : pageTTS[page]?.textResult} layout={layout} isDark={isDark} />
+                                                    <TextToSpeech
+                                                        page={page}
+                                                        handleUpload={handleUploadForTTS}
+                                                        ready={Boolean(pageTranslations[page] || pageTTS[page])}
+                                                        text={pageTranslations[page] ? pageTranslations[page]?.textResult : pageTTS[page]?.textResult}
+                                                        layout={layout}
+                                                        isDark={isDark}
+                                                    />
                                                 </>
                                             ) : null}
 
                                             {((pageTTS[page] && isItTextToSpeech) || pageTranslations[page]) && (pageTranslations[page] ? pageTranslations[page]?.textResult : pageTTS[page]?.textResult) && (
                                                 <div>
                                                     {showMessage ? (
-                                                        <div className={`absolute z-50 text-wrap w-fit min-w-72 max-w-72 -top-[12rem] border-gray-500/30 border right-12 ${isDark ? "bg-black/95 text-white" : "bg-white text-gray-900"} p-4 rounded-lg shadow-lg transition-opacity duration-300`}>
-                                                            <button className="absolute top-1 right-1 text-xs flex justify-center items-center text-white bg-purple-600/70 hover:bg-purple-700 rounded-full py-[7px] px-2.5" onClick={() => setShowMessage(false)}>✖</button>
-                                                            <p className="text-sm tracking-widest lowercase">{pageTranslations[page] ? pageTranslations[page]?.textResult : pageTTS[page]?.textResult || "No text Available"}</p>
+                                                        <div className={`absolute z-50 text-wrap w-fit md:min-w-72 max-w-44 md:max-w-72 top-10 md:top-16  border-gray-500/30 border -right-5 md:right-2 ${isDark ? "bg-black/95 text-white" : "bg-white text-gray-900"} p-4 rounded-lg shadow-lg transition-opacity duration-300`}>
+                                                            <button
+                                                                className="absolute top-1 right-1 text-xs flex justify-center items-center text-white bg-purple-600/70 hover:bg-purple-700 rounded-full py-[7px] px-2.5"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    e.preventDefault();
+                                                                    e.nativeEvent?.stopImmediatePropagation();
+                                                                    setShowMessage(false);
+                                                                }}
+                                                            >
+                                                                ✖
+                                                            </button>
+                                                            <p className=" text-[10px] md:text-sm tracking-widest lowercase">{pageTranslations[page] ? pageTranslations[page]?.textResult : pageTTS[page]?.textResult || "No text Available"}</p>
                                                         </div>
                                                     ) : (
-                                                        <button onClick={() => setShowMessage((prev) => !prev)} className={`absolute z-50 text-wrap w-fit -top-[21rem] border-gray-500/30 border -right-2 ${isDark ? "bg-black/95 text-white" : "bg-white text-gray-900"} p-3 rounded-xl shadow-lg transition-opacity duration-300 text-xs flex flex-row justify-center items-center gap-3`}>
-                                                            <ScrollText className="w-4 h-4" />
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                e.preventDefault();
+                                                                e.nativeEvent?.stopImmediatePropagation();
+                                                                setShowMessage((prev) => !prev);
+                                                            }}
+                                                            className={`absolute z-50 text-wrap w-fit top-10 md:top-16  border-gray-500/30 border -right-5 md:right-2 ${isDark ? "bg-black/95 text-white" : "bg-white text-gray-900"} p-2.5 md:p-3 rounded-xl shadow-lg transition-opacity duration-300 text-xs flex flex-row justify-center items-center gap-3`}
+                                                        >
+                                                            <ScrollText className="h-3 w-3 md:w-4 md:h-4" />
                                                         </button>
                                                     )}
                                                 </div>

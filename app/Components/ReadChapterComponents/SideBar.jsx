@@ -242,312 +242,352 @@ const SideBar = ({
 
   return (
     <>
-          <div className='h-screen w-14 bg-transparent relative sm:hidden'/>
-    <div
-      className={`
+      <div className='h-screen w-14 bg-transparent relative sm:hidden' />
+      <div
+        className={`
       absolute md:relative px-2 rounded-r-lg left-0 bottom-1 md:-bottom-6 border-[1px] border-l-0
       h-[89vh] w-52 md:w-72 md:h-[88vh] md:px-3 flex flex-col z-40 shadow-[0_0_10px_rgba(0,0,0,1)]
       ${isDark
-          ? 'border-gray-800/90 bg-black/90 md:bg-black/25 backdrop-blur-3xl shadow-black/80'
-          : 'border-gray-300/70 bg-white/90 md:bg-white/70 backdrop-blur-md shadow-gray-400/50'}
+            ? 'border-gray-800/90 bg-black/90 md:bg-black/25 backdrop-blur-3xl shadow-black/80'
+            : 'border-gray-300/70 bg-white/90 md:bg-white/70 backdrop-blur-md shadow-gray-400/50'}
     `}
-    >
-      {/* Header */}
-      <div className={`py-1.5 border-b relative md:py-2 ${isDark ? 'border-slate-800/50' : 'border-gray-300/50'}`}>
-        <button
-          onClick={() => setIsCollapsed(true)}
-          className={`
+      >
+        {/* Header */}
+        <div className={`py-1.5 border-b relative md:py-2 ${isDark ? 'border-slate-800/50' : 'border-gray-300/50'}`}>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              e.nativeEvent?.stopImmediatePropagation();
+              setIsCollapsed(true);
+            }}
+            className={`
           group absolute top-2 left-2 w-7 h-7 rounded-xl border flex items-center justify-center
           transition-all duration-0 md:w-10 md:h-10 md:top-3 md:left-3
           ${isDark
-              ? 'bg-slate-800/80 border-slate-700/50 text-slate-300 hover:text-white hover:bg-slate-700/80 hover:border-slate-600/50'
-              : 'bg-gray-50 shadow-[0_0_5px_rgba(0,0,0,1)] shadow-gray-300 border-gray-300 hover:bg-gray-200 hover:border-gray-400'}
+                ? 'bg-slate-800/80 border-slate-700/50 text-slate-300 hover:text-white hover:bg-slate-700/80 hover:border-slate-600/50'
+                : 'bg-gray-50 shadow-[0_0_5px_rgba(0,0,0,1)] shadow-gray-300 border-gray-300 hover:bg-gray-200 hover:border-gray-400'}
         `}
-          aria-label="Collapse sidebar"
-        >
-          <ArrowLeft className={`${isDark ? 'text-slate-300' : 'text-gray-700'} w-3 h-3 md:w-5 md:h-5`} />
-        </button>
+            aria-label="Collapse sidebar"
+          >
+            <ArrowLeft className={`${isDark ? 'text-slate-300' : 'text-gray-700'} w-3 h-3 md:w-5 md:h-5`} />
+          </button>
 
-        {/* Manga Info */}
-        <div className="flex flex-col mt-12 justify-center items-center gap-3 md:mt-7 md:gap-4">
-          <div
-            className={`
+          {/* Manga Info */}
+          <div className="flex flex-col mt-12 justify-center items-center gap-3 md:mt-7 md:gap-4">
+            <div
+              className={`
             w-14 h-14 rounded-full overflow-hidden  flex-shrink-0
             md:w-20 md:h-20
             ${isDark ? 'shadow-[0_0_5px_rgba(0,0,0,1)] shadow-purple-400' : 'shadow-[0_0_5px_rgba(0,0,0,1)] shadow-gray-900 '}
           `}
-          >
-            <CoverImage {...coverImageProps} />
-          </div>
+            >
+              <CoverImage {...coverImageProps} />
+            </div>
 
-          <h2
-            className={`
+            <h2
+              className={`
             text-[11px] font-serif font-semibold text-center capitalize line-clamp-2
             md:text-sm
             ${isDark ? 'text-white' : 'text-gray-900'}
           `}
-          >
-            {mangaInfo.title}
-          </h2>
+            >
+              {mangaInfo.title}
+            </h2>
+          </div>
         </div>
-      </div>
 
-      <div className={`pl-2 flex flex-row w-full border-l-4 ml-1 mt-4 mb-2 items-start justify-start gap-2 md:pl-4 md:ml-2 md:mt-6 md:mb-3 ${isDark ? 'border-l-yellow-500' : 'border-l-yellow-400'}`}>
-        <p className={`${isDark ? 'text-gray-400' : 'text-gray-600'} text-[11px] md:text-sm`}>Reading</p>
-        <div className="flex items-center gap-2">
-          <span className={`${isDark ? 'text-yellow-500' : 'text-yellow-600'} text-[11px] md:text-sm`}>By Chapter</span>
-          <ChevronDown className={`${isDark ? 'text-gray-400' : 'text-gray-600'} w-3 h-3 md:w-4 md:h-4`} />
+        <div className={`pl-2 flex flex-row w-full border-l-4 ml-1 mt-4 mb-2 items-start justify-start gap-2 md:pl-4 md:ml-2 md:mt-6 md:mb-3 ${isDark ? 'border-l-yellow-500' : 'border-l-yellow-400'}`}>
+          <p className={`${isDark ? 'text-gray-400' : 'text-gray-600'} text-[11px] md:text-sm`}>Reading</p>
+          <div className="flex items-center gap-2">
+            <span className={`${isDark ? 'text-yellow-500' : 'text-yellow-600'} text-[11px] md:text-sm`}>By Chapter</span>
+            <ChevronDown className={`${isDark ? 'text-gray-400' : 'text-gray-600'} w-3 h-3 md:w-4 md:h-4`} />
+          </div>
         </div>
-      </div>
 
-      <div className={`flex mt-5 justify-start text-[11px] px-1.5 items-center gap-2 md:text-sm md:px-2 md:gap-4 md:mt-4 md:mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-        <Logs className={`${isDark ? 'text-white' : 'text-gray-900'} w-4 h-4 md:w-5 md:h-5`} /> Chapter Navigation
-      </div>
+        <div className={`flex mt-5 justify-start text-[11px] px-1.5 items-center gap-2 md:text-sm md:px-2 md:gap-4 md:mt-4 md:mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+          <Logs className={`${isDark ? 'text-white' : 'text-gray-900'} w-4 h-4 md:w-5 md:h-5`} /> Chapter Navigation
+        </div>
 
-      {/* Language Selector */}
-      <div className="p-2 py-1">
-        <div className="relative" ref={languageDropdownRef}>
-          <button
-            onClick={() => setLanguageDropdownOpen(!languageDropdownOpen)}
-            className={`
+        {/* Language Selector */}
+        <div className="p-2 py-1">
+          <div className="relative" ref={languageDropdownRef}>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                e.nativeEvent?.stopImmediatePropagation();
+                setLanguageDropdownOpen(!languageDropdownOpen);
+              }}
+              className={`
             w-full flex items-center justify-between p-2 rounded-md transition-all duration-0 border
             md:p-3
             ${isDark
-                ? 'bg-slate-800/60 hover:bg-slate-700/60 text-white border-slate-700/50 hover:border-slate-600/50'
-                : 'bg-gray-100 hover:bg-gray-200 text-gray-900 border-gray-300 hover:border-gray-400'}
+                  ? 'bg-slate-800/60 hover:bg-slate-700/60 text-white border-slate-700/50 hover:border-slate-600/50'
+                  : 'bg-gray-100 hover:bg-gray-200 text-gray-900 border-gray-300 hover:border-gray-400'}
           `}
-            aria-label="Select language"
-          >
-            <div className="flex items-center gap-2 md:gap-3">
-              <Languages className={`${isDark ? 'text-slate-400' : 'text-gray-500'} w-3 h-3 md:w-4 md:h-4`} />
-              <span className={`text-[11px] font-medium md:text-sm`}>
-                Language: {selectedLanguage?.toUpperCase() ?? langFullNames[selectedLanguage]}
-              </span>
-            </div>
-            <ChevronDown
-              className={`w-3 h-3 transition-transform duration-200 md:w-4 md:h-4 ${languageDropdownOpen ? 'rotate-180' : ''} ${isDark ? 'text-slate-400' : 'text-gray-500'}`}
-            />
-          </button>
+              aria-label="Select language"
+            >
+              <div className="flex items-center gap-2 md:gap-3">
+                <Languages className={`${isDark ? 'text-slate-400' : 'text-gray-500'} w-3 h-3 md:w-4 md:h-4`} />
+                <span className={`text-[11px] font-medium md:text-sm`}>
+                  Language: {selectedLanguage?.toUpperCase() ?? langFullNames[selectedLanguage]}
+                </span>
+              </div>
+              <ChevronDown
+                className={`w-3 h-3 transition-transform duration-200 md:w-4 md:h-4 ${languageDropdownOpen ? 'rotate-180' : ''} ${isDark ? 'text-slate-400' : 'text-gray-500'}`}
+              />
+            </button>
 
-          {languageDropdownOpen && (
-            <div
-              style={{
-                scrollbarWidth: 'none',
-                scrollbarColor: 'rgba(155, 89, 182, 0.6) rgba(0, 0, 0, 0.1)',
-              }}
-              className={`
+            {languageDropdownOpen && (
+              <div
+                style={{
+                  scrollbarWidth: 'none',
+                  scrollbarColor: 'rgba(155, 89, 182, 0.6) rgba(0, 0, 0, 0.1)',
+                }}
+                className={`
               absolute top-full left-0 right-0 mt-2 rounded-lg shadow-xl max-h-36 overflow-y-auto z-50
               md:max-h-48
               ${isDark
-                  ? 'bg-slate-900/95 backdrop-blur-sm border border-slate-700/50'
-                  : 'bg-white/95 backdrop-blur-sm border border-gray-300'}
+                    ? 'bg-slate-900/95 backdrop-blur-sm border border-slate-700/50'
+                    : 'bg-white/95 backdrop-blur-sm border border-gray-300'}
             `}
-            >
-              {availableLanguagesForCurrentChapter.map((lang, index) => {
-                // Find the same chapter in the selected language
-                const currentChapterNum = chapterInfo.chapter;
-                const sameChapterInNewLang = allChapters.find(
-                  (ch) => ch.chapter === currentChapterNum && ch.translatedLanguage === lang
-                );
+              >
+                {availableLanguagesForCurrentChapter.map((lang, index) => {
+                  // Find the same chapter in the selected language
+                  const currentChapterNum = chapterInfo.chapter;
+                  const sameChapterInNewLang = allChapters.find(
+                    (ch) => ch.chapter === currentChapterNum && ch.translatedLanguage === lang
+                  );
 
-                const targetChapter = sameChapterInNewLang ?? allChapters
-                  .filter((ch) => ch.translatedLanguage === lang)
-                  .sort((a, b) => parseFloat(a.chapter) - parseFloat(b.chapter))[0];
+                  const targetChapter = sameChapterInNewLang ?? allChapters
+                    .filter((ch) => ch.translatedLanguage === lang)
+                    .sort((a, b) => parseFloat(a.chapter) - parseFloat(b.chapter))[0];
 
-                if (!targetChapter) return null;
+                  if (!targetChapter) return null;
 
-                return (
-                  <Link
-                    key={index}
-                    href={`/manga/${mangaInfo.id}/chapter/${targetChapter.id}/read`}
-                    prefetch={true}
-                    onClick={() => {
-                      handleLanguageChange(lang);
-                      addToReadHistory(mangaInfo, targetChapter);
-                    }}
-                    className={`
+                  return (
+                    <Link
+                      key={index}
+                      href={`/manga/${mangaInfo.id}/chapter/${targetChapter.id}/read`}
+                      prefetch={true}
+                      onClick={(e) => {
+                        e.nativeEvent?.stopImmediatePropagation();
+                        handleLanguageChange(lang);
+                        addToReadHistory(mangaInfo, targetChapter);
+                      }}
+                      className={`
                       w-full flex items-center gap-3 px-3 py-2 transition-colors duration-0 rounded-md md:px-4 md:py-3 md:text-sm
                       hover:bg-slate-800/60
                       ${selectedLanguage === lang
-                        ? isDark
-                          ? 'bg-purple-500/20 text-white border-l-2 border-purple-500'
-                          : 'bg-purple-200 text-purple-900 border-l-2 border-purple-600'
-                        : isDark
-                          ? 'text-slate-300'
-                          : 'text-gray-700'}
+                          ? isDark
+                            ? 'bg-purple-500/20 text-white border-l-2 border-purple-500'
+                            : 'bg-purple-200 text-purple-900 border-l-2 border-purple-600'
+                          : isDark
+                            ? 'text-slate-300'
+                            : 'text-gray-700'}
                     `}
-                  >
-                    <StableFlag
-                      code={lang ?? 'en'}
-                      className="w-4 h-4 rounded shadow-sm md:w-5 md:h-5"
-                      alt="flag"
-                    />
-                    <span className="font-medium">{langFullNames[lang] ?? lang}</span>
-                  </Link>
-                );
-              })}
-            </div>
-          )}
+                    >
+                      <StableFlag
+                        code={lang ?? 'en'}
+                        className="w-4 h-4 rounded shadow-sm md:w-5 md:h-5"
+                        alt="flag"
+                      />
+                      <span className="font-medium">{langFullNames[lang] ?? lang}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
-      </div>
 
-      {/* Chapter Selector */}
-      <div className="p-2 py-1">
-        <div className="relative" ref={dropdownRef}>
-          <button
-            onClick={() => setChapterDropdownOpen(!chapterDropdownOpen)}
-            className={`
+        {/* Chapter Selector */}
+        <div className="p-2 py-1">
+          <div className="relative" ref={dropdownRef}>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                e.nativeEvent?.stopImmediatePropagation();
+                setChapterDropdownOpen(!chapterDropdownOpen);
+              }}
+              className={`
             w-full flex items-center justify-between p-2 rounded-md transition-all duration-0 border
             md:p-3
             ${isDark
-                ? 'bg-slate-800/60 hover:bg-slate-700/60 text-white border-slate-700/50 hover:border-slate-600/50'
-                : 'bg-gray-100 hover:bg-gray-200 text-gray-900 border-gray-300 hover:border-gray-400'}
+                  ? 'bg-slate-800/60 hover:bg-slate-700/60 text-white border-slate-700/50 hover:border-slate-600/50'
+                  : 'bg-gray-100 hover:bg-gray-200 text-gray-900 border-gray-300 hover:border-gray-400'}
           `}
-            aria-label="Select chapter"
-          >
-            <div className="flex items-center gap-1 md:gap-0.5">
-              <BookOpen className={`${isDark ? 'text-slate-400' : 'text-gray-500'} w-3 h-3 min-w-fit md:w-4 md:h-4`} />
-              <span className="text-[11px] font-medium line-clamp-1 md:text-sm">
-                Chapter {chapterInfo.chapter} : {chapterInfo.title}
-              </span>
-            </div>
-            <ChevronDown
-              className={`w-3 h-3 ml-2 min-w-fit transition-transform duration-200 md:w-4 md:h-4 md:ml-4 ${chapterDropdownOpen ? 'rotate-180' : ''} ${isDark ? 'text-slate-400' : 'text-gray-500'}`}
-            />
-          </button>
-
-          {chapterDropdownOpen && (
-            <div className={`absolute -bottom-[220%] left-48 z-50 md:left-56 md:-bottom-[250%]`}>
-              <ChaptersQuickSelect
-                isDark={isDark}
-                mangaInfo={mangaInfo}
-                searchQuery={searchQuery}
-                chapterInfo={chapterInfo}
-                setSearchQuery={setSearchQuery}
-                setSortOrder={setSortOrder}
-                sortOrder={sortOrder}
-                goToFirstChapter={goToFirstChapter}
-                goToLastChapter={goToLastChapter}
-                filteredChapters={filteredChapters}
-                setChapterDropdownOpen={setChapterDropdownOpen}
-                addToReadHistory={addToReadHistory}
+              aria-label="Select chapter"
+            >
+              <div className="flex items-center gap-1 md:gap-0.5">
+                <BookOpen className={`${isDark ? 'text-slate-400' : 'text-gray-500'} w-3 h-3 min-w-fit md:w-4 md:h-4`} />
+                <span className="text-[11px] font-medium line-clamp-1 md:text-sm">
+                  Chapter {chapterInfo.chapter} : {chapterInfo.title}
+                </span>
+              </div>
+              <ChevronDown
+                className={`w-3 h-3 ml-2 min-w-fit transition-transform duration-200 md:w-4 md:h-4 md:ml-4 ${chapterDropdownOpen ? 'rotate-180' : ''} ${isDark ? 'text-slate-400' : 'text-gray-500'}`}
               />
-            </div>
-          )}
-        </div>
-      </div>
+            </button>
 
-      {/* Navigation Controls */}
-      <div className="py-1 mt-3 md:mt-4 px-2">
-        <div className="flex gap-2">
-          <button
-            onClick={goToPrevChapter}
-            disabled={!hasPrevChapter}
-            className={`
+            {chapterDropdownOpen && (
+              <div className={`absolute -bottom-[220%] left-48 z-50 md:left-56 md:-bottom-[250%]`}>
+                <ChaptersQuickSelect
+                  isDark={isDark}
+                  mangaInfo={mangaInfo}
+                  searchQuery={searchQuery}
+                  chapterInfo={chapterInfo}
+                  setSearchQuery={setSearchQuery}
+                  setSortOrder={setSortOrder}
+                  sortOrder={sortOrder}
+                  goToFirstChapter={goToFirstChapter}
+                  goToLastChapter={goToLastChapter}
+                  filteredChapters={filteredChapters}
+                  setChapterDropdownOpen={setChapterDropdownOpen}
+                  addToReadHistory={addToReadHistory}
+                />
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Navigation Controls */}
+        <div className="py-1 mt-3 md:mt-4 px-2">
+          <div className="flex gap-2">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                e.nativeEvent?.stopImmediatePropagation();
+                goToPrevChapter();
+              }}
+              disabled={!hasPrevChapter}
+              className={`
             flex-1 flex items-center justify-center gap-2 rounded-md transition-all duration-0 font-medium px-4 py-2 md:text-sm
             ${hasPrevChapter
-                ? isDark
-                  ? 'bg-slate-800/60 hover:bg-slate-700/60 text-white border border-slate-700/50 hover:border-slate-600/50'
-                  : 'bg-gray-200 hover:bg-gray-300 text-gray-900 border border-gray-300 hover:border-gray-400'
-                : isDark
-                  ? 'bg-slate-800/30 text-slate-500 cursor-not-allowed border border-slate-800/30'
-                  : 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-100'
-              }
+                  ? isDark
+                    ? 'bg-slate-800/60 hover:bg-slate-700/60 text-white border border-slate-700/50 hover:border-slate-600/50'
+                    : 'bg-gray-200 hover:bg-gray-300 text-gray-900 border border-gray-300 hover:border-gray-400'
+                  : isDark
+                    ? 'bg-slate-800/30 text-slate-500 cursor-not-allowed border border-slate-800/30'
+                    : 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-100'
+                }
           `}
-          >
-            <ArrowBigLeftDash className={`${isDark ? 'fill-white text-white' : 'fill-gray-900 text-gray-900'} w-4 h-4 md:w-5 md:h-5`} />
-          </button>
+            >
+              <ArrowBigLeftDash className={`${isDark ? 'fill-white text-white' : 'fill-gray-900 text-gray-900'} w-4 h-4 md:w-5 md:h-5`} />
+            </button>
 
-          <button
-            onClick={goToNextChapter}
-            disabled={!hasNextChapter}
-            className={`
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                e.nativeEvent?.stopImmediatePropagation();
+                goToNextChapter();
+              }}
+              disabled={!hasNextChapter}
+              className={`
             flex-1 flex items-center justify-center gap-2 rounded-md transition-all duration-0 font-medium px-4 py-2 md:text-sm
             ${hasNextChapter
-                ? isDark
-                  ? 'bg-slate-800/60 hover:bg-slate-700/60 text-white border border-slate-700/50 hover:border-slate-600/50'
-                  : 'bg-gray-200 hover:bg-gray-300 text-gray-900 border border-gray-300 hover:border-gray-400'
-                : isDark
-                  ? 'bg-slate-800/30 text-slate-500 cursor-not-allowed border border-slate-800/30'
-                  : 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-100'
-              }
+                  ? isDark
+                    ? 'bg-slate-800/60 hover:bg-slate-700/60 text-white border border-slate-700/50 hover:border-slate-600/50'
+                    : 'bg-gray-200 hover:bg-gray-300 text-gray-900 border border-gray-300 hover:border-gray-400'
+                  : isDark
+                    ? 'bg-slate-800/30 text-slate-500 cursor-not-allowed border border-slate-800/30'
+                    : 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-100'
+                }
           `}
-          >
-            <ArrowBigRightDash className={`${isDark ? 'fill-white text-white' : 'fill-gray-900 text-gray-900'} w-4 h-4 md:w-5 md:h-5`} />
-          </button>
+            >
+              <ArrowBigRightDash className={`${isDark ? 'fill-white text-white' : 'fill-gray-900 text-gray-900'} w-4 h-4 md:w-5 md:h-5`} />
+            </button>
+          </div>
         </div>
-      </div>
 
-      {/* Bottom Menu */}
-      <div className={`mt-2 my-1 md:my-0 pt-2 border-t md:mt-3 md:pt-3 ${isDark ? 'border-slate-800/50' : 'border-gray-300/50'}`}>
-        <div className="space-y-1">
-          {/* Settings Toggle */}
-          <button
-            onClick={() => setSettingsOpen(!settingsOpen)}
-            className={`
+        {/* Bottom Menu */}
+        <div className={`mt-2 my-1 md:my-0 pt-2 border-t md:mt-3 md:pt-3 ${isDark ? 'border-slate-800/50' : 'border-gray-300/50'}`}>
+          <div className="space-y-1">
+            {/* Settings Toggle */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                e.nativeEvent?.stopImmediatePropagation();
+                setSettingsOpen(!settingsOpen);
+              }}
+              className={`
             w-full flex items-center justify-between rounded-lg transition-colors duration-0 focus:outline-none p-3 md:text-sm
             ${isDark
-                ? 'text-slate-300 hover:text-white'
-                : 'text-gray-700 hover:text-gray-900'}
+                  ? 'text-slate-300 hover:text-white'
+                  : 'text-gray-700 hover:text-gray-900'}
           `}
-            aria-pressed={settingsOpen}
-            aria-label="Toggle settings"
-            type="button"
-          >
-            <div className="flex items-center gap-2 md:gap-3">
-              <Settings className={`${isDark ? 'text-slate-300' : 'text-gray-700'} w-4 h-4 md:w-5 md:h-5`} />
-              <span className="text-[11px] font-medium select-none md:text-sm">Settings</span>
-            </div>
-
-            {/* Toggle switch */}
-            <div
-              className={`relative w-11 h-6 rounded-full transition-colors duration-0 ${settingsOpen ? 'bg-purple-500' : (isDark ? 'bg-slate-600' : 'bg-gray-300')}`}
+              aria-pressed={settingsOpen}
+              aria-label="Toggle settings"
+              type="button"
             >
-              <span
-                className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-md transform transition-transform duration-300 ${settingsOpen ? 'translate-x-5' : 'translate-x-0'}`}
-              />
-            </div>
-          </button>
+              <div className="flex items-center gap-2 md:gap-3">
+                <Settings className={`${isDark ? 'text-slate-300' : 'text-gray-700'} w-4 h-4 md:w-5 md:h-5`} />
+                <span className="text-[11px] font-medium select-none md:text-sm">Settings</span>
+              </div>
 
-          {/* Manga Details */}
-          <Link
-            href={`/manga/${mangaInfo.id}/chapters`}
-            prefetch={true}
-            className={`w-full flex items-center gap-2 p-2 rounded-lg transition-all duration-0 md:p-3 md:text-sm
+              {/* Toggle switch */}
+              <div
+                className={`relative w-11 h-6 rounded-full transition-colors duration-0 ${settingsOpen ? 'bg-purple-500' : (isDark ? 'bg-slate-600' : 'bg-gray-300')}`}
+              >
+                <span
+                  className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-md transform transition-transform duration-300 ${settingsOpen ? 'translate-x-5' : 'translate-x-0'}`}
+                />
+              </div>
+            </button>
+
+            {/* Manga Details */}
+            <Link
+              href={`/manga/${mangaInfo.id}/chapters`}
+              prefetch={true}
+              className={`w-full flex items-center gap-2 p-2 rounded-lg transition-all duration-0 md:p-3 md:text-sm
                 ${isDark
-                ? 'text-slate-300 hover:text-white hover:bg-slate-800/60'
-                : 'text-gray-700 hover:text-gray-900 hover:bg-gray-200'}
+                  ? 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+                  : 'text-gray-700 hover:text-gray-900 hover:bg-gray-200'}
                 `}
-            onClick={handleMangaDetailsClicked}
-          >
-            <Info className={`${isDark ? 'text-slate-300' : 'text-gray-700'} w-4 h-4 md:w-5 md:h-5`} />
-            <span className="text-[11px] font-medium select-none md:text-sm">Manga Details</span>
-          </Link>
+              onClick={(e) => {
+                e.nativeEvent?.stopImmediatePropagation();
+                handleMangaDetailsClicked();
+              }}
 
-          {/* Reading List */}
-          <button
-            onClick={toggleFavorite}
-            className={`
+            >
+              <Info className={`${isDark ? 'text-slate-300' : 'text-gray-700'} w-4 h-4 md:w-5 md:h-5`} />
+              <span className="text-[11px] font-medium select-none md:text-sm">Manga Details</span>
+            </Link>
+
+            {/* Reading List */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                e.nativeEvent?.stopImmediatePropagation();
+                toggleFavorite();
+              }}
+              className={`
             w-full flex items-center gap-2 p-2 rounded-lg transition-all duration-0 md:p-3 md:text-sm
             ${isDark
-                ? 'text-slate-300 hover:text-white hover:bg-slate-800/60'
-                : 'text-gray-700 hover:text-gray-900 hover:bg-gray-200'}
+                  ? 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+                  : 'text-gray-700 hover:text-gray-900 hover:bg-gray-200'}
           `}
-          >
-            <div className="flex items-center gap-2">
-              {isFavorite ? (
-                <Heart className="w-4 h-4 text-red-600 fill-current md:w-5 md:h-5" />
-              ) : (
-                <Heart className={`w-4 h-4 md:w-5 md:h-5 ${isDark ? '' : 'text-gray-700'}`} />
-              )}
-              <span className="text-[11px] font-medium select-none md:text-sm">
-                Favorites {isFavorite ? 'Listed' : 'List'}
-              </span>
-            </div>
-          </button>
+            >
+              <div className="flex items-center gap-2">
+                {isFavorite ? (
+                  <Heart className="w-4 h-4 text-red-600 fill-current md:w-5 md:h-5" />
+                ) : (
+                  <Heart className={`w-4 h-4 md:w-5 md:h-5 ${isDark ? '' : 'text-gray-700'}`} />
+                )}
+                <span className="text-[11px] font-medium select-none md:text-sm">
+                  Favorites {isFavorite ? 'Listed' : 'List'}
+                </span>
+              </div>
+            </button>
+          </div>
         </div>
       </div>
-    </div>
     </>
   );
 };

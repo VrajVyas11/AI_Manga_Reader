@@ -41,7 +41,12 @@ function CollapsedSideBarStrip({
       >
         <div className="tracking-wider flex flex-col items-center h-full justify-between gap-y-3 md:gap-y-4">
           <button
-            onClick={() => setIsCollapsed(false)}
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              e.nativeEvent?.stopImmediatePropagation();
+              setIsCollapsed(false);
+            }}
             className={`
             tracking-wider w-12 h-12 rounded-full flex items-center justify-center relative group transition-colors duration-0
             border
@@ -69,7 +74,12 @@ function CollapsedSideBarStrip({
               ref={dropdownRef}
             >
               <button
-                onClick={() => setChapterDropdownOpen((prev) => !prev)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  e.nativeEvent?.stopImmediatePropagation();
+                  setChapterDropdownOpen((prev) => !prev);
+                }}
                 className={`
                 tracking-wider w-12 h-12 rounded-full flex items-center justify-center relative group transition-colors duration-0
                 border
@@ -147,7 +157,12 @@ function CollapsedSideBarStrip({
             </div>
 
             <button
-              onClick={toggleFavorite}
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                e.nativeEvent?.stopImmediatePropagation();
+                toggleFavorite();
+              }}
               className={`
               w-10 md:w-12 h-10 md:h-12 tracking-wider rounded-full flex items-center justify-center relative group transition-all duration-0
               ${isFavorite
@@ -177,7 +192,12 @@ function CollapsedSideBarStrip({
           <div className="tracking-wider flex flex-col items-center gap-1.5 md:gap-2">
             <div className="tracking-wider flex w-12 md:w-12 flex-col justify-between gap-1.5 md:gap-2">
               <button
-                onClick={goToPrevChapter}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  e.nativeEvent?.stopImmediatePropagation();
+                  goToPrevChapter();
+                }}
                 disabled={!hasPrevChapter}
                 className={`
                 tracking-wider w-12 h-12 rounded-full flex items-center justify-center relative group transition-colors duration-0
@@ -201,7 +221,12 @@ function CollapsedSideBarStrip({
               </div>
 
               <button
-                onClick={goToNextChapter}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  e.nativeEvent?.stopImmediatePropagation();
+                  goToNextChapter();
+                }}
                 disabled={!hasNextChapter}
                 className={`
                 tracking-wider w-12 h-12 rounded-full flex items-center justify-center relative group transition-colors duration-0

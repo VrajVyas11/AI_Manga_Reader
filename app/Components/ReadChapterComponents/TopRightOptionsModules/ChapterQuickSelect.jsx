@@ -38,7 +38,12 @@ const ChapterQuickSelect = memo(({
                     <h3 className={`font-semibold ml-2 ${isDark ? "text-white" : "text-gray-800"
                         }`}>Chapters</h3>
                     <button
-                        onClick={toggleChapters}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            e.nativeEvent?.stopImmediatePropagation();
+                            toggleChapters();
+                        }}
                         className={`transition-colors ${isDark
                             ? "text-gray-400 hover:text-white"
                             : "text-gray-600 hover:text-gray-800"
@@ -65,7 +70,12 @@ const ChapterQuickSelect = memo(({
                             aria-label="Search chapters"
                         />
                         <button
-                            onClick={() => setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                e.nativeEvent?.stopImmediatePropagation();
+                                setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc');
+                            }}
                             className={`tracking-wider p-0.5 md:p-1 rounded-md transition-colors ${isDark
                                 ? "bg-purple-700/50 hover:bg-purple-900/30 text-gray-200"
                                 : "bg-purple-600/60 hover:bg-blue-600/30 text-white"
@@ -77,7 +87,12 @@ const ChapterQuickSelect = memo(({
                     </div>
                     <div className="tracking-wider flex gap-0.5 md:gap-1 mt-0.5 md:mt-3">
                         <button
-                            onClick={goToFirstChapter}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                e.nativeEvent?.stopImmediatePropagation();
+                                goToFirstChapter();
+                            }}
                             className={`tracking-wider flex-1 py-0.5 md:py-1 text-[10px] md:text-xs rounded-md transition-colors ${isDark
                                 ? "bg-purple-700/50 hover:bg-purple-800/40 text-white"
                                 : "bg-purple-600/60 hover:bg-blue-600/40 text-white"
@@ -104,8 +119,9 @@ const ChapterQuickSelect = memo(({
                             key={chapter.id}
                             href={`/manga/${mangaId}/chapter/${chapter.id}/read`}
                             prefetch={true}
-                            onClick={() => {
-                                addToReadHistory(mangaInfo, chapter)
+                            onClick={(e) => {
+                                e.nativeEvent?.stopImmediatePropagation();
+                                addToReadHistory(mangaInfo, chapter);
                             }}
                             className={`w-full tracking-wider text-left px-2 md:px-3 py-1.5 md:py-2 text-[10px] md:text-sm transition-colors block ${chapter.id === chapterInfo.id
                                 ? isDark

@@ -28,8 +28,8 @@ export default function ReadChapter() {
   const [layout, setLayout] = useState('horizontal');
   const [panels, setPanels] = useState(1);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [showMessage, setShowMessage] = useState(false);
-  const [fullOCRResult, setFullOCRResult] = useState("");
+
+
   const [pageTranslations, setPageTranslations] = useState({});
   const [isItTextToSpeech, setIsItTextToSpeech] = useState(false);
   const [allAtOnce, setAllAtOnce] = useState(false);
@@ -57,22 +57,6 @@ export default function ReadChapter() {
   }, [chapterInfo, selectedLanguage]);
 
   // console.log(selectedMemoManga);
-
-  useEffect(() => {
-    if (pages && pages?.chapter?.dataSaver?.length > 0 && pages?.chapter?.data?.length > 0) {
-      const currentPage = quality === "low" ? pages?.chapter?.dataSaver[currentIndex] : pages?.chapter?.data[currentIndex];
-      if (pageTranslations[currentPage]) {
-        setFullOCRResult(pageTranslations[currentPage].ocrResult);
-        setShowMessage(true);
-      } else if (!pageTranslations[currentPage] && pageTTS[currentPage]) {
-        setFullOCRResult(pageTTS[currentPage].ocrResult);
-        setShowMessage(true);
-      } else {
-        setFullOCRResult("");
-        setShowMessage(false);
-      }
-    }
-  }, [currentIndex, pages, pageTranslations, pageTTS, quality]);
 
   useEffect(() => {
     if (selectedMemoManga && (selectedMemoManga.originalLanguage == "ko" || selectedMemoManga.originalLanguage == "zh" || selectedMemoManga.originalLanguage == "zh-hk" || selectedMemoManga.flatTags.includes("Long Strip") || selectedMemoManga.flatTags.includes("Web Comic"))) {
@@ -308,12 +292,8 @@ export default function ReadChapter() {
               setPageTranslations={setPageTranslations}
               pageTTS={pageTTS}
               setPageTTS={setPageTTS}
-              fullOCRResult={fullOCRResult}
-              setFullOCRResult={setFullOCRResult}
               isItTextToSpeech={isItTextToSpeech}
               setIsItTextToSpeech={setIsItTextToSpeech}
-              showMessage={showMessage}
-              setShowMessage={setShowMessage}
               allAtOnce={allAtOnce}
               isCollapsed={isCollapsed}
               goToPrevChapter={goToPrevChapter}
