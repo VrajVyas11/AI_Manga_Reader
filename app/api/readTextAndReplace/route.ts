@@ -4,7 +4,7 @@ import { NextResponse, NextRequest } from "next/server";
 import path from "path";
 import fs from "fs";
 import sharp from "sharp";
-import RapidOCRWrapper from "../../../scripts/index";
+import OcrWrapper from "../../../scripts/index.js"; // Updated import
 
 // Interfaces for OCR response
 export interface OCRResult {
@@ -82,7 +82,7 @@ const PERFORMANCE_SETTINGS = {
 } as const;
 
 // Global OCR instance
-let globalOCR: RapidOCRWrapper | null = null;
+let globalOCR: OcrWrapper | null = null;
 let isInitializing = false;
 let initPromise: Promise<void> | null = null;
 
@@ -108,14 +108,14 @@ async function initializeOCR(language: string | undefined): Promise<void> {
   console.log("🚀 Initializing OCR with multi-language support...");
   const memBefore = getMemoryUsage();
 
-  globalOCR = new RapidOCRWrapper();
-  await globalOCR.init(language); // Default language, but supports all
+  globalOCR = new OcrWrapper();
+  await globalOCR.init(language || "en");
 
   const memAfter = getMemoryUsage();
   console.log(`✅ OCR initialized: ${memBefore.rss}MB -> ${memAfter.rss}MB`);
 }
 
-async function getOCRInstance(language: string): Promise<RapidOCRWrapper> {
+async function getOCRInstance(language: string): Promise<OcrWrapper> {
   if (!globalOCR) {
     if (!isInitializing) {
       isInitializing = true;
@@ -271,21 +271,19 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const memoryBeforeOCR = getMemoryUsage();
     console.log(`💾 Memory before OCR: ${memoryBeforeOCR.rss}MB RSS`);
 
-    // In your POST function, replace this part:
     try {
       // Extract language from request if provided
       const language = formData.get("language") as string || "en";
       const ocrInstance = await getOCRInstance(language);
       const ocrStart = Date.now();
 
-      console.log(`🔤 Starting OCR processing...`);
+      console.log(`🔤 Starting OCR processing with language: ${language}...`);
 
       // Pass language to OCR
       const ocrResult = await ocrInstance.readText(imagePath, language);
       const ocrDuration = Date.now() - ocrStart;
 
-      console.log(`✅ OCR completed in ${ocrDuration}ms for language: ${language}`);
-      // ... rest of your code
+      console.log(`✅ OCR completed in ${ocrDuration}ms`);
       console.log(`📊 OCR Results: ${ocrResult.data?.length || 0} text lines, ${ocrResult.paragraphs?.length || 0} paragraphs`);
 
       forceMemoryCleanup();

@@ -24,7 +24,7 @@ ai-manga-reader/app/api/manga/getAuthor
 Audiotest.jsx
 TranslatorTest.jsx
 AIAudio/
-
+*.py
 BottomSettingsModules
 InfoSideBarModules
 app/Components/LibraryComponents/Temp.jsx

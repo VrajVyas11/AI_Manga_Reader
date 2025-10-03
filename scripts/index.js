@@ -1,164 +1,192 @@
-import { spawn } from "child_process";
-import path from "path";
-import os from "os";
+import Ocr from "./main.js";
 
-class RapidOCRWrapper {
+class OcrWrapper {
   constructor() {
-    this.pythonCommand = this.getPythonCommand();
-    const ocrScriptPath = process.env.NODE_ENV === 'production' 
-      ? '/app/scripts/main.py'
-      : path.resolve(process.cwd(), "scripts", "main.py");
-    
-    console.log("OCR script path:", ocrScriptPath);
-    this.isProcessActive = false;
+    this.ocrInstance = null;
     this.currentLanguage = "en";
-    
-    this.startPythonProcess();
-  }
-
-  getPythonCommand() {
-    return os.platform() === "win32" ? "python" : "python3";
-  }
-
-  startPythonProcess() {
-    this.pythonProcess = spawn(this.pythonCommand, [this.getScriptPath()], {
-      stdio: ["pipe", "pipe", "pipe"],
-      encoding: "utf-8",
-    });
-
-    this.buffer = "";
-    this.isProcessActive = true;
-
-    this.pythonProcess.stdout.setEncoding("utf-8");
-    this.pythonProcess.stdout.on("data", (data) => {
-      this.buffer += data;
-    });
-
-    this.pythonProcess.stderr.on("data", (errData) => {
-      const errorMsg = errData.toString().trim();
-      if (errorMsg.includes("Neither CUDA nor MPS are available")) {
-        console.warn("Warning:", errorMsg);
-      } else if (errorMsg.startsWith("[TIME]") || errorMsg.startsWith("[MEMORY]")) {
-        console.log(errorMsg);
-      } else if (errorMsg && !errorMsg.includes("WARNING") && !errorMsg.includes("INFO")) {
-        console.error("Python Error:", errorMsg);
-      }
-    });
-
-    this.pythonProcess.on("exit", (code) => {
-      this.isProcessActive = false;
-      console.log(`Python process exited with code ${code}`);
-    });
-
-    this.pythonProcess.on("error", (error) => {
-      this.isProcessActive = false;
-      console.error("Python process error:", error);
-    });
-  }
-
-  getScriptPath() {
-    if (process.env.NODE_ENV === 'production') {
-      return '/app/scripts/main.py';
-    }
-    return path.resolve(process.cwd(), "scripts", "main.py");
-  }
-
-  async ensureProcessActive() {
-    if (!this.isProcessActive) {
-      console.log("Restarting Python process...");
-      this.startPythonProcess();
-      await new Promise(resolve => setTimeout(resolve, 2000));
-    }
-  }
-
-  async sendCommand(command, args = "") {
-    await this.ensureProcessActive();
-    
-    const startTime = performance.now();
-    return new Promise((resolve, reject) => {
-      const timeout = setTimeout(() => {
-        reject(new Error(`Command timeout: ${command} ${args}`));
-      }, 600000);//10 min timeout limit (i know its excessive but what can i do)
-
-      const fullCommand = `${command} ${args}\n`;
-      console.log(`[JS] Sending command: ${fullCommand.trim()}`);
-      
-      if (!this.pythonProcess.stdin.writable) {
-        reject(new Error("Python process stdin is not writable"));
-        return;
-      }
-
-      let responseBuffer = "";
-      const dataHandler = (data) => {
-        responseBuffer += data.toString();
-        
-        // Check if we have a complete JSON response
-        try {
-          const lines = responseBuffer.split('\n').filter(line => line.trim());
-          for (let i = lines.length - 1; i >= 0; i--) {
-            try {
-              const jsonResponse = JSON.parse(lines[i]);
-              clearTimeout(timeout);
-              this.pythonProcess.stdout.removeListener('data', dataHandler);
-              
-              if (jsonResponse.status === "error") {
-                reject(new Error(jsonResponse.message));
-              } else {
-                const endTime = performance.now();
-                console.log(`[JS TIME] Command '${command}': ${(endTime - startTime) / 1000}s`);
-                resolve(jsonResponse);
-              }
-              return;
-            } catch {
-              // Continue to next line
-              continue;
-            }
-          }
-        } catch  {
-          // Wait for more data
-        }
-      };
-
-      this.pythonProcess.stdout.on('data', dataHandler);
-      this.pythonProcess.stdin.write(fullCommand);
-
-      // Error handler
-      const errorHandler = (error) => {
-        clearTimeout(timeout);
-        this.pythonProcess.stdout.removeListener('data', dataHandler);
-        reject(new Error(`Process error: ${error.message}`));
-      };
-
-      this.pythonProcess.once('error', errorHandler);
-    });
+    this.isInitialized = false;
+    console.log("OCR Wrapper initialized");
   }
 
   async init(languages = "en") {
-    this.currentLanguage = languages;
-    const result = await this.sendCommand("init", `"${languages}"`);
-    console.log(`OCR initialized for language: ${languages}`);
-    return result;
+    const startTime = performance.now();
+    try {
+      this.currentLanguage = languages;
+      
+      // Initialize OCR with settings matching the CLI version
+      this.ocrInstance = await Ocr.create({
+        threshold: 0.1,
+        minSize: 5,
+        maxSize: 1000,
+        unclipRatio: 1.8,
+        language: languages,
+        confidenceThreshold: 0.6,
+        imageHeight: 48,
+        removeDuplicateChars: true
+      });
+      
+      this.isInitialized = true;
+      const endTime = performance.now();
+      
+      console.log(`OCR initialized for language: ${languages} in ${((endTime - startTime) / 1000).toFixed(3)}s`);
+      
+      return {
+        status: "success",
+        message: `OCR initialized for ${languages}`,
+        langs: languages,
+        memory_usage: "~N/A (Browser environment)"
+      };
+    } catch (error) {
+      console.error("OCR initialization error:", error);
+      return {
+        status: "error",
+        message: `Failed to initialize OCR: ${error.message}`
+      };
+    }
   }
 
   async readText(imagePath, language = "en") {
-    // Use provided language or fallback to current
-    const targetLanguage = language || this.currentLanguage;
-    const escapedPath = imagePath.replace(/"/g, '\\"');
-    return this.sendCommand("read_text", `"${escapedPath}" "${targetLanguage}"`);
+    const startTime = performance.now();
+    
+    try {
+      // Reinitialize if language changed
+      if (language !== this.currentLanguage || !this.isInitialized) {
+        await this.init(language);
+      }
+
+      console.log(`Processing image with language: ${language}`);
+      console.log(`Image path: ${imagePath}`);
+
+      // Run OCR detection using the detect method
+      const result = await this.ocrInstance.detect(imagePath);
+
+      if (!result?.texts || result.texts.length === 0) {
+        return {
+          status: "success",
+          data: [],
+          paragraphs: [],
+          message: "No text detected in image"
+        };
+      }
+
+      // Process individual elements - EXACT SAME AS main.js
+      const individualElements = result.texts
+        .filter(item => item?.text && item.text.trim().length > 0)
+        .map(item => ({
+          text: item.text.trim(),
+          confidence: item.mean,
+          frame: this.ocrInstance.extractFrameFromBox(item.box),
+          box: item.box
+        }));
+
+      if (individualElements.length === 0) {
+        return {
+          status: "success",
+          data: [],
+          paragraphs: [],
+          message: "No text detected in image"
+        };
+      }
+
+      console.log(`Found ${individualElements.length} individual text elements`);
+
+      // Group text elements into paragraphs - USING EXACT FUNCTIONS FROM main.js
+      const groups = this.ocrInstance.groupTextElements(individualElements);
+      const paragraphs = groups.map(group => this.ocrInstance.createParagraph(group));
+
+      console.log(`Grouped into ${paragraphs.length} paragraphs`);
+
+      // Convert to Python-compatible format
+      const formattedData = individualElements.map(item => ({
+        bbox: item.box,
+        text: item.text,
+        confidence: item.confidence
+      }));
+
+      const formattedParagraphs = paragraphs.map(para => ({
+        text: para.text,
+        bbox: this.calculateBboxFromBoundingBox(para.boundingBox),
+        score: para.confidence,
+        item_count: para.elements.length,
+        individual_items: para.elements.map(el => ({
+          bbox: this.calculateBboxFromFrame(el.frame),
+          text: el.text,
+          score: el.confidence
+        }))
+      }));
+
+      const totalTime = (performance.now() - startTime) / 1000;
+      const totalConfidence = individualElements.reduce((sum, el) => sum + el.confidence, 0);
+      const avgConfidence = totalConfidence / individualElements.length;
+      const highConfidence = individualElements.filter(el => el.confidence > 0.7).length;
+
+      console.log(`Processing completed in ${totalTime.toFixed(2)}s`);
+      console.log(`Average confidence: ${avgConfidence.toFixed(3)}`);
+
+      return {
+        status: "success",
+        data: formattedData,
+        paragraphs: formattedParagraphs,
+        stats: {
+          total_lines: individualElements.length,
+          total_paragraphs: paragraphs.length,
+          processing_time: `${totalTime.toFixed(3)}s`,
+          image_size: 0,
+          average_confidence: avgConfidence.toFixed(3),
+          high_confidence_ratio: `${highConfidence}/${individualElements.length}`,
+          language: language
+        },
+        memory_usage: "~N/A (Browser environment)"
+      };
+
+    } catch (error) {
+      console.error("OCR processing error:", error);
+      return {
+        status: "error",
+        message: `Error processing image: ${error.message}`
+      };
+    }
+  }
+
+  // Helper to convert boundingBox to bbox format
+  calculateBboxFromBoundingBox(boundingBox) {
+    const { left, top, width, height } = boundingBox;
+    return [
+      [left, top],
+      [left + width, top],
+      [left + width, top + height],
+      [left, top + height]
+    ];
+  }
+
+  // Helper to convert frame to bbox format
+  calculateBboxFromFrame(frame) {
+    const { left, top, width, height } = frame;
+    return [
+      [left, top],
+      [left + width, top],
+      [left + width, top + height],
+      [left, top + height]
+    ];
   }
 
   async close() {
     try {
-      const response = await this.sendCommand("close");
-      this.pythonProcess.stdin.end();
-      this.isProcessActive = false;
-      return response;
-    } catch (err) {
-      console.error("Error while closing:", err.message);
-      this.pythonProcess.kill();
-      this.isProcessActive = false;
+      this.ocrInstance = null;
+      this.isInitialized = false;
+      console.log("OCR cleaned up");
+      return {
+        status: "success",
+        message: "OCR cleaned up"
+      };
+    } catch (error) {
+      console.error("Error while closing:", error);
+      return {
+        status: "error",
+        message: error.message
+      };
     }
   }
 }
 
-export default RapidOCRWrapper;
+export default OcrWrapper;
