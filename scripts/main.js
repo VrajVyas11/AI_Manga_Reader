@@ -1,11 +1,27 @@
 // complete-ocr-enhanced.js
 import fs from 'node:fs/promises';
 import invariant from 'tiny-invariant';
-import { InferenceSession, Tensor } from 'onnxruntime-web';
+import path from 'node:path';
 import sharp from 'sharp';
 import cv from '@techstark/opencv-js';
 import clipper from 'js-clipper';
+import * as ort from 'onnxruntime-web';
 
+// Node.js WASM config (works for dev/prod)
+ort.env.wasm = {
+  numThreads: 1,  // Single-threaded only in Node
+  thread: false,  // Disable Web Workers (no .mjs load)
+  simd: false,    // Skip SIMD-threaded to avoid errors
+  wasmPaths: {    // Direct paths for resolution
+    'ort-wasm.wasm': path.join(process.cwd(), 'node_modules/onnxruntime-web/dist/ort-wasm.wasm'),
+    'ort-wasm-simd.wasm': path.join(process.cwd(), 'node_modules/onnxruntime-web/dist/ort-wasm-simd.wasm'),  // Fallback if needed
+    'ort-wasm-threaded.wasm': '',  // Empty to disable
+  },
+  logLevel: process.env.NODE_ENV === 'development' ? 'verbose' : 'error',  // Debug in dev
+};
+
+// Your existing imports
+import { InferenceSession, Tensor } from 'onnxruntime-web';
 // =============================================================================
 // CONFIGURATION
 // =============================================================================
@@ -20,14 +36,14 @@ const OCR_CONFIG = {
     BASE_SIZE: 32,
     MAX_IMAGE_SIZE: 960,
     ONNX_OPTIONS: {
-      executionProviders: ['cpu'],
+      executionProviders: ['wasm'],  // Force WASM for Node
       graphOptimizationLevel: 'all',
       enableCpuMemArena: true,
       enableMemPattern: true,
       executionMode: 'sequential',
       logSeverityLevel: 2,
-      intraOpNumThreads: 0,
-      interOpNumThreads: 0,
+      intraOpNumThreads: 1,  // Single thread
+      interOpNumThreads: 1,
     }
   },
   RECOGNITION: {
@@ -64,14 +80,14 @@ const OCR_CONFIG = {
     REMOVE_DUPLICATE_CHARS: true,
     IGNORED_TOKENS: [0],
     ONNX_OPTIONS: {
-      executionProviders: ['cpu'],
+      executionProviders: ['wasm'],  // Force WASM for consistency
       graphOptimizationLevel: 'all',
       enableCpuMemArena: true,
       enableMemPattern: true,
       executionMode: 'sequential',
       logSeverityLevel: 2,
-      intraOpNumThreads: 0,
-      interOpNumThreads: 0,
+      intraOpNumThreads: 1,
+      interOpNumThreads: 1,
     }
   },
   GROUPING: {
@@ -92,34 +108,6 @@ const OCR_CONFIG = {
 // =============================================================================
 // TEXT / MATH HELPERS
 // =============================================================================
-
-// function calculateDistance(box1, box2) {
-//   const center1 = { x: box1.left + box1.width / 2, y: box1.top + box1.height / 2 };
-//   const center2 = { x: box2.left + box2.width / 2, y: box2.top + box2.height / 2 };
-//   return {
-//     horizontal: Math.abs(center1.x - center2.x),
-//     vertical: Math.abs(center1.y - center2.y),
-//     euclidean: Math.sqrt(Math.pow(center1.x - center2.x, 2) + Math.pow(center1.y - center2.y, 2))
-//   };
-// }
-
-// function boxesOverlapVertically(box1, box2) {
-//   const top1 = box1.top, bottom1 = box1.top + box1.height;
-//   const top2 = box2.top, bottom2 = box2.top + box2.height;
-//   const overlapTop = Math.max(top1, top2);
-//   const overlapBottom = Math.min(bottom1, bottom2);
-//   const overlap = Math.max(0, overlapBottom - overlapTop);
-//   const minHeight = Math.min(box1.height, box2.height) || 1;
-//   return overlap / minHeight;
-// }
-
-// function areOnSameLine(box1, box2, config) {
-//   const overlapRatio = boxesOverlapVertically(box1, box2);
-//   const verticalOffset = Math.abs((box1.top + box1.height / 2) - (box2.top + box2.height / 2));
-//   const avgHeight = (box1.height + box2.height) / 2;
-//   return overlapRatio >= config.MIN_OVERLAP_RATIO ||
-//     verticalOffset < avgHeight * config.MAX_VERTICAL_OFFSET_RATIO;
-// }
 
 function median(values) {
   if (!values || values.length === 0) return 0;
@@ -452,6 +440,11 @@ class Ocr {
   #detection;
   #recognition;
   static async create({ threshold = 0.1, minSize = 3, maxSize = 2000, unclipRatio = 1.5, confidenceThreshold = 0.5, language = 'en', ...options } = {}) {
+    try {
+     await InferenceSession.create(OCR_CONFIG.DETECTION.MODEL_PATH, { executionProviders: ['wasm'] });
+    } catch (e) {
+      throw new Error(`WASM init failed: ${e.message}`);
+    }
     const detection = await Detection.create({ ...options, threshold, minSize, maxSize, unclipRatio });
     const recognition = await Recognition.create({ ...options, language, confidenceThreshold });
     return new Ocr({ detection, recognition, confidenceThreshold });
