@@ -1,28 +1,34 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as cheerio from 'cheerio';
 import { NextRequest, NextResponse } from 'next/server';
-import puppeteer, { Browser } from 'puppeteer';
+import puppeteer from 'puppeteer-core';
 
-let browserPromise: Promise<Browser> | null = null;
-export const dynamic = 'force-dynamic'; // Ensure dynamic execution in Next.js
-export const maxDuration = 60; // Vercel timeout in seconds
+let browserPromise: Promise<any> | null = null;
+export const dynamic = 'force-dynamic';
+export const maxDuration = 60;
 
-// Initialize browser singleton
+// Initialize browser with @sparticuz/chromium
 async function getBrowser() {
-    if (!browserPromise) {
-        browserPromise = puppeteer.launch({
+    const isVercel = process.env.VERCEL === '1';
+    
+    if (isVercel) {
+        // Vercel/AWS Lambda
+        const chromium = await import('@sparticuz/chromium');
+        return puppeteer.launch({
+            args: chromium.default.args,
+            executablePath: await chromium.default.executablePath(),
             headless: true,
-            args: [
-                '--no-sandbox',
-                '--disable-setuid-sandbox',
-                '--disable-dev-shm-usage',
-                '--disable-gpu',
-            ],
-            timeout: 60000,
+        });
+    } else {
+        // Render/Railway/Local
+        const puppeteerRegular = await import('puppeteer');
+        return puppeteerRegular.default.launch({
+            headless: true,
+            args: ['--no-sandbox', '--disable-setuid-sandbox'],
         });
     }
-    return browserPromise;
 }
+
 
 // Cleanup browser on process exit
 process.on('SIGINT', async () => {
@@ -51,7 +57,6 @@ export async function GET(req: NextRequest) {
             { status: 400 }
         );
     }
-    console.log(`page-${Math.max(1, Math.ceil(repliesCount / 20))}`);
 
     const forumUrl = `https://forums.mangadex.org/threads/${thread}/page-${Math.max(1, Math.ceil(repliesCount / 20))}`;
     const maxComments = 20;
@@ -88,7 +93,7 @@ export async function GET(req: NextRequest) {
             });
 
             await page.setRequestInterception(true);
-            page.on('request', (request: { resourceType: () => any; abort: () => void; continue: () => void; }) => {
+            page.on('request', (request: any) => {
                 const resourceType = request.resourceType();
                 if (['image', 'stylesheet', 'font', 'media', 'script', 'xhr', 'fetch'].includes(resourceType)) {
                     request.abort();
@@ -187,7 +192,7 @@ export async function GET(req: NextRequest) {
                         source: 'MangaDex Forums Thread Comments',
                         error: `Failed to scrape data after ${maxRetries} attempts: ${error.message}`,
                     },
-                    { status: error.response?.status || 500 }
+                    { status: 500 }
                 );
             }
             await new Promise(resolve => setTimeout(resolve, 1000 * attempt));

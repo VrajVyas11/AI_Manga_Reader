@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ['puppeteer-core',
     '@sparticuz/chromium',
     'js-clipper',
-    'onnxruntime-node',  // Treat as external (assumes installed globally or via env)
+    'onnxruntime-web',  // Treat as external (assumes installed globally or via env)
     '@techstark/opencv-js',
     'sharp'  // If native issues persis
   ],

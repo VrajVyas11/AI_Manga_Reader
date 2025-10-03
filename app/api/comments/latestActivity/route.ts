@@ -1,73 +1,60 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as cheerio from 'cheerio';
 import { NextResponse } from 'next/server';
-import puppeteer, { Browser, Page } from 'puppeteer';
+import puppeteer from 'puppeteer-core';
 
-// Remove singleton pattern - create fresh browser for each request
-async function createBrowser(): Promise<Browser> {
-    return puppeteer.launch({
-        headless: true, // Use new headless mode
-        args: [
-            '--no-sandbox',
-            '--disable-setuid-sandbox',
-            '--disable-dev-shm-usage',
-            '--disable-gpu',
-            '--disable-web-security',
-            '--disable-features=VizDisplayCompositor',
-            '--disable-extensions',
-            '--disable-plugins',
-            '--disable-background-timer-throttling',
-            '--disable-backgrounding-occluded-windows',
-            '--disable-renderer-backgrounding',
-            '--no-first-run',
-            '--no-default-browser-check',
-            '--memory-pressure-off',
-            '--max_old_space_size=4096'
-        ],
-        timeout: 30000, // Reduced timeout
-        defaultViewport: {
-            width: 1280,
-            height: 720,
-            deviceScaleFactor: 1,
-        },
-    });
+export const dynamic = 'force-dynamic';
+export const maxDuration = 60;
+
+async function createBrowser() {
+    const isVercel = process.env.VERCEL === '1';
+    
+    if (isVercel) {
+        // Vercel/AWS Lambda
+        const chromium = await import('@sparticuz/chromium');
+        return puppeteer.launch({
+            args: chromium.default.args,
+            executablePath: await chromium.default.executablePath(),
+            headless: true,
+        });
+    } else {
+        // Render/Railway/Local
+        const puppeteerRegular = await import('puppeteer');
+        return puppeteerRegular.default.launch({
+            headless: true,
+            args: ['--no-sandbox', '--disable-setuid-sandbox'],
+        });
+    }
 }
 
-async function setupPage(browser: Browser): Promise<Page> {
+async function setupPage(browser: any) {
     const page = await browser.newPage();
     
-    // Set reasonable timeouts
     page.setDefaultTimeout(10000);
     page.setDefaultNavigationTimeout(15000);
+
+    await page.setViewport({ width: 1280, height: 720 });
 
     await page.setUserAgent(
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
     );
 
     await page.setExtraHTTPHeaders({
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
         'Accept-Language': 'en-US,en;q=0.9',
         'Accept-Encoding': 'gzip, deflate, br',
         'Cache-Control': 'no-cache',
-        'Pragma': 'no-cache',
-        'Sec-Fetch-Dest': 'document',
-        'Sec-Fetch-Mode': 'navigate',
-        'Sec-Fetch-Site': 'none',
-        'Upgrade-Insecure-Requests': '1',
     });
 
-    // Block unnecessary resources more aggressively
     await page.setRequestInterception(true);
-    page.on('request', (request) => {
+    page.on('request', (request: any) => {
         const resourceType = request.resourceType();
         const url = request.url();
         
-        // Block more resource types and specific patterns
-        if (['image', 'stylesheet', 'font', 'media', 'script', 'xhr', 'fetch', 'websocket', 'eventsource'].includes(resourceType) ||
+        if (['image', 'stylesheet', 'font', 'media', 'script', 'xhr', 'fetch'].includes(resourceType) ||
             url.includes('analytics') || 
-            url.includes('tracking')||
-            url.includes('ads') ||
-            url.includes('beacon')) {
+            url.includes('tracking') ||
+            url.includes('ads')) {
             request.abort();
         } else {
             request.continue();
@@ -80,80 +67,62 @@ async function setupPage(browser: Browser): Promise<Page> {
 export async function GET() {
     const forumUrl = 'https://forums.mangadex.org/whats-new/latest-activity';
     const maxComments = 10;
-    const maxRetries = 3; // Increased retries
-    const baseDelay = 500; // Base delay for exponential backoff
+    const maxRetries = 3;
+    const baseDelay = 500;
 
-    let browser: Browser | null = null;
-    let page: Page | null = null;
+    let browser: any = null;
+    let page: any = null;
 
-    // Cleanup function
     const cleanup = async () => {
         try {
-            if (page && !page.isClosed()) {
-                await page.close();
-            }
-        } catch (e:any) {
+            if (page && !page.isClosed()) await page.close();
+        } catch (e: any) {
             console.warn('Error closing page:', e.message);
         }
         
         try {
-            if (browser && browser.connected) {
-                await browser.close();
-            }
-        } catch (e:any) {
+            if (browser) await browser.close();
+        } catch (e: any) {
             console.warn('Error closing browser:', e.message);
         }
     };
 
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
         try {
-            console.log(`Attempt ${attempt}/${maxRetries} - Creating fresh browser instance`);
+            console.log(`Attempt ${attempt}/${maxRetries}`);
             
-            // Create fresh browser for each attempt
             browser = await createBrowser();
             page = await setupPage(browser);
 
-            console.log(`Navigating to: ${forumUrl}`);
             const response = await page.goto(forumUrl, {
                 waitUntil: 'domcontentloaded',
                 timeout: 12000,
             });
 
             if (!response || response.status() !== 200) {
-                throw new Error(`HTTP ${response?.status() ?? 'No response'}: Failed to load page`);
+                throw new Error(`HTTP ${response?.status() ?? 'No response'}`);
             }
 
-            console.log('Page loaded successfully, waiting for content...');
-            
-            // Wait for content with shorter timeout
             try {
                 await page.waitForSelector('.block-row.block-row--separated', { 
                     timeout: 3000,
                     visible: true 
                 });
-            } catch (e) {
-                console.warn('Selector timeout, checking if content exists...',e);
-                // Check if any content exists
+            } catch  {
                 const hasContent = await page.$('.block-row');
-                if (!hasContent) {
-                    throw new Error('No forum content found on page');
-                }
+                if (!hasContent) throw new Error('No forum content found');
             }
 
             const htmlContent = await page.content();
-            console.log(`Retrieved HTML content (${htmlContent.length} characters)`);
-            
             const $ = cheerio.load(htmlContent);
             const comments = [];
 
             const elements = $('.block-row.block-row--separated').toArray();
-            console.log(`Found ${elements.length} potential comment elements`);
             
             for (const element of elements) {
                 if (comments.length >= maxComments) break;
 
                 const $element = $(element);
-
                 const username = $element.find('.username').text().trim();
                 if (!username) continue;
 
@@ -180,7 +149,7 @@ export async function GET() {
                 comments.push({
                     id: `comment_${comments.length + 1}`,
                     username,
-                    avatarUrl: avatarUrl ?? `https://forums.mangadex.org/community/avatars/s/0/${Math.floor(Math.random() * 100)}.jpg?1673176662`,
+                    avatarUrl: avatarUrl ?? `https://forums.mangadex.org/community/avatars/s/0/${Math.floor(Math.random() * 100)}.jpg`,
                     mangaTitle,
                     volumeNo,
                     chapterNo,
@@ -194,13 +163,10 @@ export async function GET() {
                 });
             }
 
-            console.log(`Successfully parsed ${comments.length} comments`);
-            
-            // Cleanup before returning success
             await cleanup();
 
             if (comments.length === 0) {
-                throw new Error('No valid comments found after parsing');
+                throw new Error('No valid comments found');
             }
 
             return NextResponse.json({
@@ -211,28 +177,23 @@ export async function GET() {
             });
 
         } catch (error: any) {
-            console.error(`Attempt ${attempt}/${maxRetries} failed:`, error.message);
-            
-            // Cleanup on error
+            console.error(`Attempt ${attempt} failed:`, error.message);
             await cleanup();
 
             if (attempt === maxRetries) {
-                console.error('All attempts exhausted:', error.message);
                 return NextResponse.json(
                     {
                         data: [],
                         total: 0,
                         timestamp: new Date().toISOString(),
                         source: 'MangaDex Forums Latest Activity',
-                        error: `Failed to scrape data after ${maxRetries} attempts: ${error.message}`,
+                        error: `Failed after ${maxRetries} attempts: ${error.message}`,
                     },
                     { status: 500 }
                 );
             }
 
-            // Exponential backoff with jitter
             const delay = baseDelay * Math.pow(2, attempt - 1) + Math.random() * 1000;
-            console.log(`Waiting ${Math.round(delay)}ms before retry...`);
             await new Promise(resolve => setTimeout(resolve, delay));
         }
     }
@@ -242,14 +203,13 @@ export async function GET() {
             data: [],
             total: 0,
             timestamp: new Date().toISOString(),
-            source: 'MangaDx Forums Latest Activity',
-            error: 'Unexpected error: all retries exhausted',
+            source: 'MangaDex Forums Latest Activity',
+            error: 'All retries exhausted',
         },
         { status: 500 }
     );
 }
 
-// Helper function to clean and parse manga title
 function cleanMangaTitle(title: string) {
     let mangaTitle = "Unknown Manga Title";
     let volumeNo = "";
@@ -260,7 +220,6 @@ function cleanMangaTitle(title: string) {
         return { mangaTitle, volumeNo, chapterNo, chapterTitle };
     }
 
-    // Handle titles with or without "Vol."
     const regexWithVol = /^(.*?)\s*-\s*Vol\.?\s*(\d+)?\s*Ch\.?\s*([\d.]+)\s*(?:-\s*(.*))?$/i;
     const regexWithoutVol = /^(.*?)\s*-\s*Ch\.?\s*([\d.]+)\s*(?:-\s*(.*))?$/i;
 

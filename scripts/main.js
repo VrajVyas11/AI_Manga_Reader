@@ -1,7 +1,7 @@
 // complete-ocr-enhanced.js
 import fs from 'node:fs/promises';
 import invariant from 'tiny-invariant';
-import { InferenceSession, Tensor } from 'onnxruntime-node';
+import { InferenceSession, Tensor } from 'onnxruntime-web';
 import sharp from 'sharp';
 import cv from '@techstark/opencv-js';
 import clipper from 'js-clipper';
