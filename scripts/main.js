@@ -1,34 +1,44 @@
 // complete-ocr-enhanced.js
 import fs from 'node:fs/promises';
+import * as nfs  from 'node:fs';
 import invariant from 'tiny-invariant';
+import {pathToFileURL } from 'node:url';
 import path from 'node:path';
 import sharp from 'sharp';
 import cv from '@techstark/opencv-js';
 import clipper from 'js-clipper';
 import * as ort from 'onnxruntime-web';
 
-// Node.js WASM config (works for dev/prod)
-ort.env.wasm = {
-  numThreads: 1,  // Single-threaded only in Node
-  thread: false,  // Disable Web Workers (no .mjs load)
-  simd: false,    // Skip SIMD-threaded to avoid errors
-  wasmPaths: {    // Direct paths for resolution
-    'ort-wasm.wasm': path.join(process.cwd(), 'node_modules/onnxruntime-web/dist/ort-wasm.wasm'),
-    'ort-wasm-simd.wasm': path.join(process.cwd(), 'node_modules/onnxruntime-web/dist/ort-wasm-simd.wasm'),  // Fallback if needed
-    'ort-wasm-threaded.wasm': '',  // Empty to disable
-  },
-  logLevel: process.env.NODE_ENV === 'development' ? 'verbose' : 'error',  // Debug in dev
-};
+// WASM Configuration
+const isVercel = process.env.VERCEL === '1';
+const isProduction = process.env.NODE_ENV === 'production';
+const isDocker = nfs.existsSync('/.dockerenv') || nfs.existsSync('/run/.containerenv');
 
-// Your existing imports
+if (isVercel) {
+  ort.env.wasm.wasmPaths = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.14.0/dist/';
+} else if (isProduction && isDocker) {
+  // Docker: WASM files are in the container
+  ort.env.wasm.wasmPaths = path.join(process.cwd(), 'node_modules/onnxruntime-web/dist/');
+} else if (isProduction) {
+  // Vercel production
+  ort.env.wasm.wasmPaths = '/_next/static/chunks/';
+} else {
+  // Local dev
+  const wasmDir = path.join(process.cwd(), 'node_modules/onnxruntime-web/dist/');
+  ort.env.wasm.wasmPaths = process.platform === 'win32' 
+    ? pathToFileURL(wasmDir).href 
+    : wasmDir;
+}
+
+ort.env.wasm.numThreads = 1;
+ort.env.wasm.simd = true;
+
 import { InferenceSession, Tensor } from 'onnxruntime-web';
-// =============================================================================
-// CONFIGURATION
-// =============================================================================
 
+// Model paths - DON'T convert to file:// URLs, InferenceSession.create handles regular paths
 const OCR_CONFIG = {
   DETECTION: {
-    MODEL_PATH: process.cwd() + '/scripts/models/ch_PP-OCRv4_det_infer.onnx',
+    MODEL_PATH: path.join(process.cwd(), 'scripts/models/ch_PP-OCRv4_det_infer.onnx'),
     THRESHOLD: 0.1,
     MIN_BOX_SIZE: 3,
     MAX_BOX_SIZE: 2000,
@@ -36,41 +46,36 @@ const OCR_CONFIG = {
     BASE_SIZE: 32,
     MAX_IMAGE_SIZE: 960,
     ONNX_OPTIONS: {
-      executionProviders: ['wasm'],  // Force WASM for Node
+      executionProviders: ['wasm'],
       graphOptimizationLevel: 'all',
-      enableCpuMemArena: true,
-      enableMemPattern: true,
-      executionMode: 'sequential',
-      logSeverityLevel: 2,
-      intraOpNumThreads: 1,  // Single thread
-      interOpNumThreads: 1,
+      logSeverityLevel: 3,
     }
   },
   RECOGNITION: {
     LANGUAGES: {
       en: {
-        MODEL: process.cwd() + '/scripts/models/en_PP-OCRv4_rec_infer.onnx',
-        DICT: process.cwd() + '/scripts/models/en_dict.txt',
+        MODEL: path.join(process.cwd(), 'scripts/models/en_PP-OCRv4_rec_infer.onnx'),
+        DICT: path.join(process.cwd(), 'scripts/models/en_dict.txt'),
         NAME: 'English'
       },
       ch: {
-        MODEL: process.cwd() + '/scripts/models/ch_PP-OCRv4_rec_infer.onnx',
-        DICT: process.cwd() + '/scripts/models/ch_dict.txt',
+        MODEL: path.join(process.cwd(), 'scripts/models/ch_PP-OCRv4_rec_infer.onnx'),
+        DICT: path.join(process.cwd(), 'scripts/models/ch_dict.txt'),
         NAME: 'Chinese'
       },
       ja: {
-        MODEL: process.cwd() + '/scripts/models/japan_PP-OCRv3_rec_infer.onnx',
-        DICT: process.cwd() + '/scripts/models/japan_dict.txt',
+        MODEL: path.join(process.cwd(), 'scripts/models/japan_PP-OCRv3_rec_infer.onnx'),
+        DICT: path.join(process.cwd(), 'scripts/models/japan_dict.txt'),
         NAME: 'Japanese'
       },
       ko: {
-        MODEL: process.cwd() + '/scripts/models/ch_PP-OCRv4_rec_infer.onnx',
-        DICT: process.cwd() + '/scripts/models/korean_dict.txt',
+        MODEL: path.join(process.cwd(), 'scripts/models/ch_PP-OCRv4_rec_infer.onnx'),
+        DICT: path.join(process.cwd(), 'scripts/models/korean_dict.txt'),
         NAME: 'Korean'
       },
       ptbr: {
-        MODEL: process.cwd() + '/scripts/models/latin_PP-OCRv3_rec_infer.onnx',
-        DICT: process.cwd() + '/scripts/models/latin_dict.txt',
+        MODEL: path.join(process.cwd(), 'scripts/models/latin_PP-OCRv3_rec_infer.onnx'),
+        DICT: path.join(process.cwd(), 'scripts/models/latin_dict.txt'),
         NAME: 'Latin'
       }
     },
@@ -80,33 +85,20 @@ const OCR_CONFIG = {
     REMOVE_DUPLICATE_CHARS: true,
     IGNORED_TOKENS: [0],
     ONNX_OPTIONS: {
-      executionProviders: ['wasm'],  // Force WASM for consistency
+      executionProviders: ['wasm'],
       graphOptimizationLevel: 'all',
-      enableCpuMemArena: true,
-      enableMemPattern: true,
-      executionMode: 'sequential',
-      logSeverityLevel: 2,
-      intraOpNumThreads: 1,
-      interOpNumThreads: 1,
+      logSeverityLevel: 3,
     }
   },
   GROUPING: {
-    // Adaptive thresholds based on text height
     VERTICAL_THRESHOLD_RATIO: 1.2,
     HORIZONTAL_THRESHOLD_RATIO: 2.2,
     MIN_OVERLAP_RATIO: 0.3,
     MAX_VERTICAL_OFFSET_RATIO: 0.5
   },
-  DEBUG: {
-    ENABLED: false,
-    OUTPUT_DIR: './debug_output',
-    SAVE_INTERMEDIATE_IMAGES: false,
-    LOG_LEVEL: 'info'
-  }
 };
-
 // =============================================================================
-// TEXT / MATH HELPERS
+// HELPERS
 // =============================================================================
 
 function median(values) {
@@ -115,10 +107,6 @@ function median(values) {
   const m = Math.floor(s.length / 2);
   return s.length % 2 === 0 ? (s[m - 1] + s[m]) / 2 : s[m];
 }
-
-// =============================================================================
-// CORE UTILITY CLASSES
-// =============================================================================
 
 class FileUtils {
   static async read(filePath) {
@@ -131,7 +119,7 @@ class ImageRaw {
   width;
   height;
   #sharp;
-  static async open(filePath) {
+   static async open(filePath) {
     const sharpInstance = sharp(filePath).ensureAlpha();
     const result = await sharpInstance.raw().toBuffer({ resolveWithObject: true });
     return new ImageRaw({ data: result.data, width: result.info.width, height: result.info.height });
@@ -433,18 +421,13 @@ class Recognition extends ModelBase {
 }
 
 // =============================================================================
-// OCR CLASS with improved grouping
+// OCR CLASS
 // =============================================================================
 
 class Ocr {
   #detection;
   #recognition;
   static async create({ threshold = 0.1, minSize = 3, maxSize = 2000, unclipRatio = 1.5, confidenceThreshold = 0.5, language = 'en', ...options } = {}) {
-    try {
-     await InferenceSession.create(OCR_CONFIG.DETECTION.MODEL_PATH, { executionProviders: ['wasm'] });
-    } catch (e) {
-      throw new Error(`WASM init failed: ${e.message}`);
-    }
     const detection = await Detection.create({ ...options, threshold, minSize, maxSize, unclipRatio });
     const recognition = await Recognition.create({ ...options, language, confidenceThreshold });
     return new Ocr({ detection, recognition, confidenceThreshold });
@@ -460,7 +443,6 @@ class Ocr {
     return { texts, detectedElements: texts.length };
   }
 
-  // helper to get bounding frame
   extractFrameFromBox(box) {
     if (!box?.length) return { left: 0, top: 0, width: 0, height: 0 };
     const xs = box.map(p => p[0]);
@@ -473,9 +455,6 @@ class Ocr {
     };
   }
 
-  // ------- Improved grouping implementation starts here -------
-
-  // Union-Find for clustering
   _UnionFind(n) {
     const parent = new Array(n).fill(0).map((_, i) => i);
     const rank = new Array(n).fill(0);
@@ -492,7 +471,6 @@ class Ocr {
     };
   }
 
-  // stronger same-line test using baseline overlap and vertical center offset
   _onSameLineStrict(frameA, frameB, medianH) {
     const topA = frameA.top, bottomA = frameA.top + frameA.height;
     const topB = frameB.top, bottomB = frameB.top + frameB.height;
@@ -505,11 +483,6 @@ class Ocr {
     const vOffset = Math.abs(centerA - centerB);
     return overlapRatio >= Math.max(0.35, OCR_CONFIG.GROUPING.MIN_OVERLAP_RATIO) ||
       vOffset < Math.max(8, medianH * OCR_CONFIG.GROUPING.MAX_VERTICAL_OFFSET_RATIO);
-  }
-
-  shouldGroup(box1, box2, avgHeight, config) {
-    // wrapper to call new internal logic (keeps external signature)
-    return this._shouldGroupImpl(box1, box2, avgHeight, config);
   }
 
   _shouldGroupImpl(box1, box2, avgHeight, config) {
@@ -537,10 +510,7 @@ class Ocr {
 
   groupTextElements(elements) {
     if (!elements || elements.length === 0) return [];
-
-    // compute median height for robust thresholds
     const medianH = Math.max(1, median(elements.map(e => e.frame.height || 0)));
-    // sort by top->left approximate reading order
     const sorted = [...elements].map((el, idx) => ({ el, idx })).sort((a, b) => {
       const topDiff = a.el.frame.top - b.el.frame.top;
       if (Math.abs(topDiff) < medianH * 0.6) return a.el.frame.left - b.el.frame.left;
@@ -549,21 +519,17 @@ class Ocr {
 
     const n = sorted.length;
     const uf = this._UnionFind(n);
-
-    // neighbor window to limit comparisons: a reasonable number to capture vertical adjacency
     const WINDOW = Math.min(n, 60);
 
     for (let i = 0; i < n; i++) {
       const aFrame = sorted[i].el.frame;
       for (let j = i + 1; j < Math.min(n, i + WINDOW); j++) {
         const bFrame = sorted[j].el.frame;
-        // early break if vertical gap is huge (sorted by top)
         if (Math.abs(bFrame.top - aFrame.top) > medianH * Math.max(6, OCR_CONFIG.GROUPING.VERTICAL_THRESHOLD_RATIO * 3)) break;
         if (this._shouldGroupImpl(aFrame, bFrame, medianH, OCR_CONFIG.GROUPING)) uf.union(i, j);
       }
     }
 
-    // collect clusters
     const clusters = new Map();
     for (let i = 0; i < n; i++) {
       const root = uf.find(i);
@@ -571,7 +537,6 @@ class Ocr {
       clusters.get(root).push(sorted[i]);
     }
 
-    // convert clusters to groups of original elements
     const groups = [];
     for (const cluster of clusters.values()) {
       cluster.sort((a, b) => {
@@ -582,7 +547,6 @@ class Ocr {
       groups.push(cluster.map(item => item.el));
     }
 
-    // sort groups by top-left for stable order
     groups.sort((g1, g2) => {
       const top1 = Math.min(...g1.map(e => e.frame.top)), top2 = Math.min(...g2.map(e => e.frame.top));
       if (Math.abs(top1 - top2) < medianH * 0.6) {
@@ -592,7 +556,8 @@ class Ocr {
       return top1 - top2;
     });
 
-    // assign paragraph id to each element (mutates elements)
+    // ... continuation of groupTextElements method
+
     for (let pid = 0; pid < groups.length; pid++) {
       for (const el of groups[pid]) {
         el.paragraph = pid;
@@ -611,7 +576,6 @@ class Ocr {
       return v;
     });
     const texts = group.map(el => (el.text || '').trim()).filter(Boolean);
-    // Join preserving internal spacing; we keep single space between tokens
     const text = texts.join(' ').replace(/\s+/g, ' ').trim();
     const avgConfidence = group.reduce((s, el) => s + (el.confidence || 0), 0) / group.length;
     const allLeft = group.map(e => e.frame.left);
@@ -630,12 +594,6 @@ class Ocr {
       elements: group.map(el => ({ text: el.text, confidence: el.confidence, frame: el.frame, paragraph: el.paragraph }))
     };
   }
-
-  // ------- Improved grouping implementation ends here -------
 }
-
-// =============================================================================
-// EXPORT
-// =============================================================================
 
 export default Ocr;

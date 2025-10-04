@@ -2,12 +2,13 @@ import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   output: "standalone",
-  serverExternalPackages: ['puppeteer-core',
+  // Remove the entire webpack section - not needed for Docker
+  serverExternalPackages: [
+    'puppeteer-core',
     '@sparticuz/chromium',
-    'js-clipper',
-    'onnxruntime-web',  // Treat as external (assumes installed globally or via env)
+    'sharp',
     '@techstark/opencv-js',
-    'sharp'  // If native issues persis
+    'js-clipper'
   ],
   experimental: {
     optimizeCss: true,
@@ -31,11 +32,13 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "uploads.mangadex.org"
+      },
+      {
+        protocol: "https",
+        hostname: "forums.mangadex.org"
       }
     ],
   },
 };
 
-
 export default nextConfig;
-
