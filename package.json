@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build",
+    "build": "npm run copy-wasm && next build",
+    "copy-wasm": "node -e \"const fs=require('fs'); const path=require('path'); const src='node_modules/onnxruntime-web/dist'; const dest='public/wasm'; fs.mkdirSync(dest, {recursive:true}); fs.readdirSync(src).filter(f=>f.endsWith('.wasm')).forEach(f=>fs.copyFileSync(path.join(src,f), path.join(dest,f)));\"",
     "start": "next start",
     "lint": "next lint"
   },
@@ -41,6 +42,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/sharp": "^0.31.1",
+    "copy-webpack-plugin": "^13.0.1",
     "eslint": "^8.57.1",
     "eslint-config-next": "14.2.15",
     "eslint-plugin-react": "^7.37.1",

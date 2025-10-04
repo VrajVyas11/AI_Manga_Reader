@@ -1,4 +1,6 @@
 import type { NextConfig } from 'next';
+import path from 'path';
+import CopyWebpackPlugin from 'copy-webpack-plugin';
 
 const nextConfig: NextConfig = {
   output: "standalone",
@@ -38,6 +40,35 @@ const nextConfig: NextConfig = {
         hostname: "forums.mangadex.org"
       }
     ],
+  },
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.plugins.push(
+        new CopyWebpackPlugin({
+          patterns: [
+            // Copy WASM binaries
+            {
+              from: path.join(process.cwd(), 'node_modules/onnxruntime-web/dist/*.wasm'),
+              to: 'wasm/[name][ext]',
+              noErrorOnMissing: true, // Ignore if files missing (dev safety)
+            },
+            // Copy ONNX models
+            {
+              from: path.join(process.cwd(), 'scripts/models/*.onnx'),
+              to: 'scripts/models/[name][ext]',
+              noErrorOnMissing: true,
+            },
+            // Copy dictionary files
+            {
+              from: path.join(process.cwd(), 'scripts/models/*.txt'),
+              to: 'scripts/models/[name][ext]',
+              noErrorOnMissing: true,
+            },
+          ],
+        })
+      );
+    }
+    return config;
   },
 };
 

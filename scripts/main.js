@@ -1,6 +1,5 @@
 // complete-ocr-enhanced.js
 import fs from 'node:fs/promises';
-import * as nfs  from 'node:fs';
 import invariant from 'tiny-invariant';
 import {pathToFileURL } from 'node:url';
 import path from 'node:path';
@@ -9,25 +8,17 @@ import cv from '@techstark/opencv-js';
 import clipper from 'js-clipper';
 import * as ort from 'onnxruntime-web';
 
-// WASM Configuration
 const isVercel = process.env.VERCEL === '1';
 const isProduction = process.env.NODE_ENV === 'production';
-const isDocker = nfs.existsSync('/.dockerenv') || nfs.existsSync('/run/.containerenv');
+const isWindows = process.platform === 'win32';
 
-if (isVercel) {
-  ort.env.wasm.wasmPaths = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.14.0/dist/';
-} else if (isProduction && isDocker) {
-  // Docker: WASM files are in the container
-  ort.env.wasm.wasmPaths = path.join(process.cwd(), 'node_modules/onnxruntime-web/dist/');
-} else if (isProduction) {
-  // Vercel production
-  ort.env.wasm.wasmPaths = '/_next/static/chunks/';
+if (isVercel && isProduction) {
+  // Vercel production: WASM copied to public/wasm during build
+  ort.env.wasm.wasmPaths = '/wasm/';
 } else {
-  // Local dev
+  // Everything else: use node_modules
   const wasmDir = path.join(process.cwd(), 'node_modules/onnxruntime-web/dist/');
-  ort.env.wasm.wasmPaths = process.platform === 'win32' 
-    ? pathToFileURL(wasmDir).href 
-    : wasmDir;
+  ort.env.wasm.wasmPaths = isWindows ? pathToFileURL(wasmDir).href : wasmDir;
 }
 
 ort.env.wasm.numThreads = 1;
