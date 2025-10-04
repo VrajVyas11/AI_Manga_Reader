@@ -1,8 +1,9 @@
 # 🌌 **AI Manga Reader** 🌟
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
-[![Live Demo Render.com](https://img.shields.io/badge/Live-Demo-brightgreen.svg?style=for-the-badge)](https://ai-manga-reader.onrender.com/)
-[![Live Demo Railway.com](https://img.shields.io/badge/Live-Demo-red.svg?style=for-the-badge)](https://aimangareader-production.up.railway.app/)
+[![Live Demo Render.com](https://img.shields.io/badge/Live-Demo-brightgreen.svg?style=for-the-badge)](https://ai-mangareader.vercel.app/)
+[![Live Demo Railway.com](https://img.shields.io/badge/Live-Demo-violet.svg?style=for-the-badge)](https://aimangareader-production.up.railway.app/)
+[![Live Demo Render.com](https://img.shields.io/badge/Live-Demo-red.svg?style=for-the-badge)](https://ai-manga-reader.onrender.com/)
 [![GitHub Stars](https://img.shields.io/github/stars/VrajVyas11/AI_Manga_Reader?style=social)](https://github.com/VrajVyas11/AI_Manga_Reader/stargazers)
 [![GitHub Forks](https://img.shields.io/github/forks/VrajVyas11/AI_Manga_Reader?style=social)](https://github.com/VrajVyas11/AI_Manga_Reader/network)
 
