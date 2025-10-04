@@ -5,8 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "next dev --turbopack",
-    "copy-wasm": "node -e \"const fs=require('fs'); const path=require('path'); const src='node_modules/onnxruntime-web/dist'; const dest='public/wasm'; fs.mkdirSync(dest, {recursive:true}); fs.readdirSync(src).filter(f=>f.endsWith('.wasm')||f.endsWith('.mjs')||f.endsWith('.js')).forEach(f=>fs.copyFileSync(path.join(src,f), path.join(dest,f)));\"",
-    "build": "npm run copy-wasm && next build",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
@@ -25,7 +24,7 @@
     "js-clipper": "^1.0.1",
     "lucide-react": "^0.509.0",
     "next": "^15.3.0",
-    "onnxruntime-web": "^1.23.0",
+    "onnxruntime-web": "^1.18.1",
     "puppeteer-core": "^24.23.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

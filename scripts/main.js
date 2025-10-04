@@ -1,4 +1,3 @@
-// complete-ocr-enhanced.js
 import fs from 'node:fs/promises';
 import invariant from 'tiny-invariant';
 import {pathToFileURL } from 'node:url';
@@ -8,21 +7,19 @@ import cv from '@techstark/opencv-js';
 import clipper from 'js-clipper';
 import * as ort from 'onnxruntime-web';
 
-const isVercel = process.env.VERCEL === '1';
-const isProduction = process.env.NODE_ENV === 'production';
-const isWindows = process.platform === 'win32';
+// Unified: Always use node_modules (works in standalone/Vercel)
+const wasmDir = path.join(process.cwd(), 'node_modules/onnxruntime-web/dist/');
+ort.env.wasm.wasmPaths = process.platform === 'win32' 
+  ? pathToFileURL(wasmDir).href 
+  : wasmDir;
 
-if (isVercel && isProduction) {
-  // Vercel production: WASM copied to public/wasm during build
-  ort.env.wasm.wasmPaths = '/wasm/';
-} else {
-  // Everything else: use node_modules
-  const wasmDir = path.join(process.cwd(), 'node_modules/onnxruntime-web/dist/');
-  ort.env.wasm.wasmPaths = isWindows ? pathToFileURL(wasmDir).href : wasmDir;
-}
-
+// Force single-threaded (Vercel-safe)
 ort.env.wasm.numThreads = 1;
 ort.env.wasm.simd = true;
+
+// Debug log (remove after testing)
+console.log('ONNX WASM Paths:', ort.env.wasm.wasmPaths);
+
 
 import { InferenceSession, Tensor } from 'onnxruntime-web';
 

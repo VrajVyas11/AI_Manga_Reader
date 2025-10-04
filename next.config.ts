@@ -4,13 +4,15 @@ import CopyWebpackPlugin from 'copy-webpack-plugin';
 
 const nextConfig: NextConfig = {
   output: "standalone",
-  // Remove the entire webpack section - not needed for Docker
   serverExternalPackages: [
     'puppeteer-core',
     '@sparticuz/chromium',
     'sharp',
     '@techstark/opencv-js',
-    'js-clipper'
+    'js-clipper',
+  ],
+  transpilePackages: [
+    'onnxruntime-web'  // Add this: Handles ESM transpilation for server bundle
   ],
   experimental: {
     optimizeCss: true,
@@ -50,7 +52,13 @@ const nextConfig: NextConfig = {
             {
               from: path.join(process.cwd(), 'node_modules/onnxruntime-web/dist/*.wasm'),
               to: 'wasm/[name][ext]',
-              noErrorOnMissing: true, // Ignore if files missing (dev safety)
+              noErrorOnMissing: true,
+            },
+            // Copy MJS loaders (backend modules)
+            {
+              from: path.join(process.cwd(), 'node_modules/onnxruntime-web/dist/*.mjs'),
+              to: 'wasm/[name][ext]',
+              noErrorOnMissing: true,
             },
             // Copy ONNX models
             {
