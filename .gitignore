@@ -25,6 +25,7 @@ Audiotest.jsx
 TranslatorTest.jsx
 AIAudio/
 *.py
+wasm/
 BottomSettingsModules
 InfoSideBarModules
 app/Components/LibraryComponents/Temp.jsx
