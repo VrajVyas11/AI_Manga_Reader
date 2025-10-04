@@ -9,7 +9,7 @@ const Placeholder = ({ isDark = true, layout = "horizontal" }) => {
       className={`
         ${isVertical 
           ? "w-full  max-w-[1280px] aspect-[9/16] px-4 md:px-0" 
-          : "w-full relative  max-w-[55%]  md:max-w-[400px] h-[60vh] md:h-[87vh]"
+          : "w-full min-w-[350px] relative  max-w-[55%]  md:max-w-[400px] h-[60vh] md:h-[87vh]"
         }
       `}
     >

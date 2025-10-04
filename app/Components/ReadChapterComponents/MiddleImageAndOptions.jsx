@@ -549,7 +549,11 @@ function MiddleImageAndOptions({
         <Suspense
             fallback={
                 <div className="w-full flex flex-row justify-center items-center">
-                    <Placeholder isDark={isDark} />
+                    <div
+                        style={{ width: 380 }}
+                        className="w-full flex justify-center ">
+                        <Placeholder isDark={isDark} />
+                    </div>
                 </div>
             }
         >
@@ -563,7 +567,11 @@ function MiddleImageAndOptions({
                     } my-1`}
             >
                 {isLoading ? (
-                    <Placeholder isDark={isDark} />
+                    <div
+                        style={{ width: (imageRef?.current?.naturalWidth ?? 380) }}
+                        className="w-full flex justify-center ">
+                        <Placeholder isDark={isDark} />
+                    </div>
                 ) : layout === "horizontal" ? (
                     pages != undefined &&
                     (quality === "low" ? pages?.chapter?.dataSaver : pages?.chapter?.data)
@@ -602,7 +610,7 @@ function MiddleImageAndOptions({
 
                                     {!imageCache.includes(page) &&
                                         <div
-                                            style={{ width: (imageRef?.current?.naturalWidth ?? 300) }}
+                                            style={{ width: (imageRef?.current?.naturalWidth ?? 380) }}
                                             className="w-full flex justify-center ">
                                             <Placeholder isDark={isDark} />
                                         </div>
@@ -724,7 +732,13 @@ function MiddleImageAndOptions({
                                         ) : (
                                             ""
                                         )}
-                                        {!imageCache.includes(page) && <div style={{ width: imageRef?.current?.naturalWidth }} className=" rounded-lg px-3 md:px-0 w-full h-full"> <Placeholder isDark={isDark} /> </div>}
+                                        {!imageCache.includes(page) &&
+                                            <div
+                                                style={{ width: imageRef?.current?.naturalWidth ?? 380 }}
+                                                className=" rounded-lg px-3 md:px-0 w-full h-full">
+                                                <Placeholder isDark={isDark} />
+                                            </div>
+                                        }
 
                                         {loadingPages[page] && (
                                             <ScanningOverlay

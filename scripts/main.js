@@ -1,5 +1,4 @@
 import fs from 'node:fs/promises';
-import invariant from 'tiny-invariant';
 import {pathToFileURL } from 'node:url';
 import path from 'node:path';
 import sharp from 'sharp';
@@ -19,7 +18,6 @@ ort.env.wasm.simd = true;
 
 // Debug log (remove after testing)
 console.log('ONNX WASM Paths:', ort.env.wasm.wasmPaths);
-
 
 import { InferenceSession, Tensor } from 'onnxruntime-web';
 
@@ -349,8 +347,11 @@ class Detection extends ModelBase {
 class Recognition extends ModelBase {
   #dictionary;
   static async create({ models, onnxOptions = {}, language = 'en', confidenceThreshold = 0.5, imageHeight = 48, removeDuplicateChars = true } = {}) {
-    const langConfig = OCR_CONFIG.RECOGNITION.LANGUAGES[language];
-    invariant(langConfig, `Unsupported language: ${language}`);
+    let langConfig = OCR_CONFIG.RECOGNITION.LANGUAGES[language];
+    if (!langConfig) {
+      console.warn(`Unsupported language: ${language}. Falling back to English (en).`);
+      langConfig = OCR_CONFIG.RECOGNITION.LANGUAGES.en;
+    }
     const recognitionPath = models?.recognitionPath || langConfig.MODEL;
     const dictionaryPath = models?.dictionaryPath || langConfig.DICT;
     const finalOnnxOptions = { ...OCR_CONFIG.RECOGNITION.ONNX_OPTIONS, ...onnxOptions };

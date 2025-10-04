@@ -44,16 +44,16 @@ const OCROverlay = ({
           //  const scaledX = x1 * scaleX + offsetX;
           //  const scaledY = y1 * scaleY + offsetY - 60;
           // const scaleX = imageElement.clientWidth / imageElement.naturalWidth;
-          const scaledX = x1 * imageElement.naturalWidth / (imageElement.naturalHeight / imageElement.naturalWidth > 2 ? imageElement.naturalWidth * 3 : imageElement.naturalWidth * (layout == "vertical" ? 2 : 2.5) + 200)
-          const scaledY = y1 * imageElement.naturalHeight / (imageElement.naturalHeight > 900 ? imageElement.naturalHeight * 4 : imageElement.naturalHeight * (layout == "vertical" ? 2 : 2.5) + 200);
+          const scaledX = x1 * imageElement.naturalWidth / (imageElement.naturalHeight / imageElement.naturalWidth > 2 ? imageElement.naturalWidth * 3 : imageElement.naturalWidth * (layout == "vertical" ? 2 : 2.5) - 200)
+          const scaledY = y1 * imageElement.naturalHeight / (imageElement.naturalHeight > 900 ? imageElement.naturalHeight * 4 : imageElement.naturalHeight * (layout == "vertical" ? 2 : 2.5)-200);
           // const scaledWidth = (item.bbox[1][0] - x1) * scaleX; // Approximate width for max-w
           return (
             <div
               key={i}
               className="absolute leading-tight font-sans tracking-wide rounded-md shadow-sm shadow-black/30 bg-white/90 flex-wrap w-fit h-auto text-black text-[10px] md:text-[12px] flex justify-center items-center overflow-hidden p-[1px]"
               style={{
-                left: `${scaledX}px`,
-                top: `${scaledY}px`,
+                left: `${scaledX*1.2}px`,
+                top: `${scaledY*1.2}px`,
                 margin: 22,
                 // fontSize: `12px`,
                 // lineHeight: `5px`,

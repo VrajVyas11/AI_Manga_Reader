@@ -1,10 +1,10 @@
 FROM node:20-bookworm-slim AS base
 
+# Combine apt update/install for layer efficiency
 RUN echo "deb http://httpredir.debian.org/debian bookworm main" > /etc/apt/sources.list && \
     echo "deb http://httpredir.debian.org/debian bookworm-updates main" >> /etc/apt/sources.list && \
-    echo "deb http://security.debian.org/debian-security bookworm-security main" >> /etc/apt/sources.list
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
+    echo "deb http://security.debian.org/debian-security bookworm-security main" >> /etc/apt/sources.list && \
+    apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libglib2.0-0 \
     libsm6 \
@@ -51,11 +51,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 FROM base AS deps
 WORKDIR /app
 COPY package.json package-lock.json* ./
+# Prod-only for cacheable layer
 RUN npm ci --omit=dev --ignore-scripts
 
 FROM base AS builder
 WORKDIR /app
+# Reuse cached prod node_modules
+COPY --from=deps /app/node_modules ./node_modules
 COPY package.json package-lock.json* ./
+# Install full deps for build tools (e.g., puppeteer)
 RUN npm ci --ignore-scripts
 RUN npx puppeteer browsers install chrome
 
@@ -68,8 +72,8 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV NODE_OPTIONS="--max-old-space-size=312"
 
-# Copy COMPLETE node_modules (includes onnxruntime-web WASM files)
-COPY --from=builder /app/node_modules ./node_modules
+# Copy prod node_modules (from deps for leanness)
+COPY --from=deps /app/node_modules ./node_modules
 
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
@@ -78,9 +82,6 @@ COPY --from=builder /app/next.config.ts ./
 COPY --from=builder /app/package.json ./
 COPY --from=builder /app/tsconfig.json ./
 COPY --from=builder /app/scripts ./scripts
-
-# DON'T copy WASM separately - it's already in node_modules
-# Remove this line: COPY --from=builder /app/node_modules/onnxruntime-web/dist/*.wasm ./.next/static/chunks/
 
 COPY --from=builder /root/.cache/puppeteer /root/.cache/puppeteer
 
