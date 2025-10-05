@@ -204,7 +204,7 @@ const Card = React.memo(({ manga, handleMangaClicked, isDark, priority = false }
                 }`}
         >
             <div
-                className={` origin-center w-full min-h-[267px] sm:min-h-[368px] rounded-2xl contain-strict ${isDark ? "bg-[#060111]/50 shadow-slate-600/40" : "bg-gray-100/50 shadow-gray-400"
+                className={` origin-center w-full min-h-[267px] sm:min-h-[368px] rounded-2xl  ${isDark ? "bg-[#060111]/50 shadow-slate-600/40" : "bg-gray-100/50 shadow-gray-400"
                     } p-[5px] shadow-[0_-1px_7px_rgba(0,0,0,0.2)] transition-transform duration-300 ease-in-out  will-change-transform`}
             >
                 <div
