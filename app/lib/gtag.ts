@@ -7,8 +7,8 @@ declare global {
   }
 }
 
-const getMeasurementId = (): string | null => {
-  if (typeof window === "undefined") return null;
+export const getMeasurementId = (): string => {
+  if (typeof window === "undefined") return "G-EXTSESX735";
 
   const hostname = window.location.hostname;
 

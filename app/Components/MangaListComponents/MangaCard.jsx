@@ -1,6 +1,6 @@
 'use client';
 import Image from 'next/image';
-import React, { useCallback, useState, useMemo, Suspense } from 'react';
+import React, { useCallback, useState, useMemo, Suspense, useEffect } from 'react';
 import { getRatingColor } from '../../constants/Flags';
 import { Star, MessageSquareText, Heart as HeartIcon, Flame, Activity } from 'lucide-react';
 import MangaCardSkeleton from '../Skeletons/MangaList/MangaCardSkeleton';
@@ -12,13 +12,24 @@ import { useTheme } from '../../providers/ThemeContext';
 import useInView from "../../hooks/useInView";
 import Link from 'next/link';
 import { useMangaFilters, useFilterStats } from '../../hooks/useMangaFilters';
+import {getBlurDataURL} from "../../util/imageOptimization"
 
 const MangaCard = React.memo(() => {
     const { theme } = useTheme();
     const isDark = theme === "dark";
     const { data, isLoading, isError, error } = useMangaFetch('latest', 1);
     const [currentPage, setCurrentPage] = useState(1);
-    const ITEMS_PER_PAGE = 20;
+    const [itemsPerPage, setItemsPerPage] = useState(20);
+
+    // Dynamically adjust items per page for mobile to reduce rendering load
+    useEffect(() => {
+        const handleResize = () => {
+            setItemsPerPage(window.innerWidth < 640 ? 10 : 20);
+        };
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     // Get the original data
     const originalMangas = useMemo(() => data?.data ?? [], [data?.data]);
@@ -29,7 +40,7 @@ const MangaCard = React.memo(() => {
     // Get filter statistics
     const filterStats = useFilterStats(originalMangas, filteredMangas);
 
-    const totalPages = Math.ceil(filteredMangas.length / ITEMS_PER_PAGE);
+    const totalPages = Math.ceil(filteredMangas.length / itemsPerPage);
     const { setSelectedManga } = useManga();
 
     const handleMangaClicked = useCallback(
@@ -44,9 +55,9 @@ const MangaCard = React.memo(() => {
     }, []);
 
     const currentMangas = useMemo(() => {
-        const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-        return filteredMangas.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-    }, [filteredMangas, currentPage, ITEMS_PER_PAGE]);
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        return filteredMangas.slice(startIndex, startIndex + itemsPerPage);
+    }, [filteredMangas, currentPage, itemsPerPage]);
 
     const goToPage = useCallback(
         (page) => {
@@ -104,7 +115,7 @@ const MangaCard = React.memo(() => {
                         <div className="text-sm">Try adjusting your preferences to see more content</div>
                     </div>
                 ) : (
-                    <div className="grid w-full gap-2 sm:gap-4  grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ">
+                    <div className="grid w-full gap-2 sm:gap-4  grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 contain-paint">
                         {currentMangas.map((manga, index) => (
                             <Card
                                 isDark={isDark}
@@ -193,12 +204,12 @@ const Card = React.memo(({ manga, handleMangaClicked, isDark, priority = false }
                 }`}
         >
             <div
-                className={` origin-center w-full min-h-[267px] sm:min-h-[368px] rounded-2xl ${isDark ? "bg-[#060111]/50 shadow-slate-600/40" : "bg-gray-100/50 shadow-gray-400"
+                className={` origin-center w-full min-h-[267px] sm:min-h-[368px] rounded-2xl contain-strict ${isDark ? "bg-[#060111]/50 shadow-slate-600/40" : "bg-gray-100/50 shadow-gray-400"
                     } p-[5px] shadow-[0_-1px_7px_rgba(0,0,0,0.2)] transition-transform duration-300 ease-in-out  will-change-transform`}
             >
                 <div
                     className={`
-    relative flex h-[200px] sm:h-[280px] flex-col
+    relative flex h-[200px] sm:h-[280px] flex-col contain-paint
     rounded-t-[10px]
     overflow-hidden  
     ${manga.isCoverImageBlurred
@@ -214,7 +225,7 @@ const Card = React.memo(({ manga, handleMangaClicked, isDark, priority = false }
                         fill
                         className="absolute inset-0 mt-6 sm:mt-9 w-full h-full object-fill"
                         placeholder="blur"
-                        blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z/CfBwADhQHj8Z8qJwAAAABJRU5ErkJggg==" // Low-res placeholder
+                        blurDataURL={getBlurDataURL()} // Low-res placeholder
                         priority={priority} // Eager load for initial visible cards
                         loading={priority ? 'eager' : 'lazy'} // Eager for priority, lazy otherwise
                         sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw" // Responsive based on grid cols
@@ -282,7 +293,7 @@ const Card = React.memo(({ manga, handleMangaClicked, isDark, priority = false }
                             ))}
                         </div>
                         <div className="h-8" />
-                        <p className={`text-[7px] bottom-1 md:bottom-0.5   sm:text-xs tracking-widest w-full absolute z-30 flex justify-center items-center text-center opacity-70 ${isDark ? "text-gray-400" : "text-gray-600"} mt-4`}>
+                        <p suppressHydrationWarning className={`text-[7px] bottom-1 md:bottom-0.5   sm:text-xs tracking-widest w-full absolute z-30 flex justify-center items-center text-center opacity-70 ${isDark ? "text-gray-400" : "text-gray-600"} mt-4`}>
                             Last updated: {memoizedData.timeAgo}
                         </p>
                     </div>

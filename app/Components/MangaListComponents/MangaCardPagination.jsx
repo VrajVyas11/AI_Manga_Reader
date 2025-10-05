@@ -38,11 +38,11 @@ const BottomPagination = ({ currentPage, totalPages, onPageChange }) => {
   const visiblePages = getVisiblePages();
 
   return (
-    <nav className="flex items-center justify-center space-x-1 mt-8 gap-3" aria-label="Pagination">
+    <nav className="flex items-center justify-center space-x-1 mt-10 gap-3" aria-label="Pagination">
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
-        className={`flex items-center justify-center w-14 h-14 rounded-md border transition-colors ${isDark
+        className={`flex items-center justify-center w-10 h-10 md:w-14 md:h-14 rounded-md border transition-colors ${isDark
             ? currentPage === 1
               ? 'border-gray-800 text-gray-600 cursor-not-allowed'
               : 'border-gray-700 text-gray-300 hover:border-purple-400/40 hover:text-white hover:bg-gray-800/50'
@@ -60,7 +60,7 @@ const BottomPagination = ({ currentPage, totalPages, onPageChange }) => {
           return (
             <span
               key={page}
-              className={`flex items-center justify-center w-14 h-14 ${isDark ? 'text-gray-500' : 'text-gray-600'}`}
+              className={`flex items-center justify-center w-10 h-10 md:w-14 md:h-14 ${isDark ? 'text-gray-500' : 'text-gray-600'}`}
             >
               ⋯
             </span>
@@ -71,7 +71,7 @@ const BottomPagination = ({ currentPage, totalPages, onPageChange }) => {
           <button
             key={page}
             onClick={() => onPageChange(page)}
-            className={`flex items-center justify-center w-14 h-14 rounded-md border text-sm font-medium transition-colors ${page === currentPage
+            className={`flex items-center justify-center  w-10 h-10 md:w-14 md:h-14 rounded-md border text-sm font-medium transition-colors ${page === currentPage
                 ? isDark
                   ? 'border-white bg-white text-black'
                   : 'border-purple-600 bg-gray-600 text-white'
@@ -90,7 +90,7 @@ const BottomPagination = ({ currentPage, totalPages, onPageChange }) => {
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
-        className={`flex items-center justify-center w-14 h-14 rounded-md border transition-colors ${isDark
+        className={`flex items-center justify-center w-10 h-10 md:w-14 md:h-14 rounded-md border transition-colors ${isDark
             ? currentPage === totalPages
               ? 'border-gray-800 text-gray-600 cursor-not-allowed'
               : 'border-gray-700 text-gray-300 hover:border-purple-400/40 hover:text-white hover:bg-gray-800/50'

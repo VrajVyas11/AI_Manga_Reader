@@ -1,30 +1,82 @@
+// app/manga-list/page.tsx
 import React from 'react';
-import MangaReadHistory from '../../Components/MangaListComponents/MangaReadHistory';
-import LatestActivityComments from '../../Components/MangaListComponents/LatestActivityComments';
-import MangaCard from '../../Components/MangaListComponents/MangaCard';
-import AsideComponent from '../../Components/MangaListComponents/AsideComponent';
-import SliderComponent from '../../Components/MangaListComponents/SliderComponent';
+import MangaListClient from './MangaListClient';
+import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
 
-const MangaList = () => {
-  return (
-    <div className="relative min-h-screen w-full  overflow-hidden">
-      <div className="w-full h-fit">
-        <SliderComponent />
-      </div>
-      <div className="hidden px-6 xl:px-16   lg:block">
-        <LatestActivityComments />
-      </div>
-      <div className="flex flex-col-reverse md:gap-3  md:flex-row mt-6 ">
-        <div className="flex-1 px-2 md:pl-6 xl:pl-16 sm:px-0 ">
-          <MangaCard />
-        </div>
-        <div className="w-full md:w-[30%] lg:w-[30%] overflow-x-hidden px-4 sm:pl-2 sm:pr-4 xl:pr-14   md:min-w-[250px]">
-          <MangaReadHistory />
-          <AsideComponent />
-        </div>
-      </div>
-    </div>
-  );
+export const metadata = {
+  title: 'Manga List - Discover Latest Manga | AI Manga Reader',
+  description: 'Browse the latest manga releases, top-rated series, and fan favorites. Read manga with OCR translation and TTS.',
+  openGraph: {
+    title: 'Manga List - AI Manga Reader',
+    description: 'Browse latest manga, manhwa and manhua with AI-powered features',
+    url: 'https://ai-mangareader.vercel.app/manga-list',
+  },
 };
 
-export default React.memo(MangaList);
+async function fetchMangaType(type, page) {
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://ai-mangareader.vercel.app';
+  
+  try {
+    const res = await fetch(`${baseUrl}/api/manga/${type}?page=${page}`, {
+      next: { 
+        revalidate: ['favourite', 'latestArrivals', 'rating'].includes(type) ? 86400 : 3600 
+      },
+    });
+
+    if (!res.ok) {
+      console.warn(`Failed to prefetch ${type}:`, res.status);
+      return { data: [], error: `HTTP ${res.status}` };
+    }
+
+    return res.json();
+  } catch (error) {
+    console.error(`Error prefetching ${type}:`, error);
+    return { data: [], error: String(error) };
+  }
+}
+
+async function prefetchData() {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 60 * 1000,
+        retry: 1,
+      },
+    },
+  });
+
+  await Promise.allSettled([
+    queryClient.prefetchQuery({
+      queryKey: ['manga', 'random', 1],
+      queryFn: () => fetchMangaType('random', 1),
+    }),
+    queryClient.prefetchQuery({
+      queryKey: ['manga', 'latest', 1],
+      queryFn: () => fetchMangaType('latest', 1),
+    }),
+    queryClient.prefetchQuery({
+      queryKey: ['manga', 'rating', 1],
+      queryFn: () => fetchMangaType('rating', 1),
+    }),
+    queryClient.prefetchQuery({
+      queryKey: ['manga', 'favourite', 1],
+      queryFn: () => fetchMangaType('favourite', 1),
+    }),
+    queryClient.prefetchQuery({
+      queryKey: ['manga', 'latestArrivals', 1],
+      queryFn: () => fetchMangaType('latestArrivals', 1),
+    }),
+  ]);
+
+  return dehydrate(queryClient);
+}
+
+export default async function MangaListPage() {
+  const dehydratedState = await prefetchData();
+
+  return (
+    <HydrationBoundary state={dehydratedState}>
+      <MangaListClient />
+    </HydrationBoundary>
+  );
+}
