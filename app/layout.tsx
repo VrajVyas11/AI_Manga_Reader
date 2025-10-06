@@ -10,6 +10,8 @@ import { PreferencesProvider } from "./providers/PreferencesContext";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import dynamic from "next/dynamic";
 import {getMeasurementId} from "./lib/gtag"
+import { Analytics } from "@vercel/analytics/next"
+import { SpeedInsights } from "@vercel/speed-insights/next"
 // Dynamic import with proper loading state
 const AnalyticsClient = dynamic(() => import("./Components/AnalyticsClient"));
 
@@ -136,6 +138,8 @@ export default function RootLayout({
             </MangaProvider>
           </TanstackProvider>
         </Suspense>
+        <Analytics/>
+        <SpeedInsights/>
         <GoogleAnalytics gaId={getMeasurementId()} />
       </body>
     </html>
