@@ -381,12 +381,11 @@ const LatestComments = () => {
                                                 <div className="relative">
                                                     <div className={`absolute -inset-1 ${isDark ? "bg-gradient-to-r from-purple-500/80 to-cyan-500/80" : "bg-gradient-to-r from-purple-400/80 to-cyan-400/80"} rounded-full blur opacity-40`}></div>
                                                     <img
-                                                        src={comment.avatarUrl}
+                                                        width={50}
+                                                        height={50}
+                                                        src={`/api/proxy/avatar?url=${encodeURIComponent(comment.avatarUrl)}&username=${encodeURIComponent(comment.username)}`}
                                                         alt={`${comment.username}'s avatar`}
                                                         className={`relative min-w-12 w-12 h-12 rounded-full border-2 ${isDark ? "border-purple-500/30 group-hover:border-purple-400/60" : "border-purple-400/30 group-hover:border-purple-600/60"} transition-all duration-0 object-cover shadow-lg`}
-                                                        onError={(e) => {
-                                                            e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(comment.username)}&background=8b5cf6&color=fff`;
-                                                        }}
                                                     />
                                                     <div className={`absolute bottom-0 right-0 w-3.5 h-3.5 ${isDark ? "bg-green-500 border-slate-900" : "bg-green-600 border-gray-300"} border-2 rounded-full shadow-lg`}>
                                                         <div className={`w-full h-full ${isDark ? "bg-green-400" : "bg-green-500"} rounded-full animate-ping opacity-75`}></div>

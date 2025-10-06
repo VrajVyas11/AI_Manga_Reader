@@ -34,6 +34,7 @@ export default function MangaListClient() {
     const { theme } = useTheme();
     const isDark = theme === 'dark';
 
+
     return (
         <div className="relative min-h-screen w-full overflow-hidden">
             <div className="w-full h-fit">
@@ -63,6 +64,6 @@ export default function MangaListClient() {
                     </Suspense>
                 </div>
             </div>
-        </div >
+        </div>
     );
 }

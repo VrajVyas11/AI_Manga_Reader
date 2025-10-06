@@ -16,6 +16,62 @@ import Image from 'next/image';
 import MangaReadHistorySkeleton from '../Skeletons/MangaList/MangaReadHistorySkeleton';
 import { useTheme } from '../../providers/ThemeContext';
 
+/**
+ * Pure function to get normalized title (no hooks)
+ */
+const getNormalizedMangaTitle = (manga, options = {}) => {
+  const { preferEnglish = true, maxLength } = options;
+
+  if (!manga?.title) return 'Untitled Manga';
+
+  let title = manga.title.trim();
+
+  // Prefer English title if requested
+  if (preferEnglish) {
+    const englishTitle = findEnglishTitle(manga);
+    if (englishTitle) {
+      title = englishTitle.trim();
+    }
+  }
+
+  // Truncate if needed
+  if (maxLength && title.length > maxLength) {
+    title = title.substring(0, maxLength).trim() + '...';
+  }
+
+  return title;
+};
+
+/**
+ * Finds English title from alternate titles
+ */
+const findEnglishTitle = (manga) => {
+  if (!manga) return null;
+
+  // Check altTitles array for English titles
+  if (manga.altTitles && Array.isArray(manga.altTitles)) {
+    for (const altTitleObj of manga.altTitles) {
+      // Direct English key
+      if (altTitleObj.en) {
+        return altTitleObj.en;
+      }
+      
+      // Case-insensitive English keys
+      const englishKey = Object.keys(altTitleObj).find(key => 
+        key.toLowerCase() === 'en' || 
+        key.toLowerCase().startsWith('en-') ||
+        key.toLowerCase() === 'english'
+      );
+      
+      if (englishKey && altTitleObj[englishKey]) {
+        return altTitleObj[englishKey];
+      }
+    }
+  }
+
+  return null;
+};
+
 function MangaReadHistory() {
     const {
         getAllFromReadHistory,
@@ -106,6 +162,18 @@ function MangaReadHistory() {
         [readHistory]
     );
 
+    // Pre-compute normalized titles at top level (avoids hook calls in loop)
+    const normalizedHistory = useMemo(() => 
+        sortedReadHistory.map(item => ({
+            ...item,
+            normalizedTitle: getNormalizedMangaTitle(item.manga, {
+                preferEnglish: true,
+                maxLength: 40
+            })
+        })),
+        [sortedReadHistory]
+    );
+
     if (!mounted) return <MangaReadHistorySkeleton isDark={isDark} />;
     if (readHistory.length === 0) return null;
 
@@ -178,7 +246,7 @@ function MangaReadHistory() {
                             }}
                             className="space-y-3 overflow-y-auto mt-8 max-h-[322px]"
                         >
-                            {sortedReadHistory.slice(0, shownMangasInHistory).map((item, index) => {
+                            {normalizedHistory.slice(0, shownMangasInHistory).map((item, index) => {
                                 const progress = calculateProgress(item);
                                 return (
                                     <div
@@ -209,7 +277,7 @@ function MangaReadHistory() {
                                                         width={59}
                                                         height={300}
                                                         src={item.manga.coverImageUrl}
-                                                        alt={item.manga.title}
+                                                        alt={item.normalizedTitle}
                                                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                                                         onError={(e) => {
                                                             e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA2NCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjgwIiBmaWxsPSIjMzc0MTUxIi8+CjxwYXRoIGQ9Ik0zMiA0MEwyOCAzNkwyOCA0NEwzMiA0MFoiIGZpbGw9IiM2QjczODAiLz4KPC9zdmc+';
@@ -230,7 +298,7 @@ function MangaReadHistory() {
                                                             onClick={() => handleMangaCoverImageClicked(item.manga)}
                                                             className={`text-[14.5px] font-semibold line-clamp-1 ${isDark ? 'text-white hover:text-purple-300' : 'text-gray-900 hover:text-purple-600'} transition-colors duration-200`}
                                                         >
-                                                            {item.manga.title}
+                                                            {item.normalizedTitle}
                                                         </Link>
 
                                                         {item.chapters?.slice(0, 1).map((chapter, chapterIndex) => (
@@ -294,14 +362,14 @@ function MangaReadHistory() {
                             role="region"
                             aria-label="Recently read manga"
                         >
-                            {sortedReadHistory.map((item, idx) => (
+                            {normalizedHistory.map((item, idx) => (
                                 <Link
                                     key={`mobile-${item.manga.id}-${idx}`}
                                     href={`/manga/${item.manga.id}/chapters`}
                                     prefetch={true}
                                     onClick={() => handleMangaCoverImageClicked(item.manga)}
                                     className="w-[76px] shrink-0"
-                                    aria-label={`Open ${item.manga.title}`}
+                                    aria-label={`Open ${item.normalizedTitle}`}
                                 >
                                     <div
                                         className={`relative  aspect-[3/4] rounded-xl overflow-hidden border transition-shadow duration-300 ${isDark
@@ -311,7 +379,7 @@ function MangaReadHistory() {
                                     >
                                         <Image
                                             src={item.manga.coverImageUrl}
-                                            alt={item.manga.title}
+                                            alt={item.normalizedTitle}
                                             fill
                                             sizes="88px"
                                             className="object-cover transition-transform duration-300 will-change-transform hover:scale-105"
@@ -323,7 +391,7 @@ function MangaReadHistory() {
                                         className={`mt-2 text-[12.5px] font-semibold text-center line-clamp-2 ${isDark ? 'text-white' : 'text-gray-900'
                                             }`}
                                     >
-                                        {item.manga.title}
+                                        {item.normalizedTitle}
                                     </h3>
                                 </Link>
                             ))}

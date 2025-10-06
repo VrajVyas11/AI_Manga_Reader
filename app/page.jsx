@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import TopFavouriteMangas from "./constants/TopFavouriteMangas";
 import { MoveRight } from "lucide-react";
 import { useManga } from './providers/MangaContext';
+import { getNormalizedMangaTitle } from "./hooks/useMangaTitle";
 const LandingContent = React.memo(
   lazy(() => import('./Components/HomeComponents/LandingContent'))
 );
@@ -70,37 +71,37 @@ const Home = () => {
   }, [handleScroll]);
 
   // Fetch TopManga list on mount with retry logic
-useEffect(() => {
-  const fetchTopMangaList = async () => {
-    try {
-      const cached = getFromStorage("topMangaList");
-      if (cached?.data) {
-        setTopSearches(cached.data);
-        return;
+  useEffect(() => {
+    const fetchTopMangaList = async () => {
+      try {
+        const cached = getFromStorage("topMangaList");
+        if (cached?.data) {
+          setTopSearches(cached.data);
+          return;
+        }
+
+        const resp = await fetch('/api/manga/UsersTop', { method: 'GET' });
+        if (!resp.ok) {
+          throw new Error(`Failed to fetch top mangas: ${resp.status}`);
+        }
+        const json = await resp.json();
+
+        if (!json?.data || !Array.isArray(json.data)) {
+          throw new Error('Invalid response from server');
+        }
+
+        setTopSearches(json.data);
+        saveToStorage('topMangaList', json.data);
+      } catch (err) {
+        console.error('Failed to load TopManga list:', err);
+        // Fallback to your default
+        setTopSearches(TopFavouriteMangas);
+        saveToStorage('topMangaList', TopFavouriteMangas);
       }
+    };
 
-      const resp = await fetch('/api/manga/UsersTop', { method: 'GET' });
-      if (!resp.ok) {
-        throw new Error(`Failed to fetch top mangas: ${resp.status}`);
-      }
-      const json = await resp.json();
-
-      if (!json?.data || !Array.isArray(json.data)) {
-        throw new Error('Invalid response from server');
-      }
-
-      setTopSearches(json.data);
-      saveToStorage('topMangaList', json.data);
-    } catch (err) {
-      console.error('Failed to load TopManga list:', err);
-      // Fallback to your default
-      setTopSearches(TopFavouriteMangas);
-      saveToStorage('topMangaList', TopFavouriteMangas);
-    }
-  };
-
-  fetchTopMangaList();
-}, []);
+    fetchTopMangaList();
+  }, []);
 
   const handleSearch = useCallback(
     (e) => {
@@ -109,25 +110,11 @@ useEffect(() => {
     },
     [searchQuery, router]
   );
-
+console.log(topSearches)
   const handleMangaClicked = useCallback((manga) => {
     setSelectedManga(manga);
   }, [setSelectedManga]);
 
-  // Memoize rendered manga list to avoid re-renders
-  const renderedTopSearches = useMemo(() => {
-    return topSearches.map((manga, index) => (
-      <Link
-        key={manga.id ?? index}
-        href={`/manga/${manga?.id}/chapters`}
-        prefetch={true}
-        onClick={() => handleMangaClicked(manga)}
-        className="bg-gray-800 text-[10px] sm:text-sm rounded-md px-3 py-2 m-1 hover:bg-opacity-45 hover:bg-purple-800 transition duration-200"
-      >
-        {manga.title.length > 35 ? manga.title.slice(0, 35) + "..." : manga.title}
-      </Link>
-    ));
-  }, [topSearches, handleMangaClicked]);
 
   return (
     <div
@@ -177,7 +164,23 @@ useEffect(() => {
           <div className="max-w-4xl mx-auto">
             <div className="flex h-40 sm:h-auto overflow-hidden flex-wrap items-center justify-center">
               <span className="text-gray-400 mr-2 mb-2">Top search:</span>
-              {renderedTopSearches}
+              {topSearches.map((manga, index) => {
+                  const  title  = getNormalizedMangaTitle(manga, {
+                  preferEnglish: true,
+                  maxLength: 40
+                });
+                return (
+                  <Link
+                    key={manga.id ?? index}
+                    href={`/manga/${manga?.id}/chapters`}
+                    prefetch={true}
+                    onClick={() => handleMangaClicked(manga)}
+                    className="bg-gray-800 text-[10px] sm:text-sm rounded-md px-3 py-2 m-1 hover:bg-opacity-45 hover:bg-purple-800 transition duration-200"
+                  >
+                    {title}
+                  </Link>
+                )
+              })}
             </div>
           </div>
 

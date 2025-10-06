@@ -16,7 +16,8 @@ import { useManga } from '../../providers/MangaContext';
 import { useTheme } from '../../providers/ThemeContext';
 import Link from 'next/link';
 import { useMangaFilters } from '../../hooks/useMangaFilters';
-
+import { getNormalizedMangaTitle } from '@/app/hooks/useMangaTitle';
+import { getBlurDataURL } from "../../util/imageOptimization"
 
 const MangaThumbnail = React.memo(function MangaThumbnail({
   manga,
@@ -33,7 +34,7 @@ const MangaThumbnail = React.memo(function MangaThumbnail({
         }`}
       onClick={() => handleThumbnailClick(index)}
       role="button"
-      aria-label={`Show ${manga.title}`}
+      aria-label={`Show ${manga.normalizedTitle}`}
     >
       <div className="w-full aspect-[2/3] overflow-hidden rounded-sm">
         <div
@@ -44,12 +45,13 @@ const MangaThumbnail = React.memo(function MangaThumbnail({
         >
           <Image
             src={manga.coverImageUrl}
-            alt={manga.title ?? 'Manga cover'}
+            alt={manga.normalizedTitle ?? 'Manga cover'}
             width={300}
             height={450}
             sizes="(max-width: 640px) 120px, (max-width: 1024px) 150px, 200px"
             loading="lazy"
             decoding="async"
+            blurDataURL={getBlurDataURL()}
             className="w-full h-full object-cover block"
             priority={false}
           />
@@ -63,7 +65,7 @@ const MangaThumbnail = React.memo(function MangaThumbnail({
           <span className="text-black text-xs">{manga.originalLanguage ?? 'UN'}</span>
         </div>
         <h4 className={`text-sm font-medium truncate ${isDark ? 'text-white' : 'text-black'}`}>
-          {manga.title}
+          {manga.normalizedTitle}
         </h4>
       </div>
 
@@ -87,7 +89,13 @@ const SliderComponent = React.memo(function SliderComponent() {
   const originalMangas = useMemo(() => data?.data ?? [], [data?.data]);
   const filteredMangas = useMangaFilters(originalMangas);
   const mangas = useMemo(() => (filteredMangas ? filteredMangas.slice(0, 8) : []), [filteredMangas]);
-
+const normalizedMangas=mangas.map(item => ({
+            ...item,
+            normalizedTitle: getNormalizedMangaTitle(item, {
+                preferEnglish: true,
+                maxLength: 40
+            })
+        }))
   const bookMarks = useMemo(() => getAllBookMarks() ?? [], [getAllBookMarks]);
 
   const [activeIndex, setActiveIndex] = useState(0);
@@ -99,8 +107,8 @@ const SliderComponent = React.memo(function SliderComponent() {
   const progressRef = useRef(null);
   const autoplayDuration = 8000;
 
-  const activeManga = useMemo(() => (mangas.length > 0 ? mangas[activeIndex] : null), [
-    mangas,
+  const activeManga = useMemo(() => (normalizedMangas.length > 0 ? normalizedMangas[activeIndex] : null), [
+    normalizedMangas,
     activeIndex,
   ]);
 
@@ -130,33 +138,33 @@ const SliderComponent = React.memo(function SliderComponent() {
   }, []);
 
   const handleNext = useCallback(() => {
-    if (isTransitioning || mangas.length === 0) return;
+    if (isTransitioning || normalizedMangas.length === 0) return;
     setIsTransitioning(true);
     if (timerRef.current) clearTimeout(timerRef.current);
     resetProgress();
-    setActiveIndex((prev) => (prev + 1) % mangas.length);
+    setActiveIndex((prev) => (prev + 1) % normalizedMangas.length);
     setTimeout(() => setIsTransitioning(false), 500);
-  }, [isTransitioning, mangas.length, resetProgress]);
+  }, [isTransitioning, normalizedMangas.length, resetProgress]);
 
   const handlePrev = useCallback(() => {
-    if (isTransitioning || mangas.length === 0) return;
+    if (isTransitioning || normalizedMangas.length === 0) return;
     setIsTransitioning(true);
     if (timerRef.current) clearTimeout(timerRef.current);
     resetProgress();
-    setActiveIndex((prev) => (prev - 1 + mangas.length) % mangas.length);
+    setActiveIndex((prev) => (prev - 1 + normalizedMangas.length) % normalizedMangas.length);
     setTimeout(() => setIsTransitioning(false), 500);
-  }, [isTransitioning, mangas.length, resetProgress]);
+  }, [isTransitioning, normalizedMangas.length, resetProgress]);
 
   const handleThumbnailClick = useCallback(
     (index) => {
-      if (isTransitioning || index === activeIndex || mangas.length === 0) return;
+      if (isTransitioning || index === activeIndex || normalizedMangas.length === 0) return;
       setIsTransitioning(true);
       if (timerRef.current) clearTimeout(timerRef.current);
       resetProgress();
       setActiveIndex(index);
       setTimeout(() => setIsTransitioning(false), 500);
     },
-    [isTransitioning, activeIndex, mangas.length, resetProgress]
+    [isTransitioning, activeIndex, normalizedMangas.length, resetProgress]
   );
 
   const startTimer = useCallback(() => {
@@ -193,11 +201,11 @@ const SliderComponent = React.memo(function SliderComponent() {
   );
 
   useEffect(() => {
-    if (mangas.length > 0 && !isTransitioning) startTimer();
+    if (normalizedMangas.length > 0 && !isTransitioning) startTimer();
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [activeIndex, mangas.length, isTransitioning, startTimer]);
+  }, [activeIndex, normalizedMangas.length, isTransitioning, startTimer]);
 
   useEffect(() => {
     return () => {
@@ -206,18 +214,18 @@ const SliderComponent = React.memo(function SliderComponent() {
   }, []);
 
   useEffect(() => {
-    if (!isTransitioning && mangas.length > 0) {
+    if (!isTransitioning && normalizedMangas.length > 0) {
       const timeoutId = setTimeout(() => startTimer(), 50);
       return () => clearTimeout(timeoutId);
     }
-  }, [isTransitioning, mangas.length, startTimer]);
+  }, [isTransitioning, normalizedMangas.length, startTimer]);
 
   if (isLoading) return <SliderComponentSkeleton isDark={isDark} />;
 
   if (isError)
     return <div className="text-red-500">Error: {(error)?.message ?? 'Unknown'}</div>;
 
-  if (mangas.length === 0 || !activeManga) {
+  if (normalizedMangas.length === 0 || !activeManga) {
     return <div className={isDark ? 'text-white' : 'text-black'}>No mangas available</div>;
   }
 
@@ -244,7 +252,7 @@ const SliderComponent = React.memo(function SliderComponent() {
               className="absolute inset-0 bg-cover bg-center filter blur-lg opacity-30 transition-opacity duration-500"
               style={{ backgroundImage: `url(${activeManga.coverImageUrl})` }}
               role="img"
-              aria-label={`${activeManga.title} background`}
+              aria-label={`${activeManga.normalizedTitle} background`}
             />
 
             {isDark && (
@@ -263,7 +271,7 @@ const SliderComponent = React.memo(function SliderComponent() {
                   <ChevronLeft size={16} />
                 </button>
                 <div className="flex space-x-2 items-center">
-                  {mangas.map((_, index) => (
+                  {normalizedMangas.map((_, index) => (
                     <div
                       key={index}
                       className={`w-2 h-2 rounded-full cursor-pointer ${index === activeIndex ? 'bg-white w-3' : isDark ? 'bg-white/40' : 'bg-black/40'
@@ -303,7 +311,7 @@ const SliderComponent = React.memo(function SliderComponent() {
                 >
                   <span className="block relative">
                     <span className="relative line-clamp-1 xl:line-clamp-none z-10">
-                      {activeManga.title.length > 40 ? `${activeManga.title.slice(0, 40)}...` : activeManga.title}
+                      {activeManga.normalizedTitle}
                     </span>
                     <span className="absolute -bottom-2 lg:-bottom-3 left-0 h-2 lg:h-3 w-16 lg:w-24 bg-purple-800 z-0" />
                   </span>
@@ -349,10 +357,11 @@ const SliderComponent = React.memo(function SliderComponent() {
                 <div className={`relative w-full h-full overflow-hidden rounded-sm will-change-transform ${activeManga.isCoverImageBlurred ? "before:content-[''] before:absolute before:inset-0 before:bg-black/20 before:backdrop-blur-lg before:transition-opacity before:duration-300 hover:before:opacity-0 before:z-10" : ""}`}>
                   <Image
                     src={activeManga.coverImageUrl}
-                    alt={activeManga.title}
+                    alt={activeManga.normalizedTitle}
                     width={300}
                     height={450}
                     priority
+                    blurDataURL={getBlurDataURL()}
                     loading="eager"
                     sizes="100px"
                     decoding="async"
@@ -373,10 +382,11 @@ const SliderComponent = React.memo(function SliderComponent() {
                   <div className={`relative w-full h-full overflow-hidden rounded-sm will-change-transform ${activeManga.isCoverImageBlurred ? "before:content-[''] before:absolute before:inset-0 before:bg-black/20 before:backdrop-blur-lg before:transition-opacity before:duration-300 hover:before:opacity-0 before:z-10" : ""}`}>
                     <Image
                       src={activeManga.coverImageUrl}
-                      alt={activeManga.title}
+                      alt={activeManga.normalizedTitle}
                       width={300}
                       height={450}
                       priority
+                      blurDataURL={getBlurDataURL()}
                       loading="eager"
                       sizes="256px"
                       decoding="async"
@@ -402,7 +412,7 @@ const SliderComponent = React.memo(function SliderComponent() {
                 <span className="hidden sm:block uppercase text-[11px] tracking-widest">Prev</span>
               </button>
               <div className="text-center flex flex-col">
-                <span className={`${isDark ? 'text-white/50' : 'text-black/50'} text-xs`}>{activeIndex + 1} / {mangas.length}</span>
+                <span className={`${isDark ? 'text-white/50' : 'text-black/50'} text-xs`}>{activeIndex + 1} / {normalizedMangas.length}</span>
                 <span className={`${isDark ? 'text-white/30' : 'text-black/30'} text-[11px]`}>Swipe to navigate</span>
               </div>
               <button
@@ -420,7 +430,7 @@ const SliderComponent = React.memo(function SliderComponent() {
             <div className="flex-grow p-6 pt-3 overflow-y-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(0,0,0,0.6) rgba(0,0,0,0.1)' }}>
               <h3 className={`uppercase text-xs tracking-widest mb-3 ${isDark ? 'text-white/50' : 'text-black/50'}`}>Discover More</h3>
               <div className="grid grid-cols-2 gap-4">
-                {mangas.map((manga, index) => (
+                {normalizedMangas.map((manga, index) => (
                   <MangaThumbnail
                     key={manga.id}
                     manga={manga}
@@ -446,7 +456,7 @@ const SliderComponent = React.memo(function SliderComponent() {
           <div className="relative w-1 h-40 bg-white/20 rounded-full overflow-hidden">
             <div
               className="absolute top-0 left-0 right-0 bg-black transition-all duration-300"
-              style={{ height: `${(activeIndex / Math.max(1, mangas.length - 1)) * 100}%` }}
+              style={{ height: `${(activeIndex / Math.max(1, normalizedMangas.length - 1)) * 100}%` }}
               aria-hidden
             />
           </div>

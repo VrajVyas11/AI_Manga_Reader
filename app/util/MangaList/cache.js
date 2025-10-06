@@ -1,35 +1,29 @@
 // util/MangaList/cache.js
-const DEFAULT_CACHE_DURATION = 60 * 60 * 1000; // 1 hour in ms
+const DEFAULT_CACHE_DURATION = 60 * 60 * 1000; // 1 hour
 
-// Per-type TTLs in seconds (exported so hook can reference)
 export const TYPE_TTL_SECONDS = {
   favourite: 24 * 3600,
   latestArrivals: 24 * 3600,
   rating: 24 * 3600,
-  default: 3600, // 1 hour
+  latest: 1800, // 30 minutes for latest
+  random: 1800, // 30 minutes for random
+  default: 3600,
 };
 
 const isClient = () => typeof window !== 'undefined';
-
-// In-memory session cache (used across the app when helpful)
 const sessionCache = new Map();
 
 export const getFromStorage = (key, maxAgeMs = DEFAULT_CACHE_DURATION) => {
   if (!isClient()) return null;
 
-  // try session cache first
   if (sessionCache.has(key)) {
     const val = sessionCache.get(key);
-    // validate age if stored with timestamp
     if (val && val.__timestamp) {
       if (Date.now() - val.__timestamp > maxAgeMs) {
         sessionCache.delete(key);
       } else {
         return val.data;
       }
-    } else {
-      // no timestamp stored (unlikely), return raw
-      return val.data ?? null;
     }
   }
 
@@ -45,15 +39,15 @@ export const getFromStorage = (key, maxAgeMs = DEFAULT_CACHE_DURATION) => {
 
     const age = Date.now() - entry.timestamp;
     if (age > maxAgeMs) {
+      // Cache expired - remove it
       localStorage.removeItem(key);
+      sessionCache.delete(key);
       return null;
     }
 
     if (entry.ok === false) return null;
 
-    // populate session cache for faster subsequent lookups
     sessionCache.set(key, { data: entry.data ?? null, __timestamp: entry.timestamp });
-
     return entry.data ?? null;
   } catch (err) {
     console.error(`Error reading ${key} from localStorage:`, err);
@@ -69,10 +63,9 @@ export const getRawFromStorage = (key) => {
   try {
     const raw = localStorage.getItem(key);
     if (!raw) return null;
-    const entry = JSON.parse(raw);
-    return entry;
+    return JSON.parse(raw);
   } catch (err) {
-    console.error(`Error reading raw ${key} from localStorage:`, err);
+    console.error(`Error reading raw ${key}:`, err);
     try {
       localStorage.removeItem(key);
     } catch {}
@@ -90,16 +83,9 @@ export const saveToStorage = (key, data) => {
       failedAt: null,
     };
     localStorage.setItem(key, JSON.stringify(entry));
-    // update session cache too
-    try {
-      const sessionEntry = { data, __timestamp: entry.timestamp };
-      sessionCache.set(key, sessionEntry);
-    } catch (e) {
-      console.log(e)
-      // ignore
-    }
+    sessionCache.set(key, { data, __timestamp: entry.timestamp });
   } catch (err) {
-    console.error(`Error saving ${key} to localStorage:`, err);
+    console.error(`Error saving ${key}:`, err);
   }
 };
 
@@ -116,7 +102,6 @@ export const markAsFailed = (key, error) => {
       error: error ? String(error) : undefined,
     };
     localStorage.setItem(key, JSON.stringify(entry));
-    // remove session cache so next read triggers re-parse and invalidation logic
     sessionCache.delete(key);
   } catch (err) {
     console.error(`Error marking ${key} as failed:`, err);

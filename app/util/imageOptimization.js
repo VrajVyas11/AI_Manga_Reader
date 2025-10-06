@@ -1,6 +1,6 @@
-// app/util/MangaList/imageOptimization.ts
 export const getBlurDataURL = () => {
-  return 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAMCAYAAABfnvydAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAK0lEQVR4nGNgQAX/gdj/PwMDA8N/ZPhfIICBgYHhPzJ8gCwAVvAfXQEyDAB5PBQNqL7HWgAAAABJRU5ErkJggg==';
+  // Optimized WebP (smaller, faster decode for LCP/SI)
+  return 'data:image/webp;base64,UklGRiIAAABXRUJQVlA4IBYAAAAwAQCdASoBAAEADsD+JaQAA3AAAAAA'; // 67 bytes WebP blur
 };
 
 export const shimmer = (w, h) => `

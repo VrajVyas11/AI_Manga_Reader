@@ -14,7 +14,7 @@ const TextToSpeech = memo(lazy(() => import("./TextToSpeech")));
 const OCROverlay = memo(lazy(() => import("./OCROverlay")));
 import Placeholder from "./Placeholder";
 import handleTranslate from "../../util/ReadChapterUtils/handleTranslate";
-import ScanningOverlay from "./ScanningOverlay ";
+import ScanningOverlay from "./ScanningOverlay";
 
 // Toast system
 import ToastsPortal, { useToast } from "../../Components/Toasts"; // adjust path if needed
