@@ -4,19 +4,27 @@ import { useParams } from 'next/navigation';
 import { useCallback, useMemo, useState, useEffect } from 'react';
 import { useManga } from '../../../../providers/MangaContext';
 import AboutManga from '../../../../Components/MangaChaptersComponents/AboutManga';
-import TabsAndSections from '../../../../Components/MangaChaptersComponents/TabsAndSections';
 import AboutMangaSkeleton from '../../../../Components/Skeletons/MangaChapters/AboutMangaSkeleton';
-import TabsAndSectionsSkeleton from '../../../../Components/Skeletons/MangaChapters/TabsAndSectionsSkeleton';
 import { useChaptersFetch } from '../../../../hooks/useChaptersFetch';
 import { useTheme } from '@/app/providers/ThemeContext';
 import Link from 'next/link';
+import TabsAndSectionsSkeleton from '@/app/Components/Skeletons/MangaChapters/TabsAndSectionsSkeleton';
+import dynamic from 'next/dynamic';
 
 export default function MangaChapters() {
+
   const { mangaId } = useParams();
   const { selectedManga, setChapterListForManga, addToReadHistory } = useManga();
   const [isClient, setIsClient] = useState(false);
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const TabsAndSections = dynamic(
+    () => import('../../../../Components/MangaChaptersComponents/TabsAndSections'),
+    {
+      loading: () => <TabsAndSectionsSkeleton isDark={isDark} />,
+    }
+  );
+  
   useEffect(() => {
     setIsClient(true);
   }, []);
@@ -75,15 +83,13 @@ export default function MangaChapters() {
   return (
     <div className="w-full relative z-20 min-h-screen -mt-20 overflow-hidden bg-transparent flex flex-col gap-12 text-white">
       <AboutManga isDark={isDark} chapters={chapters} manga={manga} handleChapterClick={handleChapterClick} />
-      {chaptersLoading ? (
-        <TabsAndSectionsSkeleton isDark={isDark} />
-      ) : chapters.length === 0 ? (
-        <div className="text-center flex justify-center items-center font-bold text-red-500 text-lg bg-[#070920] backdrop-blur-md w-full h-[88vh]">
-          No chapters found for this manga.
-        </div>
-      ) : (
-        <TabsAndSections isDark={isDark} chapters={chapters} manga={manga} handleChapterClick={handleChapterClick} />
-      )}
+      <TabsAndSections
+        isDark={isDark}
+        chapters={chapters}
+        chaptersLoading={chaptersLoading}
+        manga={manga}
+        handleChapterClick={handleChapterClick}
+      />
     </div>
   );
 }

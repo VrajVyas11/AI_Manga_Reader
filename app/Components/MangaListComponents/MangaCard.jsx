@@ -17,7 +17,7 @@ import { useMangaTitle } from '../../hooks/useMangaTitle';
 const MangaCard = React.memo(() => {
     const { theme } = useTheme();
     const isDark = theme === "dark";
-    const { data, isLoading, isError, error } = useMangaFetch('latest', 1);
+    const { data, isLoading, isError, error, isFetching } = useMangaFetch('latest', 1);
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(20);
 
@@ -82,7 +82,7 @@ const MangaCard = React.memo(() => {
         [totalPages]
     );
 
-    if (isLoading) {
+    if ((isLoading || isFetching ) && !data) {
         return <MangaCardSkeleton isDark={isDark} />;
     }
 

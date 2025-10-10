@@ -5,8 +5,8 @@ export const TYPE_TTL_SECONDS = {
   favourite: 24 * 3600,
   latestArrivals: 24 * 3600,
   rating: 24 * 3600,
-  latest: 1800, // 30 minutes for latest
-  random: 1800, // 30 minutes for random
+  latest: 1800, // 30 minutes
+  random: 1800, // 30 minutes
   default: 3600,
 };
 
@@ -16,15 +16,13 @@ const sessionCache = new Map();
 export const getFromStorage = (key, maxAgeMs = DEFAULT_CACHE_DURATION) => {
   if (!isClient()) return null;
 
+  // Check session cache first
   if (sessionCache.has(key)) {
     const val = sessionCache.get(key);
-    if (val && val.__timestamp) {
-      if (Date.now() - val.__timestamp > maxAgeMs) {
-        sessionCache.delete(key);
-      } else {
-        return val.data;
-      }
+    if (Date.now() - val.timestamp <= maxAgeMs) {
+      return val.data;
     }
+    sessionCache.delete(key);
   }
 
   try {
@@ -32,22 +30,21 @@ export const getFromStorage = (key, maxAgeMs = DEFAULT_CACHE_DURATION) => {
     if (!raw) return null;
 
     const entry = JSON.parse(raw);
-    if (!entry || !('timestamp' in entry)) {
+    if (!entry || typeof entry.timestamp !== 'number') {
       localStorage.removeItem(key);
       return null;
     }
 
     const age = Date.now() - entry.timestamp;
     if (age > maxAgeMs) {
-      // Cache expired - remove it
       localStorage.removeItem(key);
-      sessionCache.delete(key);
       return null;
     }
 
     if (entry.ok === false) return null;
 
-    sessionCache.set(key, { data: entry.data ?? null, __timestamp: entry.timestamp });
+    // Sync to session cache
+    sessionCache.set(key, { data: entry.data, timestamp: entry.timestamp });
     return entry.data ?? null;
   } catch (err) {
     console.error(`Error reading ${key} from localStorage:`, err);
@@ -58,32 +55,17 @@ export const getFromStorage = (key, maxAgeMs = DEFAULT_CACHE_DURATION) => {
   }
 };
 
-export const getRawFromStorage = (key) => {
-  if (!isClient()) return null;
-  try {
-    const raw = localStorage.getItem(key);
-    if (!raw) return null;
-    return JSON.parse(raw);
-  } catch (err) {
-    console.error(`Error reading raw ${key}:`, err);
-    try {
-      localStorage.removeItem(key);
-    } catch {}
-    return null;
-  }
-};
-
 export const saveToStorage = (key, data) => {
   if (!isClient()) return;
   try {
+    const timestamp = Date.now();
     const entry = {
       data,
-      timestamp: Date.now(),
+      timestamp,
       ok: true,
-      failedAt: null,
     };
     localStorage.setItem(key, JSON.stringify(entry));
-    sessionCache.set(key, { data, __timestamp: entry.timestamp });
+    sessionCache.set(key, { data, timestamp });
   } catch (err) {
     console.error(`Error saving ${key}:`, err);
   }
@@ -110,4 +92,28 @@ export const markAsFailed = (key, error) => {
 
 export const clearFailure = (key, data) => {
   saveToStorage(key, data);
+};
+
+// Check if cache is stale without returning data
+export const isCacheStale = (key, maxAgeMs) => {
+  if (!isClient()) return true;
+
+  if (sessionCache.has(key)) {
+    const val = sessionCache.get(key);
+    return Date.now() - val.timestamp > maxAgeMs;
+  }
+
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return true;
+
+    const entry = JSON.parse(raw);
+    if (!entry || typeof entry.timestamp !== 'number' || entry.ok === false) {
+      return true;
+    }
+
+    return Date.now() - entry.timestamp > maxAgeMs;
+  } catch {
+    return true;
+  }
 };

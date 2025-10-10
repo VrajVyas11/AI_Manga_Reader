@@ -1,51 +1,35 @@
 // hooks/useMangaFetch.js
-import { useSuspenseQuery } from '@tanstack/react-query';
-
+import { useQuery } from '@tanstack/react-query';
+import { useEffect, useRef, useState } from 'react';
 import {
   getFromStorage,
   saveToStorage,
   markAsFailed,
   clearFailure,
+  isCacheStale,
   TYPE_TTL_SECONDS,
 } from '../util/MangaList/cache';
 
 const buildCacheKey = (type, page) => `manga_${type}_${page}`;
-const memoryCache = new Map();
 
 export const fetchMangaType = async (type, page) => {
   const cacheKey = buildCacheKey(type, page);
   const ttlSeconds = TYPE_TTL_SECONDS[type] ?? TYPE_TTL_SECONDS.default;
   const ttlMs = ttlSeconds * 1000;
 
-  // Check memory cache first
-  if (memoryCache.has(cacheKey)) {
-    const cached = memoryCache.get(cacheKey);
-    // Even with memory cache, check if it's stale
-    const cacheTime = cached.__timestamp || 0;
-    if (Date.now() - cacheTime < ttlMs) {
-      return cached.data;
-    }
-  }
-
-  // Check localStorage
+  // Check cache first
   const cached = getFromStorage(cacheKey, ttlMs);
   if (cached) {
-    memoryCache.set(cacheKey, { data: cached, __timestamp: Date.now() });
     return cached;
   }
 
   // Fetch fresh data
-  const controller = new AbortController();
-  const signal = controller.signal;
-
   try {
-    const res = await fetch(`/api/manga/${type}?page=${page}`, { 
-      signal,
-      // Force no-cache to get fresh data from server
+    const res = await fetch(`/api/manga/${type}?page=${page}`, {
       cache: 'no-store',
       headers: {
         'Cache-Control': 'no-cache',
-      }
+      },
     });
 
     if (!res.ok) {
@@ -56,7 +40,6 @@ export const fetchMangaType = async (type, page) => {
 
     const data = await res.json();
     saveToStorage(cacheKey, data);
-    memoryCache.set(cacheKey, { data, __timestamp: Date.now() });
     return data;
   } catch (err) {
     markAsFailed(cacheKey, err);
@@ -67,31 +50,84 @@ export const fetchMangaType = async (type, page) => {
 export const useMangaFetch = (type, page) => {
   const cacheKey = buildCacheKey(type, page);
   const ttlSeconds = TYPE_TTL_SECONDS[type] ?? TYPE_TTL_SECONDS.default;
-  
-  // Shorter staleTime for better freshness
-  const staleTime = ttlSeconds * 1000;
-  const gcTime = Math.max(staleTime * 2, 1000 * 60 * 60);
+  const ttlMs = ttlSeconds * 1000;
 
-  const query = useSuspenseQuery({
-    queryKey: ['manga', type, page],
-    queryFn: () => fetchMangaType(type, page),
-    staleTime, // Data becomes stale after this time
-    gcTime,
-    refetchOnMount: false, // Don't refetch on mount—rely on staleTime
-    refetchOnWindowFocus: true, // Background refetch if stale when tab regains focus
-    refetchOnReconnect: false, // Skip on reconnect to avoid churn
-    retry: 2,
-    // IMPORTANT: Stale-while-revalidate pattern
-    refetchInterval: false, // Don't poll, but allow background updates
-    onError: (err) => {
+  // Track if this is the initial mount
+  const isInitialMount = useRef(true);
+  const [shouldRefetch, setShouldRefetch] = useState(false);
+
+  // Check if cache is stale on mount
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      
+      // Check if we need to refetch in background
+      if (typeof window !== 'undefined') {
+        const isStale = isCacheStale(cacheKey, ttlMs);
+        if (isStale) {
+          // Delay refetch slightly to avoid blocking initial render
+          setTimeout(() => setShouldRefetch(true), 100);
+        }
+      }
+    }
+  }, [cacheKey, ttlMs]);
+
+  const query = useQuery({
+  queryKey: ['manga', type, page],
+  queryFn: () => fetchMangaType(type, page),
+  
+  staleTime: ttlMs,
+  gcTime: Math.max(ttlMs * 2, 1000 * 60 * 60),
+  
+  refetchOnMount: false,
+  refetchOnWindowFocus: false,
+  refetchOnReconnect: false,
+  
+  retry: 2,
+  retryDelay: 1000,
+  
+  // CRITICAL: These prevent hydration issues
+  initialData: () => {
+    if (typeof window === 'undefined') return undefined;
+    return getFromStorage(cacheKey, ttlMs);
+  },
+  
+  initialDataUpdatedAt: () => {
+    if (typeof window === 'undefined') return 0;
+    const raw = localStorage.getItem(cacheKey);
+    if (!raw) return 0;
+    try {
+      const entry = JSON.parse(raw);
+      return entry.timestamp || 0;
+    } catch {
+      return 0;
+    }
+  },
+         onError: (err) => {
       markAsFailed(cacheKey, err);
     },
     onSuccess: (data) => {
       clearFailure(cacheKey, data);
     },
-  });
+  // Add these to prevent suspense throwing
+  throwOnError: false,
+  notifyOnChangeProps: ['data', 'error'],
+});
 
-  // REMOVED: Background revalidation useEffect—let staleTime + refetchOnWindowFocus handle freshness without fighting hydration
+  // Background refetch if needed (won't trigger suspense)
+  useEffect(() => {
+  if (shouldRefetch && !query.isFetching) {
+    query.refetch();
+    setShouldRefetch(false);
+  }
+}, [shouldRefetch, query]);
 
-  return query;
+// Return modified query result to hide background loading
+return {
+  ...query,
+  // Override isLoading to only be true when we have NO data at all
+  isLoading: query.isLoading && !query.data,
+  // Keep isFetching for optional loading indicators
+  isFetching: query.isFetching,
+};
 };

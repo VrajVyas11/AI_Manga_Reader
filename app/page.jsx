@@ -110,7 +110,7 @@ const Home = () => {
     },
     [searchQuery, router]
   );
-console.log(topSearches)
+
   const handleMangaClicked = useCallback((manga) => {
     setSelectedManga(manga);
   }, [setSelectedManga]);

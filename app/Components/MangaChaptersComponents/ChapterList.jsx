@@ -17,6 +17,7 @@ import {
   ArrowUpDown,
   CheckCircle,
   Filter,
+  Book,
 } from 'lucide-react';
 import { langFullNames } from '../../constants/Flags';
 import { useManga } from '../../providers/MangaContext';
@@ -38,7 +39,7 @@ const MemoizedStableFlag = React.memo(({ code, className }) => (
   </Suspense>
 ));
 MemoizedStableFlag.displayName = "MemoizedStableFlag"
-const ChapterListWithFilters = ({ chapters, manga, handleChapterClick, isDark = true }) => {
+const ChapterListWithFilters = ({ chapters = [], manga, handleChapterClick, isDark = true, chaptersLoading = false }) => {
   const { getAllFromReadHistory } = useManga();
   // States
   // console.log(isDark)
@@ -268,7 +269,17 @@ const ChapterListWithFilters = ({ chapters, manga, handleChapterClick, isDark = 
     });
   }, [uniqueVolumes, chaptersByVolume]);
 
-  if (chapters.length <= 0 || !manga) return <ChapterListSkeleton isDark={isDark} />;
+  if (chaptersLoading) return <ChapterListSkeleton isDark={isDark} />;
+
+  if (chapters.length <= 0 || !manga) return (
+    <div className="text-center py-16 text-white">
+      <div className="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6">
+        <Book className="w-10 h-10 text-gray-400" />
+      </div>
+      <h3 className="text-xl font-medium mb-2">No chapters available</h3>
+      <p className="text-gray-400">This manga doesn{"'"}t have any chapters yet.</p>
+    </div>
+  );
 
   return (
     <div className={`flex flex-col w-full gap-2 sm:gap-4 lg:flex-row ${themeClasses.primaryText} font-sans transition-colors duration-0`}>

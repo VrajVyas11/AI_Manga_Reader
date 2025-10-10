@@ -476,13 +476,13 @@ const LatestComments = () => {
                                                         <div className="flex ml-9 flex-wrap justify-between items-center gap-2">
                                                             <div className={`flex flex-row w-full space-x-5 text-[11px] ${isDark ? "text-purple-300" : "text-purple-600"} font-semibold tracking-wide`}>
                                                                 {comment.chapterNo && (
-                                                                    <div className="flex flex-row w-1/2 gap-1 items-center">
+                                                                    <div className="flex flex-row w-11/20 gap-1 items-center">
                                                                         <span className={` ${isDark ? "text-purple-400" : "text-purple-500"} select-none`}>Chapter :</span>
                                                                         <span className={`text-xs ${isDark ? "text-yellow-400" : "text-yellow-600"}`}>{comment.chapterNo}</span>
                                                                     </div>
                                                                 )}
                                                                 {(comment.chapterNo || comment.volumeNo) && (
-                                                                    <div className="flex justify-start flex-row w-1/2 gap-1 items-center">
+                                                                    <div className="flex justify-start flex-row w-9/20 gap-1 items-center">
                                                                         <span className={` ${isDark ? "text-purple-400" : "text-purple-500"} select-none`}>Volume :</span>
                                                                         <span className={` ${isDark ? "text-yellow-400" : "text-yellow-600"}`}>{comment?.volumeNo ? comment?.volumeNo : "?"}</span>
                                                                     </div>

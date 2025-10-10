@@ -49,6 +49,7 @@ export default function AsideComponentSkeleton() {
 
   return (
     <section
+    suppressHydrationWarning
       aria-label="Manga list"
       className="w-full mb-9"
     >

@@ -1,9 +1,10 @@
 "use client";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import {  Filter, Search, X, ChevronDown, Grid, List, Calendar, Globe2,  Palette, Brush, Expand } from "lucide-react";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
+import { Filter, Search, X, ChevronDown, Grid, List, Calendar, Globe2, Palette, Brush, Expand } from "lucide-react";
 import Image from "next/image";
 import StableFlag from "../StableFlag";
-function CoverArts({ manga, isDark }) {
+import CoverArtsSkeleton from "../Skeletons/MangaChapters/CoverArtsSkeleton"
+function CoverArts({ manga, isDark = true }) {
   const [covers, setCovers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -35,7 +36,7 @@ function CoverArts({ manga, isDark }) {
     } catch {
       return null;
     }
-  },[CACHE_DURATION]);
+  }, [CACHE_DURATION]);
 
   const setCachedData = useCallback((mangaId, data) => {
     if (typeof window === 'undefined') return;
@@ -47,7 +48,7 @@ function CoverArts({ manga, isDark }) {
     } catch (err) {
       console.warn('Cache failed:', err);
     }
-  },[]);
+  }, []);
 
   const fetchCovers = useCallback(async (mangaId) => {
     if (!mangaId) return;
@@ -392,20 +393,7 @@ function CoverArts({ manga, isDark }) {
 
       {/* Content */}
       {loading ? (
-        <div className={`grid gap-4 ${viewMode === 'grid'
-          ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5'
-          : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'}`}
-        >
-          {Array.from({ length: coversPerPage }).map((_, i) => (
-            <div key={i} className="bg-zinc-800/40 rounded-2xl animate-pulse">
-              <div className={`aspect-[3/4] bg-zinc-700/60 rounded-t-2xl`} />
-              <div className="p-4 space-y-2">
-                <div className="h-4 bg-zinc-700/60 rounded w-3/4" />
-                <div className="h-3 bg-zinc-700/60 rounded w-1/2" />
-              </div>
-            </div>
-          ))}
-        </div>
+        <CoverArtsSkeleton isDark={isDark} />
       ) : filteredCovers.length === 0 ? (
         <div className="text-center py-16">
           <div className="w-20 h-20 bg-zinc-800/60 rounded-full flex items-center justify-center mx-auto mb-6">

@@ -84,7 +84,7 @@ const SliderComponent = React.memo(function SliderComponent() {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
   const { addToBookMarks, getAllBookMarks, setSelectedManga } = useManga();
-  const { data, isLoading, isError, error } = useMangaFetch('random', 1);
+const { data, isLoading, isError, error, isFetching } = useMangaFetch('random', 1);
 
   const originalMangas = useMemo(() => data?.data ?? [], [data?.data]);
   const filteredMangas = useMangaFilters(originalMangas);
@@ -220,7 +220,7 @@ const normalizedMangas=mangas.map(item => ({
     }
   }, [isTransitioning, normalizedMangas.length, startTimer]);
 
-  if (isLoading) return <SliderComponentSkeleton isDark={isDark} />;
+   if ((isLoading || isFetching ) && !data) { return <SliderComponentSkeleton isDark={isDark} />;}
 
   if (isError)
     return <div className="text-red-500">Error: {(error)?.message ?? 'Unknown'}</div>;

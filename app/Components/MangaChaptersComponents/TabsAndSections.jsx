@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, Suspense } from 'react';
 import {
   Book,
   BookOpen,
@@ -7,10 +7,14 @@ import {
   Library,
 } from 'lucide-react';
 import StableFlag from "../StableFlag";
-import ChapterList from './ChapterList';
-import CommentsOnManga from './CommentsOnManga';
+import ChapterList from './ChapterList'
+import CommentsOnManga from './CommentsOnManga'
 import TabsAndSectionsSkeleton from '../Skeletons/MangaChapters/TabsAndSectionsSkeleton';
 import CoverArts from "../MangaChaptersComponents/CoverArts"
+import ChapterListSkeleton from '../Skeletons/MangaChapters/ChapterListSkeleton';
+import CommentsOnMangaSkeleton from '../Skeletons/MangaChapters/CommentsOnMangaSkeleton';
+import CoverArtsSkeleton from '../Skeletons/MangaChapters/CoverArtsSkeleton';
+
 // Move static data outside component to prevent recreation
 const websiteNames = {
   al: "AniList",
@@ -41,7 +45,8 @@ const getIconMap = (isDark) => ({
 
 const MemoStableFlag = React.memo(StableFlag);
 
-function TabsAndSections({ manga, chapters, handleChapterClick, isDark }) {
+function TabsAndSections({ manga, chapters = [], chaptersLoading = false, handleChapterClick, isDark = true }) {
+
   const [sortOrder] = useState('descending');
   const [activeTab, setActiveTab] = useState(0);
 
@@ -84,7 +89,17 @@ function TabsAndSections({ manga, chapters, handleChapterClick, isDark }) {
     () => [
       {
         label: `Chapters (${chapters.length})`,
-        content: (
+        content: chaptersLoading ? (
+          <ChapterListSkeleton isDark={isDark} />
+        ) : chapters.length === 0 ? (
+          <div className="text-center py-16 text-white">
+            <div className="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Book className="w-10 h-10 text-gray-400" />
+            </div>
+            <h3 className="text-xl font-medium mb-2">No chapters available</h3>
+            <p className="text-gray-400">This manga doesn{"'"}t have any chapters yet.</p>
+          </div>
+        ) : (
           <ChapterList
             isDark={isDark}
             manga={memoManga}
@@ -92,21 +107,30 @@ function TabsAndSections({ manga, chapters, handleChapterClick, isDark }) {
             chapters={chapters}
             handleChapterClick={handleChapterClick}
           />
+
         ),
       },
       {
         label: `Comments (${memoManga?.rating?.comments?.repliesCount ?? 0})`,
-        content: <CommentsOnManga manga={memoManga} isDark={isDark} />,
+        content: (
+          <Suspense fallback={<CommentsOnMangaSkeleton isDark={isDark} />}>
+            <CommentsOnManga manga={memoManga} isDark={isDark} />
+          </Suspense>
+        ),
       },
-            {
+      {
         label: `Cover Arts`,
-        content: <CoverArts manga={memoManga} isDark={isDark} />,
+        content: (
+          <Suspense fallback={<CoverArtsSkeleton isDark={isDark} />}>
+            <CoverArts manga={memoManga} isDark={isDark} />
+          </Suspense>
+        ),
       },
     ],
-    [chapters, isDark, memoManga, uniqueVolumes, handleChapterClick]
+    [chapters, chaptersLoading, isDark, memoManga, uniqueVolumes, handleChapterClick]
   );
   // console.log(memoManga);
-  if (chapters.length == 0 || !manga) return <TabsAndSectionsSkeleton isDark={isDark} />
+  if (!manga) return <TabsAndSectionsSkeleton isDark={isDark} />
   return (
     <div className="px-4 sm:px-[70px] transition-colors duration-0">
       <div className="mb-6 sm:mb-8 w-fit">
