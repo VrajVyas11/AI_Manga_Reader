@@ -17,7 +17,7 @@ import handleTranslate from "../../util/ReadChapterUtils/handleTranslate";
 import ScanningOverlay from "./ScanningOverlay";
 
 // Toast system
-import ToastsPortal, { useToast } from "../../Components/Toasts"; // adjust path if needed
+import ToastsPortal, { useToast } from "../../Components/Toasts";
 
 function MiddleImageAndOptions({
     layout,
@@ -47,10 +47,10 @@ function MiddleImageAndOptions({
     const [loadingPages, setLoadingPages] = useState({});
     const [translatedTexts, setTranslatedTexts] = useState({});
     const [overlayLoading, setOverlayLoading] = useState(false);
-    const imageRef = useRef(null);
-    const [fullOCRCompleteData, setFullOCRCompleteData] = useState()
+    const imageRef = useRef(null); // For horizontal layout
+    const imageRefsMap = useRef({}); // For vertical layout - stores actual DOM img elements
+    const [, setFullOCRCompleteData] = useState();
     const [showMessage, setShowMessage] = useState(false);
-    // stable showToast function from hook (won't change across renders)
     const { showToast } = useToast();
 
     const handleImageLoad = useCallback((url) => {
@@ -110,25 +110,46 @@ function MiddleImageAndOptions({
         [translatedTexts, memoizedHandleTranslate, showToast]
     );
 
-    // helper: try to resolve actual DOM img element (Next/Image wrapper handling)
-    const getDomImageElement = useCallback((maybeRef) => {
-        if (!maybeRef) return null;
-        const el = maybeRef.current;
+    // Helper: Extract actual DOM img element from Next.js Image wrapper
+    const getDomImageElement = useCallback((imageIdentifier) => {
+        if (!imageIdentifier) return null;
+
+        let el;
+        if (layout === "horizontal") {
+            // Single ref for horizontal
+            el = imageIdentifier?.current;
+        } else {
+            // Multiple refs for vertical - imageIdentifier is the page URL
+            el = imageRefsMap.current[imageIdentifier];
+        }
+
         if (!el) return null;
+
         try {
+            // Check if it's already an img element
             if (el.tagName && el.tagName.toLowerCase() === "img") return el;
+
+            // Next.js Image wraps img in a container, query for the actual img
             if (el.querySelector) {
                 const img = el.querySelector("img");
                 if (img) return img;
             }
         } catch (e) {
-            console.log(e);
-            // ignore
+            console.error("Error getting DOM image element:", e);
         }
         return el;
+    }, [layout]);
+
+    // Callback ref handler for vertical layout images
+    const setImageRef = useCallback((page) => {
+        return (el) => {
+            if (el) {
+                // Store the wrapper element - getDomImageElement will extract the img
+                imageRefsMap.current[page] = el;
+            }
+        };
     }, []);
 
-    // handleUpload uses stable showToast but is itself memoized to avoid re-creation
     const handleUpload = useCallback(
         async (imageUrl, from) => {
             if (!imageUrl) {
@@ -139,11 +160,13 @@ function MiddleImageAndOptions({
                     type: "warning",
                 });
             }
+            // console.log({imageUrl, from});
 
-            // Get the DOM img element (already loaded cleanly)
-            const imgEl = getDomImageElement(imageRef);
+            // Get the DOM img element
+            const imgEl = getDomImageElement(layout === "horizontal" ? imageRef : imageUrl);
+            // console.log({imgEl});
+
             if (!imgEl || !imgEl.complete || !imgEl.naturalWidth) {
-                // Fallback: image not ready—retry after short delay or show error
                 return showToast({
                     title: "Image not ready",
                     message: "Image still loading. Please wait a moment and try again.",
@@ -154,19 +177,19 @@ function MiddleImageAndOptions({
             setLoadingPages((prev) => ({ ...prev, [imageUrl]: from }));
 
             try {
-                // Capture clean image via canvas (no re-fetch!)
+                // Capture clean image via canvas
                 const canvas = document.createElement("canvas");
                 const ctx = canvas.getContext("2d");
                 canvas.width = imgEl.naturalWidth;
                 canvas.height = imgEl.naturalHeight;
                 ctx.drawImage(imgEl, 0, 0);
 
-                // Convert to blob (preserve original format/quality)
+                // Convert to blob
                 const blob = await new Promise((resolve) => {
                     canvas.toBlob(
                         (b) => resolve(b),
-                        imgEl.src.includes(".avif") ? "image/avif" : "image/jpeg", // Match original format
-                        0.95 // High quality
+                        imgEl.src.includes(".avif") ? "image/avif" : "image/jpeg",
+                        0.95
                     );
                 });
 
@@ -174,19 +197,18 @@ function MiddleImageAndOptions({
                     throw new Error("Failed to capture image data");
                 }
 
-                const file = new File([blob], "manga-panel.jpg", { type: blob.type }); // Use .jpg for broad compatibility
+                const file = new File([blob], "manga-panel.jpg", { type: blob.type });
                 const formData = new FormData();
                 formData.append("file", file);
 
                 const language = chapterInfo?.translatedLanguage || "en";
+                const formDataWithLang = new FormData();
+                formDataWithLang.append("file", file);
+                formDataWithLang.append("language", language);
+
                 const apiResponse = await fetch("/api/readTextAndReplace", {
                     method: "POST",
-                    body: (() => {
-                        const formDataWithLang = new FormData();
-                        formDataWithLang.append("file", file);
-                        formDataWithLang.append("language", language);
-                        return formDataWithLang;
-                    })(),
+                    body: formDataWithLang,
                 });
 
                 if (!apiResponse.ok) {
@@ -208,9 +230,8 @@ function MiddleImageAndOptions({
                 }
 
                 const result = await apiResponse.json();
-                console.log(result);
+                // console.log(result);
 
-                // Rest of your result processing logic remains unchanged...
                 let ocrResult = [];
                 let processedText = "";
                 let hasValidText = false;
@@ -325,23 +346,16 @@ function MiddleImageAndOptions({
                 setLoadingPages((prev) => ({ ...prev, [imageUrl]: null }));
             }
         },
-        [showToast, chapterInfo?.translatedLanguage, setShowMessage, memoizedHandleTranslate, translateAll, setPageTranslations, setIsItTextToSpeech, setPageTTS, setFullOCRResult, getDomImageElement] // Add getDomImageElement to deps
+        [getDomImageElement, layout, showToast, chapterInfo?.translatedLanguage, memoizedHandleTranslate, translateAll, setPageTranslations, setIsItTextToSpeech, setPageTTS]
     );
 
-    //
-    // Cursor + click alignment logic
-    //
-
-    // computeCursorSide returns "left" | "right" | "" for a given pointer coordinate
     const computeCursorSide = useCallback(
         (mouseX, mouseY) => {
             if (!window) return;
-            // vertical early-exit (same as before)
             const screenWidth = window?.innerWidth;
             const screenHeight = window?.innerHeight;
             if (mouseY < screenHeight / 5.5) return "";
 
-            // Try image rect first (accurate)
             try {
                 const imgEl = getDomImageElement(imageRef);
                 if (imgEl && typeof imgEl.getBoundingClientRect === "function") {
@@ -359,13 +373,11 @@ function MiddleImageAndOptions({
                 }
             } catch (e) {
                 console.log(e);
-                // continue to fallback
             }
 
-            // Fallback: use content area (account for sidebar)
             const isMobile = window.innerWidth < 768;
             const collapsedWidth = isMobile ? 56 : 70;
-            const openWidth = 288; // md:w-72 -> 288px
+            const openWidth = 288;
             const leftSidebarWidth = isMobile ? collapsedWidth : (isCollapsed ? collapsedWidth : openWidth);
 
             const contentLeft = leftSidebarWidth;
@@ -383,75 +395,12 @@ function MiddleImageAndOptions({
         [getDomImageElement, isCollapsed]
     );
 
-    // throttle mousemove via RAF using refs to avoid re-creating handlers / over-updating state
     const rafRef = useRef(0);
     const pendingRef = useRef(null);
 
-    // Create a wrapped version of handleUpload specifically for TextToSpeech
     const handleUploadForTTS = useCallback((page, type) => {
-        // This will be called from TextToSpeech without event object
         handleUpload(page, type);
     }, [handleUpload]);
-
-    // NEW: Modified image click handler with better detection
-    // const handleImageClicked = useCallback((event) => {
-    //     console.log("=== IMAGE CLICK DEBUG ===");
-    //     console.log("Click target:", event.target);
-    //     console.log("Click target tag:", event.target.tagName);
-    //     console.log("Click target class:", event.target.className);
-
-    //     // IMMEDIATELY stop propagation and prevent default
-    //     event.stopPropagation();
-    //     event.preventDefault();
-
-    //     // Check if this is actually an image click
-    //     const isImage =
-    //         event.target.tagName?.toLowerCase() === 'img' ||
-    //         event.target.classList?.contains('image-click-area') ||
-    //         (imageRef.current && imageRef.current.contains(event.target));
-
-    //     console.log("Is image click:", isImage);
-
-    //     if (!isImage) {
-    //         console.log("NOT an image click - stopping completely");
-    //         return;
-    //     }
-
-    //     console.log("Proceeding with image navigation...");
-
-    //     // Only proceed with navigation for confirmed image clicks
-    //     const mouseX = event.clientX;
-    //     const mouseY = event.clientY;
-    //     const side = computeCursorSide(mouseX, mouseY);
-
-    //     console.log("Cursor side:", side);
-
-    //     if (!side) return; // outside interactive band -> no nav
-
-    //     const goPrev = side === "left";
-    //     const totalPages = (quality === "low" ? pages?.chapter?.dataSaver : pages?.chapter?.data) || pages || [];
-    //     const totalCount = totalPages.length || (pages?.length || 0);
-    //     if (!totalCount) return;
-
-    //     let newIndex = currentIndex || 0;
-
-    //     if (goPrev) {
-    //         if (panels === 2) {
-    //             newIndex = Math.max(0, newIndex - panels);
-    //         } else {
-    //             newIndex = newIndex === 0 ? Math.max(0, totalCount - panels) : Math.max(0, newIndex - panels);
-    //         }
-    //     } else {
-    //         newIndex = newIndex + panels >= totalCount ? 0 : newIndex + panels;
-    //     }
-
-    //     if (typeof setCurrentIndex === "function") {
-    //         setCurrentIndex(newIndex);
-    //     }
-
-    //     clickCooldownRef.current = true;
-    //     setTimeout(() => (clickCooldownRef.current = false), 300);
-    // }, [computeCursorSide, currentIndex, pages, panels, quality, setCurrentIndex]);
 
     useEffect(() => {
         if (layout === "vertical") {
@@ -480,7 +429,7 @@ function MiddleImageAndOptions({
                 const p = pendingRef.current;
                 pendingRef.current = null;
                 const side = computeCursorSide(p.x, p.y);
-                if (!side) return; // outside interactive band -> no nav
+                if (!side) return;
 
                 const goPrev = side === "left";
                 const totalPages = (quality === "low" ? pages?.chapter?.dataSaver : pages?.chapter?.data) || pages || [];
@@ -521,9 +470,7 @@ function MiddleImageAndOptions({
         };
     }, [computeCursorSide, currentIndex, layout, pages, panels, quality, setCurrentIndex]);
 
-    // click handler: uses computeCursorSide to ensure click alignment with cursor
     const clickCooldownRef = useRef(false);
-
 
     useEffect(() => {
         if (pages && pages?.chapter?.dataSaver?.length > 0 && pages?.chapter?.data?.length > 0) {
@@ -539,31 +486,26 @@ function MiddleImageAndOptions({
                 setShowMessage(false);
             }
         }
-    }, [currentIndex, pages, pageTranslations, pageTTS, quality, setShowMessage]);
-
+    }, [currentIndex, pages, pageTranslations, pageTTS, quality]);
 
     if (!(chapterInfo && pages)) return null;
-    console.log(fullOCRCompleteData);
 
     return (
         <Suspense
             fallback={
                 <div className="w-full flex flex-row justify-center items-center">
-                    <div
-                        style={{ width: 380 }}
-                        className="w-full flex justify-center ">
+                    <div style={{ width: 380 }} className="w-full flex justify-center ">
                         <Placeholder isDark={isDark} />
                     </div>
                 </div>
             }
         >
-            {/* Toasts portal - single mount here; the hook's showToast is stable */}
             <ToastsPortal isDark={isDark} />
 
             <div
-                className={`flex  ${layout == "horizontal" ? cursorClass : ""} px-3 md:px-0 flex-1 ${layout === "horizontal"
-                    ? "flex-row space-x-4 overflow-hidden justify-center mt-5 items-start"
-                    : "flex-col space-y-4 mt-32 h-screen"
+                className={`flex ${layout == "horizontal" ? cursorClass : ""} px-3 md:px-0 flex-1 ${layout === "horizontal"
+                        ? "flex-row space-x-4 overflow-hidden justify-center mt-5 items-start"
+                        : "flex-col space-y-4 mt-32 h-screen"
                     } my-1`}
             >
                 {isLoading ? (
@@ -586,7 +528,7 @@ function MiddleImageAndOptions({
                                         alt={`Page ${currentIndex + index + 1}`}
                                         height={1680}
                                         width={1680}
-                                        className={`object-contain border rounded-lg w-full h-full shadow-xl transition-all  ${imageCache.includes(page) ? (isDark ? "border-gray-600" : "border-gray-300") : "hidden"}`}
+                                        className={`object-contain border rounded-lg w-full h-full shadow-xl transition-all ${imageCache.includes(page) ? (isDark ? "border-gray-600" : "border-gray-300") : "hidden"}`}
                                         priority={index === 0}
                                         loading={index === 0 ? undefined : "eager"}
                                         onLoadingComplete={() => handleImageLoad(page)}
@@ -601,8 +543,9 @@ function MiddleImageAndOptions({
                                             translatedTexts={translatedTexts}
                                             loading={false}
                                             ready={true}
-                                            imageElement={imageRef.current}
+                                            imageElement={getDomImageElement(imageRef)}
                                             isDark={isDark}
+                                            layout={layout}
                                         />
                                     ) : (
                                         ""
@@ -637,12 +580,7 @@ function MiddleImageAndOptions({
                                                             e.nativeEvent?.stopImmediatePropagation();
                                                             handleUpload(page, "translate");
                                                         }}
-                                                        className={`group py-2   ${panels === 2 || pageTranslations[page] ? "hidden" : ""} sm:py-4 px-1 sm:px-2 mb-4 before:bg-opacity-60 flex items-center justify-start min-w-[36px] sm:min-w-[48px] h-12 sm:h-20 rounded-full cursor-pointer relative overflow-hidden transition-all duration-300  
-    shadow-[0px_0px_10px_rgba(0,0,0,1)] shadow-yellow-500 ${isDark ? "bg-[#1a063e] bg-opacity-60" : "bg-yellow-200 bg-opacity-80"
-                                                            } hover:min-w-[140px] sm:hover:min-w-[182px] hover:shadow-lg disabled:cursor-not-allowed 
-    backdrop-blur-md lg:font-semibold border-gray-50 before:absolute before:w-full before:transition-all before:duration-700 
-    before:hover:w-full before:-right-full before:hover:right-0 before:rounded-full before:bg-[#FFFFFF] 
-    hover:text-black before:-z-10 before:aspect-square before:hover:scale-200 before:hover:duration-300 relative z-10 ease-in-out`}
+                                                        className={`group py-2 ${panels === 2 || pageTranslations[page] ? "hidden" : ""} sm:py-4 px-1 sm:px-2 mb-4 before:bg-opacity-60 flex items-center justify-start min-w-[36px] sm:min-w-[48px] h-12 sm:h-20 rounded-full cursor-pointer relative overflow-hidden transition-all duration-300 shadow-[0px_0px_10px_rgba(0,0,0,1)] shadow-yellow-500 ${isDark ? "bg-[#1a063e] bg-opacity-60" : "bg-yellow-200 bg-opacity-80"} hover:min-w-[140px] sm:hover:min-w-[182px] hover:shadow-lg disabled:cursor-not-allowed backdrop-blur-md lg:font-semibold border-gray-50 before:absolute before:w-full before:transition-all before:duration-700 before:hover:w-full before:-right-full before:hover:right-0 before:rounded-full before:bg-[#FFFFFF] hover:text-black before:-z-10 before:aspect-square before:hover:scale-200 before:hover:duration-300 relative z-10 ease-in-out`}
                                                     >
                                                         <Languages className={`tracking-wider w-10 h-10 sm:w-16 sm:h-16 p-2 sm:p-4 ${isDark ? "text-orange-400 bg-gray-50 bg-opacity-85 group-hover:border-2 group-hover:border-yellow-500" : "text-yellow-600 bg-gray-100 group-hover:border-2 group-hover:border-yellow-700"} transition-all ease-in-out duration-300 rounded-full border border-gray-700 transform group-hover:rotate-[360deg]`} />
                                                         <span className={`absolute font-sans font-bold left-14 sm:left-20 text-sm sm:text-lg tracking-tight ${isDark ? "text-black" : "text-yellow-900"} opacity-0 transform translate-x-2 sm:translate-x-4 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0`}>
@@ -665,7 +603,7 @@ function MiddleImageAndOptions({
                                         {((pageTTS[page] && isItTextToSpeech) || pageTranslations[page]) && (pageTranslations[page] ? pageTranslations[page]?.textResult : pageTTS[page]?.textResult) && (
                                             <div>
                                                 {showMessage ? (
-                                                    <div className={`absolute z-50 text-wrap w-fit md:min-w-72 min-w-44 md:max-w-72  top-28 md:top-36  border-gray-500/30 border right-2 md:right-0 ${isDark ? "bg-black/95 text-white" : "bg-white text-gray-900"} p-4 rounded-lg shadow-lg transition-opacity duration-300`}>
+                                                    <div className={`absolute z-50 text-wrap w-fit md:min-w-72 min-w-44 md:max-w-72 top-28 md:top-36 border-gray-500/30 border right-2 md:right-0 ${isDark ? "bg-black/95 text-white" : "bg-white text-gray-900"} p-4 rounded-lg shadow-lg transition-opacity duration-300`}>
                                                         <button
                                                             className="absolute top-1 right-1 text-xs flex justify-center items-center text-white bg-purple-600/70 hover:bg-purple-700 rounded-full py-[7px] px-2.5"
                                                             onClick={(e) => {
@@ -677,7 +615,7 @@ function MiddleImageAndOptions({
                                                         >
                                                             ✖
                                                         </button>
-                                                        <p className=" text-[10px] md:text-sm tracking-widest lowercase">{pageTranslations[page] ? pageTranslations[page]?.textResult : pageTTS[page]?.textResult || "No text Available"}</p>
+                                                        <p className="text-[10px] md:text-sm tracking-widest lowercase">{pageTranslations[page] ? pageTranslations[page]?.textResult : pageTTS[page]?.textResult || "No text Available"}</p>
                                                     </div>
                                                 ) : (
                                                     <button
@@ -687,7 +625,7 @@ function MiddleImageAndOptions({
                                                             e.nativeEvent?.stopImmediatePropagation();
                                                             setShowMessage((prev) => !prev);
                                                         }}
-                                                        className={`absolute z-50 text-wrap w-fit top-28 md:top-36  border-gray-500/30 border right-2 md:right-0 ${isDark ? "bg-black/95 text-white" : "bg-white text-gray-900"} p-2.5 md:p-3 rounded-xl shadow-lg transition-opacity duration-300 text-xs flex flex-row justify-center items-center gap-3`}
+                                                        className={`absolute z-50 text-wrap w-fit top-28 md:top-36 border-gray-500/30 border right-2 md:right-0 ${isDark ? "bg-black/95 text-white" : "bg-white text-gray-900"} p-2.5 md:p-3 rounded-xl shadow-lg transition-opacity duration-300 text-xs flex flex-row justify-center items-center gap-3`}
                                                     >
                                                         <ScrollText className="h-3 w-3 md:w-4 md:h-4" />
                                                     </button>
@@ -703,9 +641,11 @@ function MiddleImageAndOptions({
                         {pages &&
                             (quality === "low" ? pages?.chapter?.dataSaver : pages?.chapter?.data).map((page, index) => (
                                 <div key={index} className={`tracking-wider px-4 md:px-0 ${allAtOnce && (quality === "low" ? pages?.chapter?.dataSaver : pages?.chapter?.data).map((p) => { if (!imageCache.includes(p)) return false; }).includes(false) ? "hidden" : "block"} relative h-fit w-full flex justify-center items-center`}>
-                                    <div className="relative w-auto h-full">
+                                    <div className="relative w-10/12 md:w-4/12 h-full">
                                         <Image
-                                            key={imageKey}
+                                            id={`manga_Chapter_Image_${index}`}
+                                            key={`${imageKey}-${index}`}
+                                            ref={setImageRef(page)}
                                             src={page}
                                             alt={`Page ${index + 1}`}
                                             height={1680}
@@ -721,21 +661,23 @@ function MiddleImageAndOptions({
 
                                         {!loadingPages[page] && chapterInfo?.translatedLanguage?.trim() !== "en" && showTranslationTextOverlay ? (
                                             <OCROverlay
-                                                imageElement={imageRef.current}
+                                                imageElement={getDomImageElement(page)}
                                                 loading={overlayLoading}
                                                 handleTranslate={memoizedHandleTranslate}
                                                 ready={Boolean(pageTranslations[page]?.translatedocrResult)}
                                                 translatedTexts={pageTranslations[page]?.translatedocrResult}
                                                 fullOCRResult={pageTranslations[page]?.ocrResult}
                                                 isDark={isDark}
+                                                layout={layout}
                                             />
                                         ) : (
                                             ""
                                         )}
+
                                         {!imageCache.includes(page) &&
                                             <div
-                                                style={{ width: imageRef?.current?.naturalWidth ?? 380 }}
-                                                className=" rounded-lg px-3 md:px-0 w-full h-full">
+                                                style={{ width: 380 }}
+                                                className="rounded-lg px-3 md:px-0 w-full h-full">
                                                 <Placeholder isDark={isDark} />
                                             </div>
                                         }
@@ -749,7 +691,7 @@ function MiddleImageAndOptions({
                                     </div>
 
                                     {showTranslationAndSpeakingOptions && (
-                                        <div className={`tracking-wider h-full absolute top-0 transform space-y-4 flex flex-col justify-center items-end bottom-28 right-3`}>
+                                        <div className={`tracking-wider h-full absolute top-0 transform space-y-4 flex flex-col justify-center items-end bottom-28 -right-1 sm:right-6`}>
                                             {!loadingPages[page] ? (
                                                 <>
                                                     {chapterInfo?.translatedLanguage?.trim() !== "en" && (
@@ -761,11 +703,14 @@ function MiddleImageAndOptions({
                                                                 e.nativeEvent?.stopImmediatePropagation();
                                                                 handleUpload(page, "translate");
                                                             }}
-                                                            className={`font-sans  ${(panels === 2 || pageTranslations[page]) ? "hidden" : ""} tracking-wider min-h-fit text-[11px] font-sans before:bg-opacity-60 min-w-[125px] sm:min-w-[189px] transition-colors flex gap-2 justify-start items-center mx-auto shadow-xl sm:text-lg backdrop-blur-md lg:font-semibold isolation-auto before:absolute before:w-full before:transition-all before:duration-700 before:hover:w-full before:-right-full before:hover:right-0 before:rounded-full before:-z-10 before:aspect-square before:hover:scale-200 before:hover:duration-300 relative z-10 px-2 py-1 sm:px-3 sm:py-2 ease-in-out overflow-hidden border-2 rounded-full group ${isDark ? "text-white bg-[#1a063e] backdrop-blur-md border-gray-50/50" : "text-gray-900 bg-yellow-200 border-yellow-300"} `}
+                                                            className={`tracking-wider ${(panels === 2 || pageTranslations[page]) ? "hidden" : ""} text-[11px] font-sans before:bg-opacity-60 sm:min-w-[189px] transition-colors flex gap-2 justify-start items-center mx-auto shadow-xl sm:text-lg backdrop-blur-md lg:font-semibold isolation-auto before:absolute before:w-full before:transition-all before:duration-700 before:hover:w-full before:-right-full before:hover:right-0 before:rounded-full before:-z-10 before:aspect-square before:hover:scale-200 before:hover:duration-300 relative z-10 px-1 py-1 sm:px-3 sm:py-2 ease-in-out overflow-hidden border-2 rounded-full group ${isDark
+                                                                ? "text-white bg-[#1a063e] border-yellow-200/60 before:bg-[#FFFFFF] hover:text-black"
+                                                                : "text-gray-900 bg-yellow-200 border-yellow-300 before:bg-yellow-100"
+                                                                }`}
                                                             type="submit"
                                                         >
-                                                            <Languages className={`tracking-wider w-8 h-8 sm:w-12 sm:h-12 group-hover:border-2 transition-all ease-in-out duration-300 rounded-full border p-2 sm:p-3 transform group-hover:rotate-[360deg] ${isDark ? "text-orange-400 bg-gray-50 border border-gray-700" : "text-yellow-600 bg-gray-100 border-yellow-700"}`} />
-                                                            {pageTranslations[page] ? "Translated" : "Translate"}
+                                                            <Languages className={`tracking-wider w-8 h-8 sm:w-12 sm:h-12 group-hover:border-2 transition-all ease-in-out duration-300 rounded-full border p-2 sm:p-3 transform group-hover:rotate-[360deg] ${isDark ? "text-orange-400 bg-gray-50 border border-yellow-600" : "text-yellow-600 bg-gray-100 border-yellow-700"}`} />
+                                                            <span className="hidden sm:block">{pageTranslations[page] ? "Translated" : "Translate"}</span>
                                                         </button>
                                                     )}
                                                     <TextToSpeech
@@ -782,7 +727,7 @@ function MiddleImageAndOptions({
                                             {((pageTTS[page] && isItTextToSpeech) || pageTranslations[page]) && (pageTranslations[page] ? pageTranslations[page]?.textResult : pageTTS[page]?.textResult) && (
                                                 <div>
                                                     {showMessage ? (
-                                                        <div className={`absolute z-50 text-wrap w-fit md:min-w-72 max-w-44 md:max-w-72 top-10 md:top-16  border-gray-500/30 border -right-5 md:right-2 ${isDark ? "bg-black/95 text-white" : "bg-white text-gray-900"} p-4 rounded-lg shadow-lg transition-opacity duration-300`}>
+                                                        <div className={`absolute z-50 text-wrap w-fit md:min-w-72 max-w-44 md:max-w-72 top-10 md:top-16 border-gray-500/30 border -right-1 md:right-2 ${isDark ? "bg-black/95 text-white" : "bg-white text-gray-900"} p-4 rounded-lg shadow-lg transition-opacity duration-300`}>
                                                             <button
                                                                 className="absolute top-1 right-1 text-xs flex justify-center items-center text-white bg-purple-600/70 hover:bg-purple-700 rounded-full py-[7px] px-2.5"
                                                                 onClick={(e) => {
@@ -794,7 +739,7 @@ function MiddleImageAndOptions({
                                                             >
                                                                 ✖
                                                             </button>
-                                                            <p className=" text-[10px] md:text-sm tracking-widest lowercase">{pageTranslations[page] ? pageTranslations[page]?.textResult : pageTTS[page]?.textResult || "No text Available"}</p>
+                                                            <p className="text-[10px] md:text-sm tracking-widest lowercase">{pageTranslations[page] ? pageTranslations[page]?.textResult : pageTTS[page]?.textResult || "No text Available"}</p>
                                                         </div>
                                                     ) : (
                                                         <button
@@ -804,7 +749,7 @@ function MiddleImageAndOptions({
                                                                 e.nativeEvent?.stopImmediatePropagation();
                                                                 setShowMessage((prev) => !prev);
                                                             }}
-                                                            className={`absolute z-50 text-wrap w-fit top-10 md:top-16  border-gray-500/30 border -right-5 md:right-2 ${isDark ? "bg-black/95 text-white" : "bg-white text-gray-900"} p-2.5 md:p-3 rounded-xl shadow-lg transition-opacity duration-300 text-xs flex flex-row justify-center items-center gap-3`}
+                                                            className={`absolute z-50 text-wrap w-fit top-10 md:top-16 border-gray-500/30 border -right-1 md:right-2 ${isDark ? "bg-black/95 text-white" : "bg-white text-gray-900"} p-2.5 md:p-3 rounded-xl shadow-lg transition-opacity duration-300 text-xs flex flex-row justify-center items-center gap-3`}
                                                         >
                                                             <ScrollText className="h-3 w-3 md:w-4 md:h-4" />
                                                         </button>
