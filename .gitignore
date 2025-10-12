@@ -61,7 +61,8 @@ yarn-error.log*
 
 # vercel
 .vercel
-
+//to view the tree structure
+tree.ps1  
 # typescript
 *.tsbuildinfo
 next-env.d.ts
