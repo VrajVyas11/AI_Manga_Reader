@@ -1,456 +1,785 @@
-# 🌌 **AI Manga Reader** 🌟
+# 🌌 AI Manga Reader
+
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
-[![Live Demo Render.com](https://img.shields.io/badge/Live-Demo-brightgreen.svg?style=for-the-badge)](https://ai-mangareader.vercel.app/)
-[![Live Demo Railway.com](https://img.shields.io/badge/Live-Demo-violet.svg?style=for-the-badge)](https://aimangareader-production.up.railway.app/)
-[![Live Demo Render.com](https://img.shields.io/badge/Live-Demo-red.svg?style=for-the-badge)](https://ai-manga-reader.onrender.com/)
+[![Live Demo](https://img.shields.io/badge/Live-Vercel-brightgreen.svg?style=for-the-badge)](https://ai-mangareader.vercel.app/)
+[![Live Demo](https://img.shields.io/badge/Live-Railway-violet.svg?style=for-the-badge)](https://aimangareader-production.up.railway.app/)
+[![Live Demo](https://img.shields.io/badge/Live-Render-red.svg?style=for-the-badge)](https://ai-manga-reader.onrender.com/)
 [![GitHub Stars](https://img.shields.io/github/stars/VrajVyas11/AI_Manga_Reader?style=social)](https://github.com/VrajVyas11/AI_Manga_Reader/stargazers)
 [![GitHub Forks](https://img.shields.io/github/forks/VrajVyas11/AI_Manga_Reader?style=social)](https://github.com/VrajVyas11/AI_Manga_Reader/network)
 
-**Dive into a Universe of Manga, Manhwa, and Manhua!**  
-> AI Manga Reader is a sleek Next.js web app that transforms how you read manga. Powered by the MangaDex API, it gives you instant access to a huge collection of manga in multiple languages, with flexible reading modes like vertical, horizontal, single, or dual-panel views.  
->
-> Experience manga reading with AI-powered OCR translation using ***easyocr-js*** package that instantly translates text from manga images, making foreign-language titles easy to enjoy. Plus, the built-in text-to-speech (TTS) feature offers over 20 customizable voices so you can listen to your favorite manga anywhere, anytime.  
->
-> The Manga List features a **Latest Activity Feed** that surfaces community discussions and comments from MangaDex forums. The app uses web scraping of the [MangaDex Latest Activity page](https://forums.mangadex.org/whats-new/latest-activity) to extract manga title, chapter, volume, chapter title, comment author, original post author, and forum thread information.
->
-> The Manga Chapter view includes **Comments** scraped directly from MangaDex forum threads (via URLs like `https://forums.mangadex.org/threads/threadId/Page-NO`), letting you read fan discussions related to the manga and chapters you love.
->
-> The **Library** serves as your personal manga hub to manage reading history, search history, bookmarked mangas, and favorite chapters — all with powerful filters and sorting to keep your collection organized and accessible.
+### 🔥**Unleash the Manga Multiverse—Where AI Meets Epic Storytelling!**  
+> 🚀 **AI Manga Reader** isn't your average reader—it's a Next.js juggernaut that catapults you into endless realms of manga, manhwa, and manhua, all powered by the MangaDex API. Flip through vertical scrolls, horizontal epics, single panels, or dual-view spreads that adapt to *your* vibe.  
+>  
+> But wait— the real thrill? **AI OCR for the ultimate lazy mode**: Extract text from raw panels so you can *listen* without lifting a finger. Or go pro with **OCR + Instant Translate + Smart Overlay** for those bleeding-edge, untranslated chapters dropping in Japanese or Korean. Boom—seamless English overlays right on the art, no apps, no hassle. Our custom ONNX engine runs it all in-browser, blazing fast and zero privacy leaks.  
+>  
+> Craving community heat? Scraped MangaDex forums bring live discussions to your feed. And with 20+ AI voices via TTS, your mangas *speak*—custom speeds, languages, pure immersion. Your library? A brainy vault tracking history, bookmarks, and faves with filters that slice like a katana. Ready to level up your reads? Dive in—your next obsession awaits.  
 
 ---
 
-## 🌍 **Project Overview**
+## 🎯 What Makes Us Different?
 
-**AI Manga Reader** is your portal to an unparalleled manga experience. Built with **Next.js** and fueled by the **MangaDex API**, it blends cutting-edge technology with a passion for storytelling.
+### 💥 The Problem
+- Latest manga chapters drop in Japanese/Korean/Chinese
+- Official translations take months
+- You miss out on reading your favorite series
 
-🔥 **Key Features**:
-- **MangaDex API Integration**: No API key needed, just pure manga magic
-- **OCR Translation**: Powered by `easyocr-js` and Google Translate API
-- **TTS**: 20+ AI voices with customizable speed and language
-- **Latest Activity Feed**: Real-time community discussions from MangaDex forums
-- **Theme Support**: Dark and Light modes for comfortable reading
-- **Responsive Design**: Optimized for desktop, tablet, and mobile devices
-- **Multiple Reading Modes**: Vertical, horizontal, single, or dual-panel views
+### ⚡ Our Solution
 
-## 📸 **Screenshots**
+**Two Powerful Modes:**
 
-Feast your eyes on the stunning UI, two previews per row.
+🗣️ **Listen Mode** - For casual reading
+- AI voices read manga panels aloud (20+ voices)
+- Perfect for multitasking while commuting, cooking, or exercising
+- Adjustable speed and auto-advance to next page
 
-
-
-<img src="./livedemoimages/m1.png" width="150" style="margin-right: 10px;" />&nbsp;&nbsp; <img src="./livedemoimages/m2.png" width="150" style="margin-right: 100px;" />&nbsp;&nbsp;  <img src="./livedemoimages/m3.png" width="150" />&nbsp;&nbsp;  <img src="./livedemoimages/m4.png" width="150" />&nbsp;&nbsp;  <img src="./livedemoimages/m5.png" width="150" />&nbsp;&nbsp;  <img src="./livedemoimages/m6.png" width="150" />&nbsp;&nbsp;&nbsp;&nbsp;  <img src="./livedemoimages/m7.png" width="150" />&nbsp;&nbsp;  <img src="./livedemoimages/m8.png" width="150" />&nbsp;&nbsp;  <img src="./livedemoimages/m9.png" width="150" />&nbsp;&nbsp;  <img src="./livedemoimages/m10.png" width="150" />  <img src="./livedemoimages/m11.png" width="150" />&nbsp;&nbsp;  <img src="./livedemoimages/m12.png" width="150" />&nbsp;&nbsp;  <img src="./livedemoimages/m13.png" width="150" />&nbsp;&nbsp;  <img src="./livedemoimages/m14.png" width="150" />&nbsp;&nbsp;  <img src="./livedemoimages/m15.png" width="150" />&nbsp;&nbsp;  <img src="./livedemoimages/m16.png" width="150" />&nbsp;&nbsp;  <img src="./livedemoimages/m17.png" width="150" />&nbsp;&nbsp;  <img src="./livedemoimages/m18.png" width="150" />
----
-
-
-| 🌐 Landing Page |
-| -------------- |
-| ![Landing Page](./livedemoimages/1.png) |
-
-| 📚 Manga List| 📚 Manga List|
-| ------------- | ------------- |
-| ![Manga List](./livedemoimages/2.png) |  ![Manga List](./livedemoimages/3.png) | 
-
-| 📚 Manga List |  📄 Manga Chapter | 
-| -------------- | -------------- |
-| ![Manga List](./livedemoimages/4.png) | ![Manga Chapter](./livedemoimages/5.png) |
-
-| 📄 Manga Chapter |  📄 Manga Chapter | 
-| -------------- | -------------- |
-| ![Manga Chapter](./livedemoimages/6.png) | ![Manga Chapter](./livedemoimages/7.png) |
-
-| 📄 Manga Chapter |📺 Read Chapter |
-| -------------- | -------------- |
-| ![Manga Chapter](./livedemoimages/8.png) | ![Read Chapter](./livedemoimages/9.png) |
-
-|  📺 Read Chapter |📺 Read Chapter| 
-| ------------- | ------------- |
-| ![Read Chapter](./livedemoimages/10.png) | ![Read Chapter](./livedemoimages/11.png) |
-
-| 📺 Read Chapter |🔍 Search Page |
-| ------------- | ------------- |
-| ![Read Chapter](./livedemoimages/12.png) | ![Search Page](./livedemoimages/13.png) |
-
-| 🔍 Search Page | 🔍 Search Page |
-| ------------- | ------------- |
-| ![Search Page](./livedemoimages/14.png) |  ![Search Page](./livedemoimages/15.png) | 
-
-| 📚 Library Page | 📚 Library Page |
-| ------------- | ------------- |
-| ![Library Page](./livedemoimages/16.png) |  ![Library Page](./livedemoimages/17.png) | 
-
-| 📚 Library Page |  🌐 Not Found Page | 
-| -------------- | -------------- | 
-| ![ Library Page](./livedemoimages/18.png) | ![Not Found Page](./livedemoimages/19.png) |
-
-| 🌐 Profile Popup | 🌐 Preferences Page |
-| -------------- | -------------- | 
-| ![Profile Popup](./livedemoimages/20.png) | ![Preferences Page](./livedemoimages/21.png) |
-
-
-## Light Theme
-
-| 📚 Manga List| 📚 Manga List|
-| ------------- | ------------- |
-| ![Manga List](./livedemoimages/l2.png) |  ![Manga List](./livedemoimages/l3.png) | 
-
-| 📚 Manga List |  📄 Manga Chapter | 
-| -------------- | -------------- |
-| ![Manga List](./livedemoimages/l4.png) | ![Manga Chapter](./livedemoimages/l5.png) |
-
-| 📄 Manga Chapter |  📄 Manga Chapter | 
-| -------------- | -------------- |
-| ![Manga Chapter](./livedemoimages/l6.png) | ![Manga Chapter](./livedemoimages/l7.png) |
-
-| 📄 Manga Chapter |📺 Read Chapter |
-| -------------- | -------------- |
-| ![Manga Chapter](./livedemoimages/l8.png) | ![Read Chapter](./livedemoimages/l9.png) |
-
-|  📺 Read Chapter |📺 Read Chapter| 
-| ------------- | ------------- |
-| ![Read Chapter](./livedemoimages/l10.png) | ![Read Chapter](./livedemoimages/l11.png) |
-
-| 📺 Read Chapter |🔍 Search Page |
-| ------------- | ------------- |
-| ![Read Chapter](./livedemoimages/l12.png) | ![Search Page](./livedemoimages/l13.png) |
-
-| 🔍 Search Page | 🔍 Search Page |
-| ------------- | ------------- |
-| ![Search Page](./livedemoimages/l14.png) |  ![Search Page](./livedemoimages/l15.png) | 
-
-| 📚 Library Page | 📚 Library Page |
-| ------------- | ------------- |
-| ![Library Page](./livedemoimages/l16.png) |  ![Library Page](./livedemoimages/l17.png) | 
-
-| 📚 Library Page |  🌐 Not Found Page | 
-| -------------- | -------------- | 
-| ![ Library Page](./livedemoimages/l18.png) | ![Not Found Page](./livedemoimages/l19.png) |
-
-| 🌐 Profile Popup | 🌐 Preferences Page |
-| -------------- | -------------- | 
-| ![Profile Popup](./livedemoimages/l20.png) | ![Preferences Page](./livedemoimages/l21.png) |
+🌍 **Translation Mode** - For latest untranslated chapters
+- **Instant OCR** detects all text in manga panels
+- **Real-time translation** to 100+ languages
+- **Perfect overlay** shows translated text right on the original image
+- Read the latest chapter the day it drops, in YOUR language!
 
 ---
 
-## ✨ **Core Features**
+## 🔥 Key Features
 
-### 📚 **Landing Page**
-Your journey begins here, with a vibrant welcome to the world of manga.
+- 🤖 **Custom AI OCR Engine** - Built with onnxruntime-web and PaddleOCR models, runs entirely in your browser
+- 🌐 **100+ Languages** - Translate from Japanese, Korean, Chinese to any language instantly
+- 🗣️ **20+ AI Voices** - Listen to manga with customizable voices, speed, and pitch
+- 💬 **Live Community Feed** - See what fans are discussing via scraped MangaDex forums
+- 📚 **Smart Library** - Track reading history, bookmarks, and favorite chapters
+- 🎨 **Dark & Light Themes** - Beautiful, eye-friendly designs for any time
+- 📱 **Fully Responsive** - Perfect experience on desktop, tablet, and mobile
+- ⚡ **Lightning Fast** - Server-side rendering with TanStack Query for instant loads
+- 🔒 **Privacy First** - All OCR processing happens locally in your browser
+- 💯 **100% Free** - No API keys, no subscriptions, completely open source
 
-- **Trending Searches**: Discover what’s hot in manga/manhwa.
-- **Search Bar**: Jump straight to your next read, linking to the Search Page.
-- **About Section**:
-    - **Mission**: Making manga accessible to all.
-    - **Copyright**: Transparent and fair usage.
-    - **Goals**: Innovate and inspire manga fans.
-- Tightly integrated with the TopNavBar for effortless navigation.
+---
 
-### 📖 **Manga List**
-A dazzling hub for browsing the latest manga updates.
+## 📸 Screenshots
 
-- **Manga Cards**: Sleek, clickable cards showcasing:
-    - Latest manga with fresh chapter details.
-- **Latest Activity Feed**:  
-    - Displays recent community interactions from MangaDex forums.  
-    - Extracted via web scraping from [MangaDex Latest Activity](https://forums.mangadex.org/whats-new/latest-activity) since no official API exists.  
-    - Shows manga title, chapter, volume, chapter title, comment author, original post author, and the forum thread where the discussion is happening.  
-    - Keeps you connected with real-time fan discussions and insights.
-- **Sidebar**:
-    - Random manga picks to spark curiosity.
-- **Aside Section**:
-    - Top 10 lists for:
-        - **Top Manga**
-        - **Favorite Manga**
-        - **Latest Manga**
-- **Read History**:
-    - List of Read Mangas and their progress in percentage 
-    - Option to view Manga and pick up from where you left off  
-- **Tech Magic**:
-    - **TanStack Query** for lightning-fast data fetching.
-    - **Compressed Local Storage** for minimal footprint.
+### Mobile Preview
 
-### 📄 **Manga Chapter**
-Dive deep into your chosen manga with style and substance.
+<img src="./livedemoimages/m1.png" width="150" />&nbsp;&nbsp;<img src="./livedemoimages/m2.png" width="150" />&nbsp;&nbsp;<img src="./livedemoimages/m3.png" width="150" />&nbsp;&nbsp;<img src="./livedemoimages/m4.png" width="150" />&nbsp;&nbsp;<img src="./livedemoimages/m5.png" width="150" />
 
-- **About Manga**: A gorgeous panel with title, author, genres, and synopsis.
-- **Chapter List**:
-    - Full chapter catalog with clickable links.
-    - Multi-language support for global readers.
-- **Filter Chapters**:
-  - Filter chapters based on input text for chapter number.
-  - Filter by language selection.
-  - Sort chapters by newest or oldest.
-- **History**:
-  - Displays the history of chapters read by the user for this particular manga.
-  - Includes timestamps and progress markers for easy tracking.
-- **Comments Section**:
-	- View fan discussions and comments related to the manga and chapters.
-	- Comments are fetched via web scraping from MangaDex forum threads at URLs like https://forums.mangadex.org/threads/threadId/Page-NO.
-- **Cover Art Section**:
-	- A dedicated gallery showcasing all available cover art for the selected manga.
-	- Filter by Language: Users can view cover arts specific to Japanese, English, or other available languages.
-	- Interactive Preview: Clicking a cover expands it in a modal/lightbox view.
-	- Details Overlay: Each cover shows additional info such as upload date, uploader (if available), and resolution.
-	- Persistent Selection: Users can mark a favorite cover, which syncs with their library and persists across sessions.
-- Seamlessly transitions to the Read Chapter experience.
+<img src="./livedemoimages/m6.png" width="150" />&nbsp;&nbsp;<img src="./livedemoimages/m7.png" width="150" />&nbsp;&nbsp;<img src="./livedemoimages/m8.png" width="150" />&nbsp;&nbsp;<img src="./livedemoimages/m9.png" width="150" />&nbsp;&nbsp;<img src="./livedemoimages/m10.png" width="150" />
 
-### 📺 **Read Chapter**
-The heart of the app, where reading becomes an art form.
+<img src="./livedemoimages/m11.png" width="150" />&nbsp;&nbsp;<img src="./livedemoimages/m12.png" width="150" />&nbsp;&nbsp;<img src="./livedemoimages/m13.png" width="150" />&nbsp;&nbsp;<img src="./livedemoimages/m14.png" width="150" />&nbsp;&nbsp;<img src="./livedemoimages/m15.png" width="150" />
 
-- **Info Sidebar**:
-    - Compact manga details with tabbed navigation.
-    - Buttons for:
-        - Next/previous page.
-        - Favorite chapter toggle.
-- **Chapter Change Module**:
-    - Next/previous chapter navigation.
-    - Searchable dropdown with asc/desc sorting.
-    - Language selector for chapters.
-- **Collapsed Sidebar**:
-    - Manga cover image with expand option.
-    - Chapter controls and favorite button.
-- **Bottom Settings**:
-    - **View Modes**: Vertical or Horizontal.
-    - **Quality**: High or low-resolution pages.
-    - **Horizontal Mode**:
-        - Toggle 1 or 2 panels.
-        - Next/previous page buttons.
-    - **Vertical Mode**:
-        - "Top" button to zip back to the start.
-    - **Coming Soon**: All-in-one or one-at-a-time page views.
-- **Single Page Features**:
-    - **OCR Translation**:
-        - Powered by `easyocr-js` (PuddleOCR wrapper).
-        - Uses Google Translate API:
-          ```
-          https://translate.google.com/translate_a/single?client=gtx&sl=auto&tl=${targetLang}&dt=t&q=${encodeURIComponent(text)}
-          ```
-        - Overlays translated text on images.
-        - Top-right dialogue box for continuous OCR text flow.
-    - **Text-to-Speech (TTS)**:
-        - AI voices read original or translated text.
-        - 20+ voice options with speed controls.
-    - **Persistence**:
-        - OCR, translations, dialogue, and settings saved per page.
-        - Return to any page with your settings intact.
+<img src="./livedemoimages/m16.png" width="150" />&nbsp;&nbsp;<img src="./livedemoimages/m17.png" width="150" />&nbsp;&nbsp;<img src="./livedemoimages/m18.png" width="150" />
 
-### 🔍 **Search Page**
-Find your perfect manga with precision and ease.
+---
 
-- **Access Points**: TopNavBar or Landing Page.
-- **Search Input**: Refine queries on the fly.
-- **View Options**: List or Grid with pagination.
-- **Filters**:
-    - Content Rating
-    - Publication Status
-    - Original/Translated Language
-    - Tags (Format, Genre, Theme, Content)
-    - Publication Demographic
-    - Publication Type (Manga, Manhwa, Manhua)
-    - Publication Year
-    - Sort By: Relevance, Rating, First Publish, Title, Creation, Follow Count, Latest Upload
-- **Smart Filtering**:
-    - Multi-select within categories (e.g., Manga + Manhwa).
-    - Active filter count display.
-    - "Clear Filters" button.
-- **User-Friendly**:
-    - Dialogs for empty queries, errors, or no results (with filter-clearing tips).
+### 🌙 Dark Theme
+
+| Landing Page | Manga Discovery |
+|:---:|:---:|
+| ![Landing](./livedemoimages/1.png) | ![List](./livedemoimages/2.png) |
+
+| Latest Activity Feed | Trending Manga |
+|:---:|:---:|
+| ![Activity](./livedemoimages/3.png) | ![Trending](./livedemoimages/4.png) |
+
+| Chapter Details | Chapter List |
+|:---:|:---:|
+| ![Details](./livedemoimages/5.png) | ![Chapters](./livedemoimages/6.png) |
+
+| Forum Comments | Cover Gallery |
+|:---:|:---:|
+| ![Comments](./livedemoimages/7.png) | ![Covers](./livedemoimages/8.png) |
+
+| Reading Interface | OCR Translation |
+|:---:|:---:|
+| ![Reading](./livedemoimages/9.png) | ![OCR](./livedemoimages/10.png) |
+
+| TTS Controls | Reading Settings |
+|:---:|:---:|
+| ![TTS](./livedemoimages/11.png) | ![Settings](./livedemoimages/12.png) |
+
+| Advanced Search | Filter Options |
+|:---:|:---:|
+| ![Search](./livedemoimages/13.png) | ![Filters](./livedemoimages/14.png) |
+
+| Search Results | Library Overview |
+|:---:|:---:|
+| ![Results](./livedemoimages/15.png) | ![Library](./livedemoimages/16.png) |
+
+| Reading History | Bookmarks & Favorites |
+|:---:|:---:|
+| ![History](./livedemoimages/17.png) | ![Bookmarks](./livedemoimages/18.png) |
+
+| Custom 404 Page | Profile Menu |
+|:---:|:---:|
+| ![404](./livedemoimages/19.png) | ![Profile](./livedemoimages/20.png) |
+
+| Preferences Panel |
+|:---:|
+| ![Preferences](./livedemoimages/21.png) |
+
+---
+
+### ☀️ Light Theme
+
+| Manga Discovery | Activity Feed |
+|:---:|:---:|
+| ![List](./livedemoimages/l2.png) | ![Activity](./livedemoimages/l3.png) |
+
+| Featured Content | Chapter View |
+|:---:|:---:|
+| ![Featured](./livedemoimages/l4.png) | ![Chapter](./livedemoimages/l5.png) |
+
+| Chapter List | Discussion |
+|:---:|:---:|
+| ![Chapters](./livedemoimages/l6.png) | ![Discussion](./livedemoimages/l7.png) |
+
+| Cover Art | Reader Interface |
+|:---:|:---:|
+| ![Covers](./livedemoimages/l8.png) | ![Reader](./livedemoimages/l9.png) |
+
+| Translation Overlay | Audio Controls |
+|:---:|:---:|
+| ![Translation](./livedemoimages/l10.png) | ![Audio](./livedemoimages/l11.png) |
+
+| Customization | Search |
+|:---:|:---:|
+| ![Customization](./livedemoimages/l12.png) | ![Search](./livedemoimages/l13.png) |
+
+| Filter Panel | Search Results |
+|:---:|:---:|
+| ![Filters](./livedemoimages/l14.png) | ![Results](./livedemoimages/l15.png) |
+
+| Library | History |
+|:---:|:---:|
+| ![Library](./livedemoimages/l16.png) | ![History](./livedemoimages/l17.png) |
+
+| Collections | 404 Page |
+|:---:|:---:|
+| ![Collections](./livedemoimages/l18.png) | ![404](./livedemoimages/l19.png) |
+
+| User Menu | Settings |
+|:---:|:---:|
+| ![Menu](./livedemoimages/l20.png) | ![Settings](./livedemoimages/l21.png) |
+
+---
+
+## 🏗️ App Modules
+
+### 🏠 **Home / Landing Page**
+
+Your gateway to manga discovery with trending searches and quick access.
+
+**Components:**
+- `LandingContent.jsx` - Hero section with trending searches and about info
+
+**APIs:**
+- `/api/manga/UsersTop` - Fetches top searched manga titles
+
+---
+
+### 📚 **Manga List**
+
+Browse latest updates, community activity, and discover new series.
+
+**Components:**
+- `MangaCard.jsx` - Individual manga card with cover and details
+- `MangaCardPagination.jsx` - Pagination controls
+- `LatestActivityComments.jsx` - Real-time forum activity feed
+- `MangaReadHistory.jsx` - Reading progress tracker
+- `AsideComponent.jsx` - Sidebar with top manga lists
+- `SliderComponent.jsx` - Random manga recommendations
+
+**APIs:**
+- `/api/manga/latest` - Latest manga updates
+- `/api/comments/latestActivity` - Forum discussions (web scraped)
+- `/api/manga/random` - Random recommendations
+- `/api/manga/UsersTop` - Top-rated manga
+
+**Features:**
+- Latest manga updates with chapter info
+- Live community discussions from MangaDex forums
+- Top 10 lists (rated, followed, latest)
+- Personal reading progress with percentages
+- Random discovery carousel
+
+---
+
+### 📄 **Manga Chapters**
+
+Comprehensive manga details, chapter lists, and community engagement.
+
+**Components:**
+- `TabsAndSections.jsx` - Tab navigation for sections
+- `ChapterList.jsx` - Filterable chapter list
+- `CommentsOnManga.jsx` - Forum discussions
+- `CoverArts.jsx` - Cover art gallery with filters
+
+**APIs:**
+- `/api/manga/[mangaId]` - Manga metadata
+- `/api/manga/getAuthor/[authorId]` - Author information
+- `/api/manga/[mangaId]/chapters` - Chapter list
+- `/api/manga/[mangaId]/coverArts` - Cover art collection
+- `/api/manga/rating` - Rating statistics
+- Forum threads scraped for comments
+
+**Features:**
+- Rich manga metadata (title, author, genres, synopsis)
+- Filter chapters by number, language, and date
+- Sort newest/oldest
+- Forum discussions from MangaDex
+- Cover art gallery with language filters
+- Reading history for this manga
+
+---
+
+### 📺 **Read Chapter** ⭐
+
+**The crown jewel** - Revolutionary reading experience with AI-powered features.
+
+**Components:**
+- `MiddleImageAndOptions.jsx` - Main image viewer
+- `SideBar.jsx` - Info sidebar
+- `ChaptersQuickSelect.jsx` - Chapter navigation
+- `CollapsedSideBarStrip.jsx` - Minimized sidebar
+- `TopRightOptions.jsx` - Reader controls
+- `ChapterQuickSelect.jsx` - Quick chapter switcher
+- `ShowSettingsPopUp.jsx` - Settings panel
+- `BottomPagesNavigation.jsx` - Page controls
+- `OCROverlay.jsx` - **OCR translation overlay**
+- `ScanningOverlay.jsx` - OCR processing animation
+- `TextToSpeech.jsx` - **AI voice narration**
+- `GOTONextChapterPopUpAtLastPage.jsx` - Chapter completion prompt
+
+**APIs:**
+- `/api/manga/chapter/[chapterId]/pages` - Chapter images
+- `/api/readTextAndReplace` - OCR text detection
+- `/api/translate` - Text translation
+- Google Translate API for backup
+
+**OCR Engine:**
+Our custom-built OCR system using onnxruntime-web with PaddleOCR ONNX models:
+
+**Detection Model:**
+- `ch_PP-OCRv4_det_infer.onnx` (4.7 MB) - Detects text regions
+
+**Recognition Models:**
+- `japan_PP-OCRv3_rec_infer.onnx` (10.0 MB) + `japan_dict.txt` (21,729 chars) - Japanese
+- `ch_PP-OCRv4_rec_infer.onnx` (10.8 MB) + `ch_dict.txt` (32,871 chars) - Chinese
+- `en_PP-OCRv4_rec_infer.onnx` (7.6 MB) + `en_dict.txt` (283 chars) - English
+- `latin_PP-OCRv3_rec_infer.onnx` (8.9 MB) + `latin_dict.txt` (651 chars) - Latin scripts
+- `korean_dict.txt` (18,166 chars) - Korean
+
+**Features:**
+
+🤖 **OCR Translation System:**
+- Instant text detection in manga panels
+- Real-time translation to 100+ languages
+- Perfect overlay positioning on original images
+- Dialogue flow panel showing continuous text
+- Per-page caching for instant revisits
+- 92-98% accuracy across languages
+
+🗣️ **Text-to-Speech:**
+- 20+ AI voices with multiple languages
+- Adjustable speed (0.5x-2.0x), pitch, and volume
+- Read original or translated text
+- Auto-advance to next panel
+- Text highlighting synced with audio
+
+📖 **Reading Modes:**
+- Vertical scroll (webtoon style)
+- Horizontal pages (traditional manga)
+- Single or double page spreads
+- Adjustable image quality
+
+⚙️ **Customization:**
+- Zoom and pan controls
+- Page preloading for instant access
+- Bookmark current page
+- Favorite chapter toggle
+- All settings persist per page
+
+---
+
+### 🔍 **Search**
+
+Advanced search with powerful filtering and sorting options.
+
+**Components:**
+- `SearchMangaCard.jsx` - Card view for results
+- `SearchMangaList.jsx` - List view for results
+- `FilterCustomDropDown.jsx` - Multi-select filters
+- `ThemeGenreTags.jsx` - Tag filtering
+- `SearchAndTotalFilterOptions.jsx` - Search bar and filters
+- `BottomPagination.jsx` - Pagination controls
+
+**APIs:**
+- `/api/manga/titles` - Search with filters
+
+**Features:**
+- Real-time search with autocomplete
+- 100+ filter tags (genres, themes, formats)
+- Filter by rating, status, demographic, type, year
+- Sort by relevance, rating, follows, date, title
+- Grid/List view toggle
+- Active filter badges
+- Clear all filters option
+
+---
 
 ### 📚 **Library**
-Your personalized manga sanctuary, keeping all your favorites and history in one place.
 
-- **Sections**:
-    - **Reading History**:  
-      - Track all manga and chapters you've read.  
-      - Includes timestamps and progress markers.  
-      - Filters and sorting options by date, manga title, chapter number, and reading status.
-    - **Search History**:  
-      - Logs your past search queries for quick access.
-    - **Bookmarked Mangas**:  
-      - Easily access mangas you've bookmarked for later reading.
-    - **Favorite Chapters**:  
-      - Save and revisit your favorite chapters from the currently selected manga.
-- **Filters and Sorting**:
-    - Apply filters on reading history by date range, manga genres, and reading status (completed, in-progress).
-    - Sort by most recent, alphabetical, or chapter number.
-- **User Experience**:
-    - Clean, tabbed interface to switch between sections.
-    - Syncs with user preferences and persists data locally.
-    - Integrates with the rest of the app for seamless navigation.
+Your personal manga collection manager.
 
----
+**Components:**
+- `ReadingHistory.jsx` - Reading log with filters
+- `ReadingHistoryCard.jsx` - Individual history entries
+- `SearchHistory.jsx` - Past search queries
+- `BookMarkedSection.jsx` - Bookmarked manga
+- `BookmarkCard.jsx` - Bookmark display
+- `FavoriteChaptersCard.jsx` - Favorite chapters
+- `SelectedMangaCard.jsx` - Manga selector
+- `FilterPanel.jsx` - Filter controls
+- `ConfirmationDialog.jsx` - Delete confirmations
 
-## 🧭 **Top Navigation Bar**
-Your trusty guide across the manga universe.
-
-- **Logo**: Returns to the Landing Page.
-- **Home**: Jumps to Manga List.
-- **Search**:
-    - Instant search input.
-    - Direct link to Search Page.
-- **Future Features**: Library, Upgrade, Profile (stay tuned!).
+**Features:**
+- Reading history with timestamps and progress
+- Search history log
+- Bookmarked manga collection
+- Favorite chapters from any manga
+- Filter by date, genre, status
+- Sort by recent, alphabetical, progress
+- Export library data
 
 ---
 
-## ⚡ **Performance Optimizations**
-Built for speed, crafted for perfection.
+### 🧭 **Top Navigation Bar**
 
-- **Data Fetching**:
-    - **TanStack Query**: Blazing-fast API calls.
-    - **Debouncing**: No wasted requests.
-- **Rendering**:
-    - **Lazy Loading**: Images and components load on demand.
-    - **useCallback**, **useMemo**, **React.memo**: Re-renders? Never heard of ‘em.
-- **Images**:
-    - **Next.js Image**: Lazy loading with placeholders.
-- **Routing**:
-    - **React Router**: Zips through pages faster than Next.js Router.
-- **Storage**:
-    - **Compressed Local Storage**: Lean and mean data persistence.
-- **Error Handling**:
-    - Custom **404 Page**: Lost? We’ll guide you back.
+Persistent navigation across the entire app.
 
----
+**Components:**
+- `TopNavbar.jsx` - Main navigation bar
+- `ProfilePop.jsx` - User profile dropdown
+- `PreferencesPopUp.jsx` - Settings modal
+- `ComingSoonPopup.jsx` - Feature previews
 
-### 🎨 **Theme Support**
-Customize your reading experience:
-
-- **Dark Mode**: 
-  - Optimized for night reading
-  - Reduces eye strain
-  - Purple and yellow accents
-- **Light Mode**:
-  - Clean, bright interface
-  - High contrast for daylight reading
-  - Accessible color scheme
-- **Responsive Design**:
-  - Adapts to all screen sizes
-  - Consistent experience across devices
-  - Touch-friendly interface
+**Features:**
+- Logo → Home
+- Manga List quick access
+- Search with keyboard shortcut (Ctrl+K)
+- Library access
+- Theme toggle
+- Profile menu
+- Responsive mobile menu
 
 ---
 
-## 🚀 **Getting Started**
+## ⚡ Performance & Tech Stack
 
-### Prerequisites
-- **Node.js**: v16 or higher
-- **npm** or **yarn**
+**Frontend:**
+- Next.js 14+ with App Router
+- React 18+ (Server & Client Components)
+- TanStack Query v5 for data fetching
+- Tailwind CSS for styling
+- TypeScript for type safety
 
-> **No API Keys Needed!** The MangaDex API is open, and no `.env` file is required.
+**AI/ML:**
+- onnxruntime-web for browser-based ML
+- PaddleOCR v3/v4 ONNX models
+- Custom OCR engine (no external APIs)
 
-### Installation
-1. Clone the repo:
-    ```bash
-    git clone https://github.com/VrajVyas11/AI_Manga_Reader.git
-    ```
-2. Navigate to the project:
-    ```bash
-    cd AI_Manga_Reader
-    ```
-3. Install dependencies:
-    ```bash
-    npm install
-    ```
-4. Start the dev server:
-    ```bash
-    npm run dev
-    ```
-5. Visit [http://localhost:3000](http://localhost:3000) in your browser.
+**Data:**
+- MangaDex API (no key required)
+- Google Translate API
+- Web scraping for forum data
+- Compressed localStorage
+- Server-side rendering with hydration
 
----
-
-## 🎯 **How to Use**
-
-1. **Explore Manga**:
-    - Start on the Landing Page or browse Manga List.
-    - Check sidebars for random gems or curated lists.
-    - Stay updated with the **Latest Activity Feed** showing recent forum discussions scraped directly from MangaDex forums.
-
-2. **Read with Flair**:
-    - Pick a manga, view details, and select a chapter.
-    - Customize with vertical/horizontal modes, OCR translation, or TTS.
-
-3. **Search Like a Pro**:
-    - Use the Search Page or TopNavBar input.
-    - Filter and sort to find your perfect read.
-
-4. **Save Your Style**:
-    - Favorite manga/chapters.
-    - OCR, translation, and TTS settings persist per page.
-
-5. **Manage Your Library**:
-    - Access your reading history, search history, bookmarked mangas, and favorite chapters.
-    - Use filters and sorting to organize your reading history efficiently.
+**Optimizations:**
+- Lazy loading images and components
+- React.memo, useMemo, useCallback
+- Image optimization with Next.js
+- Debounced search queries
+- Aggressive caching strategies
 
 ---
 
-## 🛣 **Roadmap**
+## 🎨 Themes
 
-### 🌱 **Phase 1: UX Perfection**
-- [x] Community comments and ratings
-- [x] Reading progress tracking
-- [x] Light/dark mode toggle
-- [x] Bookmark pages/panels
-- [x] Multilingual TTS with text highlighting
+**Dark Mode** - Optimized for nighttime reading
+- Rich dark backgrounds
+- Purple and yellow accents
+- Reduced eye strain
+- OLED-friendly true blacks
 
-### 🚀 **Phase 2: Next-Level Features**
-- [ ] Offline reading and downloads
-- [ ] Interactive onboarding tutorial
-- [ ] Share chapters on social media
-
-### 🌐 **Phase 3: Community & Scale**
-- [ ] Backend sync for user profiles
-- [ ] Additional APIs (e.g., MangaPlus)
-- [ ] Personalized manga recommendations
-
-### 💰 **Phase 4: Monetization & Mobile**
-- [ ] Ads and affiliate links
-- [ ] Premium features (ad-free, exclusive content)
-- [ ] React Native mobile app
-
-> Suggest features or track progress on [GitHub Issues](https://github.com/VrajVyas11/AI_Manga_Reader/issues).
+**Light Mode** - Clean and bright
+- Crisp white backgrounds
+- Blue accents for actions
+- High contrast for visibility
+- Accessible color scheme
 
 ---
 
-## 🤝 **Contributing**
-Join the manga revolution! Here’s how to contribute:
+## 🚀 Quick Start
 
-1. Fork the repo:
-    ```bash
-    git clone https://github.com/VrajVyas11/AI_Manga_Reader.git
-    ```
-2. Create a feature branch:
-    ```bash
-    git checkout -b feature/your-feature
-    ```
-3. Commit your changes:
-    ```bash
-    git commit -m "Add feature: your-feature-description"
-    ```
-4. Push to the branch:
-    ```bash
-    git push origin feature/your-feature
-    ```
-5. Open a Pull Request.
+**Prerequisites:**
+- Node.js 18.17+
+- npm 9.0+
 
-Run `npm run lint` and add tests where possible. Check [CONTRIBUTING.md](./CONTRIBUTING.md) for details.
+**Installation:**
 
----
+```bash
+# Clone repository
+git clone https://github.com/VrajVyas11/AI_Manga_Reader.git
 
-## 🙏 **Acknowledgments**
-- **[MangaDex](https://mangadex.org)**: For their open API.
-- **[easyocr-js](https://www.npmjs.com/package/easyocr-js)**: Our custom OCR package.
-- **[Google Translate API](https://cloud.google.com/translate)**: For seamless translations.
-- **[Next.js](https://nextjs.org)**: The backbone of our app.
-- **Manga Fans**: You inspire us every day.
-- **MangaDex Forums**: For the vibrant community discussions that enrich the manga experience.
+# Navigate to directory
+cd AI_Manga_Reader
+
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+```
+
+Open http://localhost:3000 in your browser. That's it!
+
+**No API keys needed** - MangaDex API is completely open.
 
 ---
 
-## 📜 **License**
-© 2025 AI Manga Reader. Licensed under the [MIT License](LICENSE).
+## 💡 How to Use
+
+### For Casual Reading (Listen Mode)
+
+1. Find any manga and open a chapter
+2. Click the 🗣️ "Listen" button
+3. Choose your preferred AI voice
+4. Adjust speed to your liking
+5. Sit back and listen while the manga is read to you
+6. Perfect for commuting, cooking, or exercising!
+
+### For Latest Untranslated Chapters (Translation Mode)
+
+1. Find the latest chapter (even in Japanese/Korean/Chinese)
+2. Open it in the reader
+3. Click the 🤖 "Translate" button
+4. Select source and target languages
+5. Watch AI detect text and overlay translations
+6. Read the latest chapter in YOUR language instantly!
+
+### General Tips
+
+- Press `Ctrl+K` or `Cmd+K` for quick search
+- Bookmark manga with the heart icon
+- All reading progress is saved automatically
+- Toggle themes in the top navigation
+- Customize reading mode and quality in settings
 
 ---
 
-🌟 **Thank You for Joining the AI Manga Reader Adventure!**  
-Star us on [GitHub](https://github.com/VrajVyas11/AI_Manga_Reader) or share ideas via [issues](https://github.com/VrajVyas11/AI_Manga_Reader/issues). Together, let’s craft the ultimate manga experience! 🚀
+## 🛣️ Roadmap
+
+**✅ Completed:**
+- Custom OCR engine with onnxruntime-web
+- Multi-language translation overlay
+- 20+ AI voices for TTS
+- Forum activity feed
+- Reading progress tracking
+- Dark/Light themes
+- Advanced search
+- Library management
+- Server-side rendering
+
+**🚀 In Progress:**
+- Improved OCR accuracy for stylized fonts
+- Offline reading mode
+- Enhanced TTS with emotional tones
+- Social sharing features
+
+**📅 Planned:**
+- User accounts and cloud sync
+- AI-powered recommendations
+- MyAnimeList integration
+- Mobile apps (iOS & Android)
+- Premium features (ad-free, priority processing)
+
+**💭 Vision:**
+- AI art enhancement
+- VR/AR reading modes
+- Voice-controlled navigation
+
+---
+
+## 📁 Project Structure
+
+```
+ai-manga-reader/
+│
+├── 📁 app/                                    # Next.js App Router
+│   │
+│   ├── 📁 (core)/                             # Core routes group
+│   │   ├── 📁 library/                        # 📚 Library Module
+│   │   │   └── 📄 page.jsx                    # Library main page
+│   │   │
+│   │   ├── 📁 manga/                          
+│   │   │   └── 📁 [mangaId]/                  
+│   │   │       ├── 📁 chapters/               # 📄 Manga Chapters Module
+│   │   │       │   └── 📄 page.jsx            # Chapter list & details
+│   │   │       │
+│   │   │       └── 📁 chapter/
+│   │   │           └── 📁 [chapterId]/
+│   │   │               └── 📁 read/           # 📺 Read Chapter Module
+│   │   │                   └── 📄 page.jsx    # ⭐ OCR + TTS Reading UI
+│   │   │
+│   │   ├── 📁 manga-list/                     # 📚 Manga List Module
+│   │   │   ├── 📄 page.jsx                    # SSR page with prefetch
+│   │   │   └── 📄 MangaListClient.jsx         # Client component
+│   │   │
+│   │   └── 📁 search/                         # 🔍 Search Module
+│   │       └── 📄 page.jsx                    # Advanced search page
+│   │
+│   ├── 📁 api/                                # API Routes (Backend)
+│   │   │
+│   │   ├── 📁 manga/
+│   │   │   ├── 📁 [mangaId]/
+│   │   │   │   ├── 📄 chapters/route.ts       # GET chapters for manga
+│   │   │   │   └── 📄 coverArts/route.ts      # GET cover arts
+│   │   │   │
+│   │   │   ├── 📁 chapter/
+│   │   │   │   └── 📁 [chapterId]/
+│   │   │   │       └── 📄 pages/route.ts      # GET chapter images
+│   │   │   │
+│   │   │   ├── 📄 latest/route.ts             # GET latest manga updates
+│   │   │   ├── 📄 latestArrivals/route.ts     # GET new arrivals
+│   │   │   ├── 📄 random/route.ts             # GET random manga
+│   │   │   ├── 📄 titles/route.ts             # GET search results
+│   │   │   ├── 📄 UsersTop/route.ts           # GET top-rated manga
+│   │   │   ├── 📄 favourite/route.ts          # POST favorite manga
+│   │   │   ├── 📄 rating/route.ts             # GET manga ratings
+│   │   │   └── 📁 getAuthor/
+│   │   │       └── 📁 [authorId]/route.ts     # GET author info
+│   │   │
+│   │   ├── 📁 comments/
+│   │   │   └── 📄 latestActivity/route.ts     # 🕷️ Scrape forum activity
+│   │   │
+│   │   ├── 📁 readTextAndReplace/             # 🤖 OCR Engine API
+│   │   │   ├── 📄 route.ts                    # POST image for OCR
+│   │   │   ├── 📄 apiVersion.ts               # API versioning
+│   │   │   └── 📄 extra.ts                    # Extra OCR utilities
+│   │   │
+│   │   ├── 📁 translate/
+│   │   │   └── 📄 route.ts                    # POST text for translation
+│   │   │
+│   │   └── 📁 proxy/
+│   │       └── 📄 avatar/route.ts             # Proxy user avatars
+│   │
+│   ├── 📁 Components/                         # React Components
+│   │   │
+│   │   ├── 📄 TopNavbar.jsx                   # 🧭 Main navigation
+│   │   ├── 📁 TopNavbarComponents/
+│   │   │   ├── 📄 ProfilePop.jsx              # User menu dropdown
+│   │   │   ├── 📄 PreferencesPopUp.jsx        # Settings modal
+│   │   │   └── 📄 ComingSoonPopup.jsx         # Feature preview
+│   │   │
+│   │   ├── 📁 HomeComponents/
+│   │   │   └── 📄 LandingContent.jsx          # 🏠 Landing page content
+│   │   │
+│   │   ├── 📁 MangaListComponents/            # 📚 Manga List Module
+│   │   │   ├── 📄 MangaCard.jsx               # Manga card display
+│   │   │   ├── 📄 MangaCardPagination.jsx     # Pagination UI
+│   │   │   ├── 📄 LatestActivityComments.jsx  # 💬 Forum activity feed
+│   │   │   ├── 📄 MangaReadHistory.jsx        # Reading progress
+│   │   │   ├── 📄 AsideComponent.jsx          # Sidebar (top lists)
+│   │   │   └── 📄 SliderComponent.jsx         # Random recommendations
+│   │   │
+│   │   ├── 📁 MangaChaptersComponents/        # 📄 Manga Chapters Module
+│   │   │   ├── 📄 TabsAndSections.jsx         # Tab navigation
+│   │   │   ├── 📄 ChapterList.jsx             # Filterable chapter list
+│   │   │   ├── 📄 CommentsOnManga.jsx         # 💬 Forum discussions
+│   │   │   └── 📄 CoverArts.jsx               # 🖼️ Cover gallery
+│   │   │
+│   │   ├── 📁 ReadChapterComponents/          # 📺 Read Chapter Module (⭐ MAIN)
+│   │   │   ├── 📄 MiddleImageAndOptions.jsx   # Main image viewer
+│   │   │   ├── 📄 SideBar.jsx                 # Info sidebar
+│   │   │   ├── 📁 SideBarModules/
+│   │   │   │   ├── 📄 ChaptersQuickSelect.jsx # Chapter dropdown
+│   │   │   │   └── 📄 CollapsedSideBarStrip.jsx # Minimized view
+│   │   │   ├── 📄 TopRightOptions.jsx         # Reader controls
+│   │   │   ├── 📁 TopRightOptionsModules/
+│   │   │   │   ├── 📄 ChapterQuickSelect.jsx  # Quick switcher
+│   │   │   │   └── 📄 ShowSettingsPopUp.jsx   # Settings panel
+│   │   │   ├── 📄 BottomPagesNavigation.jsx   # Page controls
+│   │   │   ├── 📄 OCROverlay.jsx              # 🤖 OCR translation overlay
+│   │   │   ├── 📄 ScanningOverlay.jsx         # OCR processing UI
+│   │   │   ├── 📄 TextToSpeech.jsx            # 🗣️ TTS controls
+│   │   │   ├── 📄 Audiotest.jsx               # Audio testing
+│   │   │   ├── 📄 Placeholder.jsx             # Loading placeholder
+│   │   │   └── 📄 GOTONextChapterPopUpAtLastPage.jsx # Chapter end prompt
+│   │   │
+│   │   ├── 📁 SearchPageComponents/           # 🔍 Search Module
+│   │   │   ├── 📄 SearchAndTotalFilterOptions.jsx # Search bar + filters
+│   │   │   ├── 📄 SearchMangaCardWith2ViewMode.jsx # Grid/List toggle
+│   │   │   ├── 📁 SearchMangaCardWith2ViewModeModules/
+│   │   │   │   ├── 📄 SearchMangaCard.jsx     # Card view
+│   │   │   │   └── 📄 SearchMangaList.jsx     # List view
+│   │   │   ├── 📁 SearchTotalAndFilterOptionsModules/
+│   │   │   │   ├── 📄 FilterCustomDropDown.jsx # Filter dropdowns
+│   │   │   │   └── 📄 ThemeGenreTags.jsx      # Tag filters
+│   │   │   └── 📄 BottomPagination.jsx        # Pagination
+│   │   │
+│   │   ├── 📁 LibraryComponents/              # 📚 Library Module
+│   │   │   ├── 📄 ReadingHistory.jsx          # History main view
+│   │   │   ├── 📄 ReadingHistoryCard.jsx      # History card
+│   │   │   ├── 📄 BookMarkedSection.jsx       # Bookmarks view
+│   │   │   ├── 📄 BookmarkCard.jsx            # Bookmark card
+│   │   │   ├── 📄 FavoriteChaptersCard.jsx    # Favorites list
+│   │   │   ├── 📄 SearchHistory.jsx           # Search history
+│   │   │   ├── 📄 SelectedMangaCard.jsx       # Manga selector
+│   │   │   ├── 📄 FilterPanel.jsx             # Filter controls
+│   │   │   ├── 📄 ConfirmationDialog.jsx      # Delete confirmations
+│   │   │   └── 📄 LibraryLoading.jsx          # Loading state
+│   │   │
+│   │   ├── 📁 Skeletons/                      # Loading Skeletons
+│   │   │   ├── 📁 MangaList/
+│   │   │   ├── 📁 MangaChapters/
+│   │   │   ├── 📁 ReadChapter/
+│   │   │   └── 📁 SearchPage/
+│   │   │
+│   │   ├── 📄 LoadingSpinner.jsx              # Generic spinner
+│   │   ├── 📄 StableFlag.jsx                  # Feature flags
+│   │   ├── 📄 Toasts.tsx                      # Toast notifications
+│   │   └── 📄 AnalyticsClient.tsx             # Google Analytics
+│   │
+│   ├── 📁 hooks/                              # Custom React Hooks
+│   │   ├── 📄 useMangaFetch.js                # Fetch manga details
+│   │   ├── 📄 useChaptersFetch.js             # Fetch chapters
+│   │   ├── 📄 useChapterPagesFetch.js         # Fetch chapter images
+│   │   ├── 📄 useMangaFilters.js              # Search filters logic
+│   │   ├── 📄 useMangaTitle.js                # Get manga title
+│   │   └── 📄 useInView.js                    # Intersection Observer
+│   │
+│   ├── 📁 providers/                          # Context Providers
+│   │   ├── 📄 TanstackProvider.tsx            # TanStack Query setup
+│   │   ├── 📄 ThemeContext.tsx                # Theme state
+│   │   ├── 📄 ThemeProviderClient.tsx         # Client theme provider
+│   │   ├── 📄 MangaContext.tsx                # Global manga state
+│   │   └── 📄 PreferencesContext.tsx          # User preferences
+│   │
+│   ├── 📁 util/                               # Utilities
+│   │   ├── 📄 imageOptimization.js            # Image optimization
+│   │   ├── 📁 MangaList/
+│   │   │   └── 📄 cache.js                    # Caching utilities
+│   │   └── 📁 ReadChapterUtils/
+│   │       ├── 📄 handleTranslate.js          # Translation logic
+│   │       └── 📄 sortAndjoinOCR.js           # OCR text sorting
+│   │
+│   ├── 📁 constants/                          # App Constants
+│   │   ├── 📄 filterOptions.js                # Search filter options
+│   │   ├── 📄 Flags.js                        # Feature flags
+│   │   └── 📄 TopFavouriteMangas.js           # Top manga list
+│   │
+│   ├── 📁 lib/
+│   │   └── 📄 gtag.ts                         # Google Analytics setup
+│   │
+│   ├── 📄 page.jsx                            # 🏠 Landing page (root)
+│   ├── 📄 not-found.jsx                       # Custom 404 page
+│   ├── 📄 layout.jsx                          # Root layout
+│   ├── 📄 globals.css                         # Global styles
+│   ├── 📄 manifest.ts                         # PWA manifest
+│   ├── 📄 robots.ts                           # SEO robots.txt
+│   ├── 📄 sitemap.ts                          # SEO sitemap
+│   └── 📄 favicon.ico                         # App icon
+│
+├── 📁 scripts/                                # 🤖 OCR Engine
+│   ├── 📁 models/                             # ONNX Models & Dictionaries
+│   │   │
+│   │   ├── 📄 ch_PP-OCRv4_det_infer.onnx      # Detection model (4.7 MB)
+│   │   │   # Used for detecting text regions in images
+│   │   │
+│   │   ├── 📄 ch_PP-OCRv4_rec_infer.onnx      # Chinese recognition (10.8 MB)
+│   │   ├── 📄 ch_dict.txt                     # Chinese chars (32,871)
+│   │   │
+│   │   ├── 📄 japan_PP-OCRv3_rec_infer.onnx   # Japanese recognition (10.0 MB)
+│   │   ├── 📄 japan_dict.txt                  # Japanese chars (21,729)
+│   │   │
+│   │   ├── 📄 korean_dict.txt                 # Korean chars (18,166)
+│   │   │   # Uses shared recognition model
+│   │   │
+│   │   ├── 📄 en_PP-OCRv4_rec_infer.onnx      # English recognition (7.6 MB)
+│   │   ├── 📄 en_dict.txt                     # English chars (283)
+│   │   │
+│   │   ├── 📄 latin_PP-OCRv3_rec_infer.onnx   # Latin recognition (8.9 MB)
+│   │   └── 📄 latin_dict.txt                  # Latin chars (651)
+│   │
+│   ├── 📄 index.js                            # OCR engine initialization
+│   └── 📄 main.js                             # OCR processing logic
+│
+├── 📁 public/                                 # Static Assets
+│   ├── 📄 logo.svg                            # App logo
+│   ├── 📄 placeholder.jpg                     # Image placeholder
+│   └── 📄 site.webmanifest                    # PWA manifest
+│
+├── 📁 livedemoimages/                         # README screenshots
+│
+├── 📄 package.json                            # Dependencies
+├── 📄 package-lock.json                       # Locked dependencies
+├── 📄 next.config.ts                          # Next.js config
+├── 📄 tsconfig.json                           # TypeScript config
+├── 📄 tailwind.config.ts                      # Tailwind config
+├── 📄 postcss.config.mjs                      # PostCSS config
+├── 📄 .eslintrc.json                          # ESLint config
+├── 📄 .eslintignore                           # ESLint ignore
+├── 📄 Dockerfile                              # Docker config
+├── 📄 global.d.ts                             # Global TypeScript types
+├── 📄 next-env.d.ts                           # Next.js types
+└── 📄 README.md                               # This file!
+```
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! Here's how:
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Commit changes: `git commit -m "Add amazing feature"`
+4. Push to branch: `git push origin feature/amazing-feature`
+5. Open a Pull Request
+
+Please run `npm run lint` before submitting.
+
+---
+
+## 📜 License
+
+Licensed under the MIT License - see [LICENSE](LICENSE) for details.
+
+**Copyright © 2025 AI Manga Reader**
+
+---
+
+## 🙏 Acknowledgments
+
+- **MangaDex** - For the open API and amazing community
+- **PaddleOCR** - For powerful OCR models
+- **onnxruntime-web** - For browser-based ML capabilities
+- **Google Translate** - For translation services
+- **Next.js** - For the incredible framework
+- **All Contributors** - Thank you for your support!
+
+---
+<div align="center">
+
+### Made with ❤️ by the AI Manga Reader Team
+
+*"Breaking language barriers, one manga panel at a time"* 🌏📚✨
+
+**[🚀 Start Reading Now](https://ai-mangareader.vercel.app/)** • **[⭐ Star on GitHub](https://github.com/VrajVyas11/AI_Manga_Reader)** • **[🤝 Contribute](https://github.com/VrajVyas11/AI_Manga_Reader/blob/main/CONTRIBUTING.md)**
+
+[![GitHub](https://img.shields.io/badge/GitHub-VrajVyas11-black?style=for-the-badge&logo=github)](https://github.com/VrajVyas11)
+[![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
+[![PRs Welcome](https://img.shields.io/badge/PRs-Welcome-brightgreen?style=for-the-badge)](https://github.com/VrajVyas11/AI_Manga_Reader/pulls)
+
+
+</div>
