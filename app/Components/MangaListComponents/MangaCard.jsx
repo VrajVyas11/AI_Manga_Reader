@@ -245,9 +245,9 @@ const Card = React.memo(({ manga, handleMangaClicked, isDark, priority = false }
 
                     {/* bottom gradient + title */}
                     <div
-                        className={`absolute inset-x-0 bottom-0 ${isDark ? "bg-gradient-to-t from-black to-transparent" : "bg-gradient-to-t from-gray-900/80 to-transparent"} p-2 sm:p-4`}
+                        className={`absolute inset-x-0 bottom-0 ${isDark ? "bg-gradient-to-t from-black to-transparent" : "bg-gradient-to-t from-gray-900/80 to-transparent"}  p-2 sm:p-4`}
                     >
-                        <h1 className="flex flex-row w-full font-bold items-center gap-3 sm:items-start justify-center text-[7px] sm:text-xs tracking-[2px] text-white">
+                        <h1 className="flex flex-row w-full font-bold items-center gap-3 sm:items-start justify-center text-[9px]  sm:text-xs tracking-[2px] text-white">
                             <StableFlag className="w-4 sm:w-7" code={manga.originalLanguage ?? 'UN'} />
                             {memoizedData.truncatedTitle}
                         </h1>

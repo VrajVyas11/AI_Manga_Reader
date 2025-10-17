@@ -175,7 +175,7 @@ const Home = () => {
                     href={`/manga/${manga?.id}/chapters`}
                     prefetch={true}
                     onClick={() => handleMangaClicked(manga)}
-                    className="bg-gray-800 text-[10px] sm:text-sm rounded-md px-3 py-2 m-1 hover:bg-opacity-45 hover:bg-purple-800 transition duration-200"
+                    className="bg-gray-800 text-xs sm:text-sm rounded-md px-3 py-2 m-1 hover:bg-opacity-45 hover:bg-purple-800 transition duration-200"
                   >
                     {title}
                   </Link>
