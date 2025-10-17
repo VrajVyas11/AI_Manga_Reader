@@ -29,6 +29,7 @@ wasm/
 BottomSettingsModules
 InfoSideBarModules
 app/Components/LibraryComponents/Temp.jsx
+ReadChapterSkeleton.jsx
 # testing
 /coverage
 apiVersion.ts

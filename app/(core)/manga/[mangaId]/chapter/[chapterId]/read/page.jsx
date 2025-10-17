@@ -1,9 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useRef, useMemo, memo } from 'react';
-import ReadChapterSkeleton from "../../../../../../Components/Skeletons/ReadChapter/ReadChapterSkeleton"
 import { useParams, useRouter } from 'next/navigation';
-// import Link from 'next/link';
 import { ArrowUp } from 'lucide-react';
 import { useManga } from '../../../../../../providers/MangaContext';
 import _TopRightOptions from "../../../../../../Components/ReadChapterComponents/TopRightOptions"
@@ -13,6 +11,9 @@ import _BottomPagesNavigation from "../../../../../../Components/ReadChapterComp
 import _SideBar from "../../../../../../Components/ReadChapterComponents/SideBar"
 import { useTheme } from '@/app/providers/ThemeContext';
 import GOTONextChapterPopUpAtLastPage from '../../../../../../Components/ReadChapterComponents/GOTONextChapterPopUpAtLastPage';
+import SidebarSkeleton from '../../../../../../Components/Skeletons/ReadChapter/SidebarSkeleton'; // Adjust path as needed
+import ContentSkeleton from '../../../../../../Components/Skeletons/ReadChapter/ContentSkeleton'; // Adjust path as needed
+
 const SideBar = memo(_SideBar);
 const MiddleImageAndOptions = memo(_MiddleImageAndOptions);
 const BottomPagesNavigation = memo(_BottomPagesNavigation);
@@ -23,7 +24,7 @@ export default function ReadChapter() {
   const { theme } = useTheme();
   const isDark = theme == "dark";
   const router = useRouter();
-  const [isCollapsed, setIsCollapsed] = useState(true);
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(true);
   const [layout, setLayout] = useState('horizontal');
   const [panels, setPanels] = useState(1);
@@ -49,12 +50,27 @@ export default function ReadChapter() {
 
   const { data: pages, isLoading, isError } = useChapterPagesFetch(chapterId)
 
+  const emptyPages = pages && (pages?.chapter?.data?.length == 0 || pages?.chapter?.dataSaver?.length == 0);
+
   // Initialize selectedLanguage when chapterInfo is available
   useEffect(() => {
     if (chapterInfo && !selectedLanguage) {
       setSelectedLanguage(chapterInfo.translatedLanguage);
     }
   }, [chapterInfo, selectedLanguage]);
+
+  // Responsive collapsed state based on screen width < 500px
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const handleResize = () => {
+        setIsCollapsed(window.innerWidth < 500);
+      };
+
+      handleResize();
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+    }
+  }, []);
 
   // console.log(selectedMemoManga);
 
@@ -207,14 +223,13 @@ export default function ReadChapter() {
   ]);
 
   return (
-    chapterId && mangaId && pages && !isError && chapterInfo && !isLoading ? (
-      <div
-        className={`tracking-wider ${isDark ? "bg-black/20  text-white" : "bg-white text-black"} relative z-20 flex flex-row w-full h-[92vh] md:h-[91.3vh] justify-between items-start -mt-5   overflow-hidden`}
-      >
+    <div
+      className={`tracking-wider ${isDark ? "bg-black/20  text-white" : "bg-white text-black"} relative z-20 flex flex-row w-full h-[92vh] md:h-[91.3vh] justify-between items-start -mt-5   overflow-hidden`}
+    >
+      {chapterInfo ? (
         <SideBar
           panels={panels}
           isDark={isDark}
-          pages={pages && (quality === "low" ? pages?.chapter?.dataSaver : pages?.chapter?.data)}
           setCurrentIndex={setCurrentIndex}
           currentIndex={currentIndex}
           allChapters={chapters}
@@ -234,120 +249,123 @@ export default function ReadChapter() {
           selectedLanguage={selectedLanguage}
           setSelectedLanguage={setSelectedLanguage}
         />
-        {pages && (pages?.chapter?.data?.length == 0 || pages?.chapter?.dataSaver?.length == 0) ?
-          (
-            <div className="flex flex-col inset-0 absolute items-center justify-center py-8 px-4 text-center">
-              <h2 className="text-xl font-semibold text-red-500 mb-2">No Manga Panels Available</h2>
-              <p className="text-gray-600 mb-6 max-w-md">
-                Oops! It looks like there are no manga panels to display right now. Try searching for something else or check back later.
-              </p>
-            </div>
-          )
-          : (
+      ) : (
+        <SidebarSkeleton isDark={isDark} isCollapsed={isCollapsed} />
+      )}
+      {chapterInfo && pages && !isError && !isLoading ? (
+        emptyPages ? (
+          <div className="flex flex-col inset-0 absolute items-center justify-center py-8 px-4 text-center z-10">
+            <h2 className="text-xl font-semibold text-red-500 mb-2">No Manga Panels Available</h2>
+            <p className={`${isDark ? 'text-gray-400' : 'text-gray-600'} mb-6 max-w-md`}>
+              Oops! It looks like there are no manga panels to display right now. Try searching for something else or check back later.
+            </p>
+          </div>
+        ) : (
+          <div
+            className="tracking-wider  flex flex-col flex-grow min-w-0 h-full w-full max-w-full  scrollbar-thin scrollbar-thumb-purple-600 scrollbar-track-gray-900"
+          >
+            {settingsOpen && <TopRightOptions
+              isDark={isDark}
+              allAtOnce={allAtOnce}
+              quality={quality}
+              isCollapsed={isCollapsed}
+              setQuality={setQuality}
+              allChapters={chapters}
+              addToReadHistory={addToReadHistory}
+              showTranslationTextOverlay={showTranslationTextOverlay}
+              setShowTranslationTextOverlay={setShowTranslationTextOverlay}
+              currentChapterIndex={currentChapterIndex}
+              hasNextChapter={hasNextChapter}
+              hasPrevChapter={hasPrevChapter}
+              handleChapterClick={handleChapterClick}
+              chapterInfo={chapterInfo}
+              mangaInfo={selectedMemoManga}
+              setAllAtOnce={setAllAtOnce}
+              currentIndex={currentIndex}
+              layout={layout}
+              panels={panels}
+              setCurrentIndex={setCurrentIndex}
+              setLayout={setLayout}
+              setPanels={setPanels}
+              setShowTranslationAndSpeakingOptions={setShowTranslationAndSpeakingOptions}
+              showTranslationAndSpeakingOptions={showTranslationAndSpeakingOptions}
+            />}
             <div
-              className="tracking-wider  flex flex-col flex-grow min-w-0 h-full w-full max-w-full  scrollbar-thin scrollbar-thumb-purple-600 scrollbar-track-gray-900"
-            >
-              {settingsOpen && <TopRightOptions
+              ref={scrollContainerRef}
+              style={{
+                scrollbarWidth: "none",
+                scrollbarColor: "rgba(155, 89, 182, 0.6) rgba(0, 0, 0, 0.1)",
+              }}
+              className={`flex items-center justify-center    my-auto h-full  overflow-y-auto min-w-0 max-w-full `}>
+              {currentIndex == (quality === "low" ? pages?.chapter?.dataSaver?.length - 1 : pages?.chapter?.data?.length - 1) && <GOTONextChapterPopUpAtLastPage
                 isDark={isDark}
-                allAtOnce={allAtOnce}
-                quality={quality}
-                isCollapsed={isCollapsed}
-                setQuality={setQuality}
-                allChapters={chapters}
-                addToReadHistory={addToReadHistory}
+                onNext={goToNextChapter}
+                autoAdvanceTime={10}
+              />
+              }
+              <MiddleImageAndOptions
+                setCurrentIndex={setCurrentIndex}
+                isDark={isDark}
+                layout={layout}
+                isLoading={isLoading}
+                pages={pages}
                 showTranslationTextOverlay={showTranslationTextOverlay}
-                setShowTranslationTextOverlay={setShowTranslationTextOverlay}
-                currentChapterIndex={currentChapterIndex}
-                hasNextChapter={hasNextChapter}
-                hasPrevChapter={hasPrevChapter}
-                handleChapterClick={handleChapterClick}
+                showTranslationAndSpeakingOptions={showTranslationAndSpeakingOptions}
+                quality={quality}
+                currentIndex={currentIndex}
+                panels={panels}
                 chapterInfo={chapterInfo}
-                mangaInfo={selectedMemoManga}
-                setAllAtOnce={setAllAtOnce}
+                pageTranslations={pageTranslations}
+                setPageTranslations={setPageTranslations}
+                pageTTS={pageTTS}
+                setPageTTS={setPageTTS}
+                isItTextToSpeech={isItTextToSpeech}
+                setIsItTextToSpeech={setIsItTextToSpeech}
+                allAtOnce={allAtOnce}
+                isCollapsed={isCollapsed}
+                goToPrevChapter={goToPrevChapter}
+                hasPrevChapter={hasPrevChapter}
+                goToNextChapter={goToNextChapter}
+                hasNextChapter={hasNextChapter}
+                className="min-w-0 max-w-full"
+              />
+            </div>
+
+            <div className="flex-shrink-0 relative z-50 w-full max-w-full">
+              <BottomPagesNavigation
+                isDark={isDark}
+                setCurrentIndex={setCurrentIndex}
                 currentIndex={currentIndex}
                 layout={layout}
                 panels={panels}
-                setCurrentIndex={setCurrentIndex}
-                setLayout={setLayout}
-                setPanels={setPanels}
-                setShowTranslationAndSpeakingOptions={setShowTranslationAndSpeakingOptions}
-                showTranslationAndSpeakingOptions={showTranslationAndSpeakingOptions}
-              />}
-              <div
-                ref={scrollContainerRef}
-                style={{
-                  scrollbarWidth: "none",
-                  scrollbarColor: "rgba(155, 89, 182, 0.6) rgba(0, 0, 0, 0.1)",
-                }}
-                className={`flex items-center justify-center    my-auto h-full  overflow-y-auto min-w-0 max-w-full `}>
-                {currentIndex == (quality === "low" ? pages?.chapter?.dataSaver?.length - 1 : pages?.chapter?.data?.length - 1) && <GOTONextChapterPopUpAtLastPage
-                  isDark={isDark}
-                  onNext={goToNextChapter}
-                  autoAdvanceTime={10}
-                />
-                }
-                <MiddleImageAndOptions
-                  setCurrentIndex={setCurrentIndex}
-                  isDark={isDark}
-                  layout={layout}
-                  isLoading={isLoading}
-                  pages={pages}
-                  showTranslationTextOverlay={showTranslationTextOverlay}
-                  showTranslationAndSpeakingOptions={showTranslationAndSpeakingOptions}
-                  quality={quality}
-                  currentIndex={currentIndex}
-                  panels={panels}
-                  chapterInfo={chapterInfo}
-                  pageTranslations={pageTranslations}
-                  setPageTranslations={setPageTranslations}
-                  pageTTS={pageTTS}
-                  setPageTTS={setPageTTS}
-                  isItTextToSpeech={isItTextToSpeech}
-                  setIsItTextToSpeech={setIsItTextToSpeech}
-                  allAtOnce={allAtOnce}
-                  isCollapsed={isCollapsed}
-                  goToPrevChapter={goToPrevChapter}
-                  hasPrevChapter={hasPrevChapter}
-                  goToNextChapter={goToNextChapter}
-                  hasNextChapter={hasNextChapter}
-                  className="min-w-0 max-w-full"
-                />
-              </div>
-
-              <div className="flex-shrink-0 relative z-50 w-full max-w-full">
-                <BottomPagesNavigation
-                  isDark={isDark}
-                  setCurrentIndex={setCurrentIndex}
-                  currentIndex={currentIndex}
-                  layout={layout}
-                  panels={panels}
-                  pages={pages && (quality === "low" ? pages?.chapter?.dataSaver : pages?.chapter?.data)}
-                />
-                {layout === "vertical" && (
-                  <button
-                    className={`tracking-wider cursor-pointer fixed bottom-5 right-3 md:bottom-12 md:right-8 w-12 h-12 md:w-16 md:h-16 rounded-full border-4 flex items-center justify-center duration-300 hover:rounded-[50px] hover:w-24 group/button overflow-hidden active:scale-90 ${isDark
-                      ? "border-violet-200 bg-black"
-                      : "border-purple-600 bg-white"
-                      }`}
-                    onClick={() => {
-                      if (scrollContainerRef.current) {
-                        scrollContainerRef.current.scrollTo({ top: 0, behavior: "smooth" });
-                      }
-                    }}
-                  >
-                    <ArrowUp className={`tracking-wider w-3 h-4 fill-current delay-50 duration-200 group-hover/button:-translate-y-12 ${isDark ? "text-white" : "text-gray-800"
-                      }`} />
-                    <span className={`tracking-wider font-semibold absolute text-xs opacity-0 group-hover/button:opacity-100 transition-opacity duration-200 ${isDark ? "text-white" : "text-gray-800"
-                      }`}>
-                      Top
-                    </span>
-                  </button>
-                )}
-              </div>
-            </div>)}
-      </div>
-    ) : (
-      <ReadChapterSkeleton isDark={isDark} />
-    )
+                pages={pages && (quality === "low" ? pages?.chapter?.dataSaver : pages?.chapter?.data)}
+              />
+              {layout === "vertical" && (
+                <button
+                  className={`tracking-wider cursor-pointer fixed bottom-5 right-3 md:bottom-12 md:right-8 w-12 h-12 md:w-16 md:h-16 rounded-full border-4 flex items-center justify-center duration-300 hover:rounded-[50px] hover:w-24 group/button overflow-hidden active:scale-90 ${isDark
+                    ? "border-violet-200 bg-black"
+                    : "border-purple-600 bg-white"
+                    }`}
+                  onClick={() => {
+                    if (scrollContainerRef.current) {
+                      scrollContainerRef.current.scrollTo({ top: 0, behavior: "smooth" });
+                    }
+                  }}
+                >
+                  <ArrowUp className={`tracking-wider w-3 h-4 fill-current delay-50 duration-200 group-hover/button:-translate-y-12 ${isDark ? "text-white" : "text-gray-800"
+                    }`} />
+                  <span className={`tracking-wider font-semibold absolute text-xs opacity-0 group-hover/button:opacity-100 transition-opacity duration-200 ${isDark ? "text-white" : "text-gray-800"
+                    }`}>
+                    Top
+                  </span>
+                </button>
+              )}
+            </div>
+          </div>
+        )
+      ) : (
+        <ContentSkeleton isDark={isDark} />
+      )}
+    </div>
   );
 }
