@@ -55,6 +55,11 @@
 - 💯 **100% Free** - No API keys, no subscriptions, completely open source
 
 ---
+# 📊 Website Performance Overview
+
+| 🚀 Google Analytics User Statistics | ⚡ Lighthouse Performance Scores |
+|:---:|:---:|
+| **Description**: This section showcases key user engagement metrics from Google Analytics, highlighting traffic sources, active users, session duration, and conversion rates to demonstrate the site's overall user growth and retention performance.<br><br>![Google Analytics dashboard showing user statistics like sessions, users, and pageviews](livedemoimages/stats.png) | **Description**: Lighthouse audits provide core web vitals and performance insights, scoring the site on loading speed, accessibility, SEO, and best practices to ensure a smooth, optimized user experience across devices.<br><br>![Lighthouse performance report with scores for Performance, Accessibility, Best Practices, and SEO](livedemoimages/performance.png)
 
 ## 📸 Screenshots
 
