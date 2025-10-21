@@ -1,60 +1,65 @@
 # 🌌 AI Manga Reader
 
-
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
-[![Live Demo](https://img.shields.io/badge/Live-Vercel-brightgreen.svg?style=for-the-badge)](https://ai-mangareader.vercel.app/)
-[![Live Demo](https://img.shields.io/badge/Live-Railway-violet.svg?style=for-the-badge)](https://aimangareader-production.up.railway.app/)
-[![Live Demo](https://img.shields.io/badge/Live-Render-red.svg?style=for-the-badge)](https://ai-manga-reader.onrender.com/)
-[![GitHub Stars](https://img.shields.io/github/stars/VrajVyas11/AI_Manga_Reader?style=social)](https://github.com/VrajVyas11/AI_Manga_Reader/stargazers)
-[![GitHub Forks](https://img.shields.io/github/forks/VrajVyas11/AI_Manga_Reader?style=social)](https://github.com/VrajVyas11/AI_Manga_Reader/network)
-
-### 🔥**Unleash the Manga Multiverse—Where AI Meets Epic Storytelling!**  
-> 🚀 **AI Manga Reader** isn't your average reader—it's a Next.js juggernaut that catapults you into endless realms of manga, manhwa, and manhua, all powered by the MangaDex API. Flip through vertical scrolls, horizontal epics, single panels, or dual-view spreads that adapt to *your* vibe.  
+**🚨 **PROJECT PAUSED: Legal & DMCA Concerns with MangaDex** 🚨**  
+> ⚠️ **Important Notice**: Due to potential legal risks tied to MangaDex's operation in a legal gray area—aggregating fan-translated content that could attract DMCA takedowns or regulatory scrutiny—further development of AI Manga Reader has been **paused indefinitely**. While the project doesn't host content, relying on MangaDex's API and scraping exposes it (and its creator) to risks, especially with personal identity publicly linked via GitHub. Platforms like LibGen face similar issues for enabling access without hosting, and individuals can become easy targets.  
 >  
-> But wait— the real thrill? **AI OCR for the ultimate lazy mode**: Extract text from raw panels so you can *listen* without lifting a finger. Or go pro with **OCR + Instant Translate + Smart Overlay** for those bleeding-edge, untranslated chapters dropping in Japanese or Korean. Boom—seamless English overlays right on the art, no apps, no hassle. Our custom ONNX engine runs it all in-browser, blazing fast and zero privacy leaks.  
+> The project remains open-source for educational purposes only. **We strongly recommend using official publishers (e.g., Viz Media, Yen Press) or licensed platforms (e.g., Crunchyroll, BookWalker) to support creators ethically.** No new features will be added, and existing deployments may be discontinued. Consult a legal expert for advice on similar projects. For more context, see our [Legal Disclaimer](#-legal-disclaimer) below.  
 >  
-> Craving community heat? Scraped MangaDex forums bring live discussions to your feed. And with 20+ AI voices via TTS, your mangas *speak*—custom speeds, languages, pure immersion. Your library? A brainy vault tracking history, bookmarks, and faves with filters that slice like a katana. Ready to level up your reads? Dive in—your next obsession awaits.  
+> *Original tagline preserved for archival: "Unleash the Manga Multiverse—Where AI Meets Epic Storytelling!"* But please prioritize legal reading options.
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)  [![Live Demo (Read-Only, May Be Deprecated)](https://img.shields.io/badge/Live-Vercel-brightgreen.svg?style=for-the-badge)](https://ai-mangareader.vercel.app/)  [![Live Demo (Read-Only, May Be Deprecated)](https://img.shields.io/badge/Live-Railway-violet.svg?style=for-the-badge)](https://aimangareader-production.up.railway.app/)  [![Live Demo (Read-Only, May Be Deprecated)](https://img.shields.io/badge/Live-Render-red.svg?style=for-the-badge)](https://ai-manga-reader.onrender.com/)  [![GitHub Stars](https://img.shields.io/github/stars/VrajVyas11/AI_Manga_Reader?style=social)](https://github.com/VrajVyas11/AI_Manga_Reader/stargazers)  [![GitHub Forks](https://img.shields.io/github/forks/VrajVyas11/AI_Manga_Reader?style=social)](https://github.com/VrajVyas11/AI_Manga_Reader/network)
+
+### 🔥**Unleash the Manga Multiverse—Where AI Meets Epic Storytelling!** *(Archived Description)*  
+> 🚀 **AI Manga Reader** isn't your average reader—it's a Next.js juggernaut that catapults you into endless realms of manga, manhwa, and manhua, all powered by the MangaDex API. Flip through vertical scrolls, horizontal epics, single panels, or dual-view spreads that adapt to *your* vibe. **⚠️ Note: Development paused due to MangaDex's gray-area status (see Wikipedia for context: [MangaDex](https://en.wikipedia.org/wiki/MangaDex)). This could expose users/creators to legal risks like DMCA takedowns, as it eases access to fan-translated content without hosting it.**  
+>  
+> But wait— the real thrill? **AI OCR for the ultimate lazy mode**: Extract text from raw panels so you can *listen* without lifting a finger. Or go pro with **OCR + Instant Translate + Smart Overlay** for those bleeding-edge, untranslated chapters dropping in Japanese or Korean. Boom—seamless English overlays right on the art, no apps, no hassle. Our custom ONNX engine runs it all in-browser, blazing fast and zero privacy leaks. **🚨 Legal Caution: Features like real-time translation of unofficial scans may violate copyright laws in some jurisdictions. Use at your own risk—prefer official sources.**  
+>  
+> Craving community heat? Scraped MangaDex forums bring live discussions to your feed. And with 20+ AI voices via TTS, your mangas *speak*—custom speeds, languages, pure immersion. Your library? A brainy vault tracking history, bookmarks, and faves with filters that slice like a katana. **⚠️ Paused Project: No updates; potential for service shutdown due to regulatory issues.** Ready to level up your reads? Dive in—your next obsession awaits... **ethically, via licensed platforms.**
 
 ---
 
-## 🎯 What Makes Us Different?
+## 🎯 What Makes Us Different? *(Archived)*
 
-### 💥 The Problem
-- Latest manga chapters drop in Japanese/Korean/Chinese
-- Official translations take months
-- You miss out on reading your favorite series
+### 💥 The Problem *(With Added Context)*
+- Latest manga chapters drop in Japanese/Korean/Chinese  
+- Official translations take months  
+- You miss out on reading your favorite series  
+**⚠️ Added Risk**: Fan sites like MangaDex operate in a legal gray area, aggregating unofficial translations. Tools that enhance accessibility (e.g., via AI) can draw scrutiny, as seen with LibGen's bans—despite not hosting content, they enable easier access and face takedowns. Personal association with such projects heightens liability.
 
-### ⚡ Our Solution
+### ⚡ Our Solution *(Paused Development)*
 
-**Two Powerful Modes:**
+**Two Powerful Modes:** *(For educational viewing only—use official alternatives)*
 
-🗣️ **Listen Mode** - For casual reading
-- AI voices read manga panels aloud (20+ voices)
-- Perfect for multitasking while commuting, cooking, or exercising
-- Adjustable speed and auto-advance to next page
+🗣️ **Listen Mode** - For casual reading  
+- AI voices read manga panels aloud (20+ voices)  
+- Perfect for multitasking while commuting, cooking, or exercising  
+- Adjustable speed and auto-advance to next page  
+**🚨 Disclaimer**: Relies on MangaDex-sourced content; potential DMCA exposure if misused.
 
-🌍 **Translation Mode** - For latest untranslated chapters
-- **Instant OCR** detects all text in manga panels
-- **Real-time translation** to 100+ languages
-- **Perfect overlay** shows translated text right on the original image
-- Read the latest chapter the day it drops, in YOUR language!
+🌍 **Translation Mode** - For latest untranslated chapters  
+- **Instant OCR** detects all text in manga panels  
+- **Real-time translation** to 100+ languages  
+- **Perfect overlay** shows translated text right on the original image  
+- Read the latest chapter the day it drops, in YOUR language!  
+**⚠️ Legal Pause Reason**: This mode directly facilitates access to untranslated (often pirated) scans, mirroring LibGen's issues. Development halted to avoid personal legal trouble.
+
+---
+
+## 🔥 Key Features *(Educational/Archived—Development Paused)*
+
+- 🤖 **Custom AI OCR Engine** - Built with onnxruntime-web and PaddleOCR models, runs entirely in your browser **⚠️ (Paused: Legal risks with unofficial content processing)**  
+- 🌐 **100+ Languages** - Translate from Japanese, Korean, Chinese to any language instantly **🚨 (Caution: May infringe copyrights on fan translations)**  
+- 🗣️ **20+ AI Voices** - Listen to manga with customizable voices, speed, and pitch **⚠️ (Uses MangaDex data—gray area)**  
+- 💬 **Live Community Feed** - See what fans are discussing via scraped MangaDex forums **🚨 (Scraping may violate terms; paused)**  
+- 📚 **Smart Library** - Track reading history, bookmarks, and favorite chapters  
+- 🎨 **Dark & Light Themes** - Beautiful, eye-friendly designs for any time  
+- 📱 **Fully Responsive** - Perfect experience on desktop, tablet, and mobile  
+- ⚡ **Lightning Fast** - Server-side rendering with TanStack Query for instant loads  
+- 🔒 **Privacy First** - All OCR processing happens locally in your browser  
+- 💯 **100% Free** - No API keys, no subscriptions, completely open source **⚠️ (But paused due to DMCA/MangaDex legal concerns)**
 
 ---
 
-## 🔥 Key Features
-
-- 🤖 **Custom AI OCR Engine** - Built with onnxruntime-web and PaddleOCR models, runs entirely in your browser
-- 🌐 **100+ Languages** - Translate from Japanese, Korean, Chinese to any language instantly
-- 🗣️ **20+ AI Voices** - Listen to manga with customizable voices, speed, and pitch
-- 💬 **Live Community Feed** - See what fans are discussing via scraped MangaDex forums
-- 📚 **Smart Library** - Track reading history, bookmarks, and favorite chapters
-- 🎨 **Dark & Light Themes** - Beautiful, eye-friendly designs for any time
-- 📱 **Fully Responsive** - Perfect experience on desktop, tablet, and mobile
-- ⚡ **Lightning Fast** - Server-side rendering with TanStack Query for instant loads
-- 🔒 **Privacy First** - All OCR processing happens locally in your browser
-- 💯 **100% Free** - No API keys, no subscriptions, completely open source
-
----
 # 📊 Website Performance Overview
 
 | 🚀 Google Analytics User Statistics | ⚡ Lighthouse Performance Scores |
@@ -495,13 +500,13 @@ Open http://localhost:3000 in your browser. That's it!
 - Library management
 - Server-side rendering
 
-**🚀 In Progress:**
+**🚫 Paused/In Progress:** *(All Halted Due to MangaDex/DMCA Concerns)*
 - Improved OCR accuracy for stylized fonts
 - Offline reading mode
 - Enhanced TTS with emotional tones
 - Social sharing features
 
-**📅 Planned:**
+**📅 Planned:** *(Cancelled—Prioritize Official Support)*
 - User accounts and cloud sync
 - AI-powered recommendations
 - MyAnimeList integration
@@ -754,6 +759,8 @@ We welcome contributions! Here's how:
 
 Please run `npm run lint` before submitting.
 
+**⚠️ Pause Note**: Contributions limited to non-MangaDex enhancements only—consult legal before forking.
+
 ---
 
 ## 📜 License
@@ -774,17 +781,33 @@ Licensed under the MIT License - see [LICENSE](LICENSE) for details.
 - **All Contributors** - Thank you for your support!
 
 ---
+
+## ⚖️ Legal Disclaimer
+
+**🚨 Critical Warning**: This project was built with good intentions (accessibility for global readers) but relies heavily on MangaDex, a fan-translation aggregator in a legal gray area (see [Wikipedia](https://en.wikipedia.org/wiki/MangaDex)). It doesn't host content but uses its API/scraping for discovery, metadata, forums, and images—which could be viewed as enabling access, drawing DMCA or infringement claims (e.g., US fair use limited; EU stricter).  
+
+From our conversation:  
+- "Even if a project doesn’t host content, making it easily accessible can attract legal scrutiny" (LibGen parallel).  
+- Personal identity linkage is key risk—"the person who is in reach is made an example," especially with GitHub tying name to repo.  
+
+**Recommendations**:  
+- Switch to official sources: Viz, Kodansha, Crunchyroll.  
+- For devs: Replace MangaDex with licensed APIs; use pseudonyms.  
+- I'm not a lawyer—seek professional advice. Development paused to protect creator from targeting.  
+
+*Project archived for education; no endorsement of MangaDex use.*
+
+---
 <div align="center">
 
-### Made with ❤️ by the AI Manga Reader Team
+### Made with ❤️ by the AI Manga Reader Team *(Now on Hiatus)*
 
-*"Breaking language barriers, one manga panel at a time"* 🌏📚✨
+*"Breaking language barriers, one manga panel at a time"* 🌏📚✨ **—Ethically, without gray-zone risks.**
 
-**[🚀 Start Reading Now](https://ai-mangareader.vercel.app/)** • **[⭐ Star on GitHub](https://github.com/VrajVyas11/AI_Manga_Reader)** • **[🤝 Contribute](https://github.com/VrajVyas11/AI_Manga_Reader/blob/main/CONTRIBUTING.md)**
+**[🚀 Explore Official Manga](https://www.viz.com/)** • **[⭐ Star on GitHub (Archival)](https://github.com/VrajVyas11/AI_Manga_Reader)** (https://github.com/VrajVyas11/AI_Manga_Reader/blob/main/CONTRIBUTING.md)**
 
 [![GitHub](https://img.shields.io/badge/GitHub-VrajVyas11-black?style=for-the-badge&logo=github)](https://github.com/VrajVyas11)
 [![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-Welcome-brightgreen?style=for-the-badge)](https://github.com/VrajVyas11/AI_Manga_Reader/pulls)
-
 
 </div>
